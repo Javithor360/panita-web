@@ -1,16 +1,38 @@
-import { Filter, Search } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Filter } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
 import { EDITIONS, CATEGORIES } from "@/lib/constants";
 
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => (currentYear - i).toString());
+const DEFAULT_OPEN = ["editions", "categories", "years"];
+
 export function MobileFilterSheet() {
+  const [selectedEditions, setSelectedEditions] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedYears, setSelectedYears] = useState<string[]>([]);
+
+  const toggleEdition = (id: string) => {
+    setSelectedEditions(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleCategory = (id: string) => {
+    setSelectedCategories(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleYear = (year: string) => {
+    setSelectedYears(prev => prev.includes(year) ? prev.filter(y => y !== year) : [...prev, year]);
+  };
+
   return (
     <Sheet>
       <SheetTrigger render={
-        <button className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "lg:hidden flex items-center gap-2 h-9 border border-muted/30")}>
+        <button className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "md:hidden flex items-center gap-2 h-9 border border-muted/30 bg-muted/30")}>
           <Filter className="size-4" />
           Filter results...
         </button>
@@ -22,61 +44,88 @@ export function MobileFilterSheet() {
             Filtros
           </SheetTitle>
         </SheetHeader>
-
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <input 
-            type="text" 
-            placeholder="Buscar foto o autor..." 
-            className="w-full bg-muted/20 border border-muted/30 rounded-md py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors placeholder:text-muted-foreground"
-          />
-        </div>
         
-        <Accordion type="multiple" defaultValue={["editions", "categories"]} className="w-full">
+        <Accordion multiple defaultValue={DEFAULT_OPEN} className="w-full flex flex-col gap-4">
           {/* Editions Filter */}
-          <AccordionItem value="editions" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-2 text-sm font-bold text-foreground hover:text-primary transition-colors">
-              Ediciones
+          <AccordionItem value="editions" className="border border-white/5 bg-background/60 backdrop-blur-md rounded-[0.5rem] px-4 py-1">
+            <AccordionTrigger className="hover:no-underline py-3 text-lg font-bold text-foreground transition-colors">
+              Edición
             </AccordionTrigger>
-            <AccordionContent className="pt-3 pb-4 flex flex-col gap-4">
+            <AccordionContent className="pt-2 pb-3 flex flex-col gap-1">
               {EDITIONS.map((edition) => {
                 const Icon = edition.iconComponent;
+                const isSelected = selectedEditions.includes(edition.id);
+                
                 return (
-                  <div key={edition.id} className="flex items-center space-x-3 group cursor-pointer">
-                    <Checkbox id={`mob-edition-${edition.id}`} className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-muted-foreground/40 w-5 h-5" />
-                    <label 
-                      htmlFor={`mob-edition-${edition.id}`} 
-                      className="text-base font-medium leading-none flex items-center gap-3 cursor-pointer text-muted-foreground group-hover:text-foreground transition-colors w-full"
-                    >
-                      <Icon className="size-5 opacity-70 group-hover:opacity-100 transition-opacity" />
-                      {edition.label}
-                    </label>
-                  </div>
+                  <button
+                    key={edition.id}
+                    onClick={() => toggleEdition(edition.id)}
+                    className={cn(
+                      "flex items-center space-x-3 w-full px-3 py-2 rounded-md transition-all text-sm cursor-pointer",
+                      isSelected 
+                        ? "bg-primary/20 text-primary font-semibold" 
+                        : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
+                    )}
+                  >
+                    <Icon className={cn("size-4 transition-opacity", isSelected ? "opacity-100" : "opacity-70")} />
+                    <span>{edition.label}</span>
+                  </button>
                 )
               })}
             </AccordionContent>
           </AccordionItem>
 
           {/* Categories Filter */}
-          <AccordionItem value="categories" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-2 text-sm font-bold text-foreground hover:text-primary transition-colors mt-4">
-              Categorías
+          <AccordionItem value="categories" className="border border-white/5 bg-background/60 backdrop-blur-md rounded-[0.5rem] px-4 py-1">
+            <AccordionTrigger className="hover:no-underline py-3 text-lg font-bold text-foreground transition-colors">
+              Etiquetas
             </AccordionTrigger>
-            <AccordionContent className="pt-3 pb-4 flex flex-col gap-4">
+            <AccordionContent className="pt-2 pb-3 flex flex-col gap-1">
               {CATEGORIES.map((cat) => {
                 const Icon = cat.iconComponent;
+                const isSelected = selectedCategories.includes(cat.id);
+                
                 return (
-                  <div key={cat.id} className="flex items-center space-x-3 group cursor-pointer">
-                    <Checkbox id={`mob-cat-${cat.id}`} className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-muted-foreground/40 w-5 h-5" />
-                    <label 
-                      htmlFor={`mob-cat-${cat.id}`} 
-                      className="text-base font-medium leading-none flex items-center gap-3 cursor-pointer text-muted-foreground group-hover:text-foreground transition-colors w-full"
-                    >
-                      <Icon className="size-5 opacity-70 group-hover:opacity-100 transition-opacity" />
-                      {cat.label}
-                    </label>
-                  </div>
+                  <button
+                    key={cat.id}
+                    onClick={() => toggleCategory(cat.id)}
+                    className={cn(
+                      "flex items-center space-x-3 w-full px-3 py-2 rounded-md transition-all text-sm cursor-pointer",
+                      isSelected 
+                        ? "bg-primary/20 text-primary font-semibold" 
+                        : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
+                    )}
+                  >
+                    <Icon className={cn("size-4 transition-opacity", isSelected ? "opacity-100" : "opacity-70")} />
+                    <span>{cat.label}</span>
+                  </button>
+                )
+              })}
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Years Filter */}
+          <AccordionItem value="years" className="border border-white/5 bg-background/60 backdrop-blur-md rounded-[0.5rem] px-4 py-1">
+            <AccordionTrigger className="hover:no-underline py-3 text-lg font-bold text-foreground transition-colors">
+              Año de publicación
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-3 flex flex-col gap-1">
+              {YEARS.map((year) => {
+                const isSelected = selectedYears.includes(year);
+                
+                return (
+                  <button
+                    key={year}
+                    onClick={() => toggleYear(year)}
+                    className={cn(
+                      "flex items-center space-x-3 w-full px-3 py-2 rounded-md transition-all text-sm cursor-pointer",
+                      isSelected 
+                        ? "bg-primary/20 text-primary font-semibold" 
+                        : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
+                    )}
+                  >
+                    <span>{year}</span>
+                  </button>
                 )
               })}
             </AccordionContent>
