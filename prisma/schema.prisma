@@ -2,24 +2,23 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 model Photo {
-  id          Int        @id @default(autoincrement())
+  id          String     @id @default(uuid())
   url         String
   description String?
   enabled     Boolean    @default(true)
   date_taken  DateTime?
   created_at  DateTime   @default(now())
 
-  author_id   Int
-  author      Author     @relation(fields: [author_id], references: [id])
+  user_id     Int
+  user        User       @relation(fields: [user_id], references: [id])
   
   edition_id  Int
   edition     Edition    @relation(fields: [edition_id], references: [id])
@@ -27,20 +26,27 @@ model Photo {
   categories  Category[] // Implicit many-to-many relation
 }
 
-model Author {
-  id     Int     @id @default(autoincrement())
-  name   String
-  photos Photo[]
+model User {
+  id           Int     @id @default(autoincrement())
+  ign          String
+  discord_name String
+  discord_id   String  @unique
+  password     String
+  enabled      Boolean @default(true)
+  
+  photos       Photo[]
 }
 
 model Edition {
   id     Int     @id @default(autoincrement())
   name   String
+  icon   String?
   photos Photo[]
 }
 
 model Category {
   id     Int     @id @default(autoincrement())
   name   String
+  icon   String?
   photos Photo[]
 }
