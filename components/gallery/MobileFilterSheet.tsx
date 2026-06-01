@@ -37,15 +37,16 @@ export function MobileFilterSheet() {
           Filter results...
         </button>
       } />
-      <SheetContent side="right" className="w-[85vw] sm:w-[400px] overflow-y-auto border-l-muted/20 pb-10">
-        <SheetHeader className="mb-6 text-left">
-          <SheetTitle className="flex items-center gap-2 font-bold text-lg">
-            <Filter className="size-5 text-primary" />
+      <SheetContent side="right" className="!w-full 2xs:!w-[85vw] sm:!w-[400px] border-l-muted/20 p-0 flex flex-col overscroll-none bg-popover">
+        <SheetHeader className="text-left p-0 mt-6 px-6 h-12 flex justify-center shrink-0">
+          <SheetTitle className="flex items-center gap-2 font-bold text-xl">
+            <Filter className="size-6 text-primary" />
             Filtros
           </SheetTitle>
         </SheetHeader>
         
-        <Accordion multiple defaultValue={DEFAULT_OPEN} className="w-full flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-10 overscroll-contain">
+          <Accordion multiple defaultValue={DEFAULT_OPEN} className="w-full flex flex-col gap-4">
           {/* Editions Filter */}
           <AccordionItem value="editions" className="border border-white/5 bg-background/60 backdrop-blur-md rounded-[0.5rem] px-4 py-1">
             <AccordionTrigger className="hover:no-underline py-3 text-lg font-bold text-foreground transition-colors">
@@ -131,6 +132,7 @@ export function MobileFilterSheet() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+        </div>
       </SheetContent>
     </Sheet>
   );
