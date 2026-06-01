@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../components";
+@source "../lib";
 @plugin "tailwindcss-animate";
 @custom-variant dark (&:is(.dark *));
 
@@ -72,4 +74,28 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Hide scrollbar buttons (arrows) */
+::-webkit-scrollbar-button {
+  display: none;
 }
