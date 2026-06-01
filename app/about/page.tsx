@@ -1,4 +1,5 @@
 import { Image as ImageIcon } from "lucide-react"
+import { DynamicBackground } from "@/components/ui/DynamicBackground"
 
 export const metadata = {
   title: "Historia | Panitacraft",
@@ -7,7 +8,9 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-16 sm:px-8 lg:py-24">
+    <>
+      <DynamicBackground />
+      <div className="container mx-auto max-w-4xl px-4 py-16 sm:px-8 lg:py-24">
       <div className="flex flex-col items-center justify-center space-y-8 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
         <div className="rounded-full bg-primary/10 p-4 ring-1 ring-primary/20">
           <ImageIcon className="h-12 w-12 text-primary" />
@@ -30,6 +33,7 @@ export default function AboutPage() {
           Duis euismod pulvinar nunc non pharetra. Quisque at iaculis dolor. Nullam a eleifend dolor, a mollis nisi. Pellentesque semper lacinia luctus. Vestibulum eget lacus magna. Donec tristique sem elit, et consectetur diam lacinia quis. Duis venenatis dapibus tellus, et vestibulum arcu varius scelerisque. Aliquam vehicula odio nec libero ullamcorper molestie. Ut porttitor lobortis felis eu convallis. Maecenas ultrices dolor vel urna faucibus, ac tristique nibh viverra. Vestibulum feugiat semper dolor vitae ullamcorper. Sed hendrerit gravida porttitor. Nullam sed elit fringilla enim tempor malesuada at eu sem. Morbi in justo eget ex condimentum suscipit.
         </p>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

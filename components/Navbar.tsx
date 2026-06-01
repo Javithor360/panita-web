@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Image as ImageIcon, LogIn, BookOpen, LayoutGrid, Menu } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 import {
   Sheet,
   SheetContent,
@@ -11,6 +13,8 @@ import {
 } from "@/components/ui/sheet"
 
 export function Navbar() {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 max-w-6xl items-center md:px-8">
@@ -30,11 +34,27 @@ export function Navbar() {
               
               {/* Mobile Navigation Links - Top */}
               <nav className="flex flex-col gap-3 text-lg font-medium">
-                <Link href="/about" className="flex items-center gap-4 rounded-md px-4 py-4 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                <Link 
+                  href="/about" 
+                  className={cn(
+                    "flex items-center gap-4 rounded-md px-4 py-4 transition-colors",
+                    pathname === "/about" 
+                      ? "bg-primary/20 text-primary font-semibold" 
+                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  )}
+                >
                   <BookOpen className="h-6 w-6" />
                   Historia
                 </Link>
-                <Link href="/gallery" className="flex items-center gap-4 rounded-md px-4 py-4 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                <Link 
+                  href="/gallery" 
+                  className={cn(
+                    "flex items-center gap-4 rounded-md px-4 py-4 transition-colors",
+                    pathname.startsWith("/gallery") 
+                      ? "bg-primary/20 text-primary font-semibold" 
+                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  )}
+                >
                   <LayoutGrid className="h-6 w-6" />
                   Galería
                 </Link>
@@ -61,11 +81,27 @@ export function Navbar() {
 
         {/* Desktop Navigation - Center */}
         <nav className="hidden flex-1 items-center justify-center gap-2 text-sm font-medium md:flex">
-          <Link href="/about" className="flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+          <Link 
+            href="/about" 
+            className={cn(
+              "flex items-center gap-2 rounded-md px-3 py-2 transition-colors",
+              pathname === "/about" 
+                ? "bg-primary/20 text-primary font-semibold" 
+                : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+            )}
+          >
             <BookOpen className="h-4 w-4" />
             Historia
           </Link>
-          <Link href="/gallery" className="flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+          <Link 
+            href="/gallery" 
+            className={cn(
+              "flex items-center gap-2 rounded-md px-3 py-2 transition-colors",
+              pathname.startsWith("/gallery") 
+                ? "bg-primary/20 text-primary font-semibold" 
+                : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+            )}
+          >
             <LayoutGrid className="h-4 w-4" />
             Galería
           </Link>
@@ -73,7 +109,7 @@ export function Navbar() {
 
         {/* Desktop Auth - Right */}
         <div className="hidden flex-1 items-center justify-end md:flex">
-          <Button variant="default" className="gap-2 font-medium">
+          <Button variant="default" className="gap-2 font-medium cursor-pointer">
             <LogIn className="h-4 w-4" />
             <span>Iniciar Sesión</span>
           </Button>

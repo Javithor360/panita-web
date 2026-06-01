@@ -6,8 +6,13 @@ export default function Home() {
   return (
     <div className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center overflow-hidden">
       {/* Background patterns and glowing effects */}
-      <div className="absolute inset-0 -z-10 bg-[url('/bg-pattern.svg')] bg-[length:32px_32px] opacity-[0.2]" />
-      <div className="absolute left-1/2 top-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[120px]" />
+      <div className="absolute inset-0 -z-10 bg-[oklch(0.15_0_0)]" 
+           style={{
+             backgroundImage: `radial-gradient(circle at center, color-mix(in oklab, var(--foreground) 10%, transparent) 1px, transparent 1px)`,
+             backgroundSize: '40px 40px'
+           }}
+      />
+      <div className="absolute left-1/2 top-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[120px] opacity-70" />
 
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center space-y-3 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
@@ -33,7 +38,7 @@ export default function Home() {
           {/* CTA */}
           <div className="pt-4">
             <Link href="/gallery">
-              <Button size="lg" className="h-14 gap-2 px-8 text-lg font-semibold transition-transform hover:scale-105 hover:bg-primary/90">
+              <Button size="lg" className="h-14 gap-2 px-8 text-lg font-semibold transition-transform hover:scale-105 hover:bg-primary/90 cursor-pointer">
                 Visitar galería
                 <ArrowRight className="h-5 w-5" />
               </Button>
