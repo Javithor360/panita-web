@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { ImageIcon } from "lucide-react"
 
-// Ícono de Discord simplificado usando un SVG personalizado (o se puede usar uno de una librería de iconos en el futuro)
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -18,7 +17,7 @@ export function Footer() {
     <footer className="border-t border-border/40 bg-background py-10">
       <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-8">
         
-        {/* Izquierda - Logo y Copyright */}
+        {/* Left - Logo and Copyright */}
         <div className="flex flex-col items-center gap-4 sm:items-start">
           <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
             <ImageIcon className="h-6 w-6 text-primary" />
@@ -30,14 +29,14 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Derecha - Enlaces sociales */}
+        {/* Right - Social Media */}
         <div className="flex items-center justify-center">
           <a
-            href="https://discord.gg/"
+            href="https://discord.gg/m9zFH8yqUu"
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-            aria-label="Únete a nuestro Discord"
+            aria-label="Únete a nuestra comunidad de Discord"
           >
             <DiscordIcon className="h-5 w-5" />
           </a>
