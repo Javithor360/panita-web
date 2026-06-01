@@ -20,19 +20,19 @@ export default function GalleryPage() {
           
           {/* Top Search Bar */}
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-foreground z-10" />
             <input 
               type="text" 
               placeholder="Buscar foto o autor..." 
-              className="w-full bg-muted/30 border border-muted/30 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-muted-foreground"
+              className="w-full bg-background/60 backdrop-blur-md border border-white/5 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all placeholder:text-muted-foreground"
             />
           </div>
 
           {/* Controls & Pagination Row */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-muted/10 p-2 rounded-lg border border-muted/20">
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center py-2">
             {/* Left side: View Options & Mobile Filters */}
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <select className="bg-muted/30 border border-muted/30 text-sm rounded-md px-3 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary h-9">
+              <select className="bg-background/50 border border-white/5 text-sm rounded-md px-3 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary h-9">
                 <option>View: 12</option>
                 <option>View: 24</option>
                 <option>View: 48</option>

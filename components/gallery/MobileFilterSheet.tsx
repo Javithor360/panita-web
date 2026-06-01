@@ -32,9 +32,9 @@ export function MobileFilterSheet() {
   return (
     <Sheet>
       <SheetTrigger render={
-        <button className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "md:hidden flex items-center gap-2 h-9 border border-muted/30 bg-muted/30")}>
+        <button className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "md:hidden flex items-center gap-2 h-9 border border-white/5 bg-background/50 text-foreground")}>
           <Filter className="size-4" />
-          Filter results...
+          Filtros
         </button>
       } />
       <SheetContent side="right" className="!w-full 2xs:!w-[85vw] sm:!w-[400px] border-l-muted/20 p-0 flex flex-col overscroll-none bg-popover">
