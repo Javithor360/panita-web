@@ -7,47 +7,48 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 model Photo {
-  id          String     @id @default(uuid())
+  id          String    @id @default(uuid())
   url         String
   description String?
-  enabled     Boolean    @default(true)
+  enabled     Boolean   @default(true)
   date_taken  DateTime?
-  created_at  DateTime   @default(now())
+  created_at  DateTime  @default(now())
 
-  user_id     Int
-  user        User       @relation(fields: [user_id], references: [id])
-  
-  edition_id  Int
-  edition     Edition    @relation(fields: [edition_id], references: [id])
-  
-  categories  Category[] // Implicit many-to-many relation
+  user_id Int?
+  user    User? @relation(fields: [user_id], references: [id])
+
+  edition_id String?
+  edition    Edition? @relation(fields: [edition_id], references: [id])
+
+  categories Category[] // Implicit many-to-many relation
 }
 
 model User {
   id           Int     @id @default(autoincrement())
-  ign          String
+  ign          String?
   discord_name String
   discord_id   String  @unique
-  password     String
-  enabled      Boolean @default(true)
-  
-  photos       Photo[]
+  password     String?
+  enabled      Boolean @default(false)
+
+  photos Photo[]
 }
 
 model Edition {
-  id     Int     @id @default(autoincrement())
+  id     String  @id
   name   String
   icon   String?
   photos Photo[]
 }
 
 model Category {
-  id     Int     @id @default(autoincrement())
+  id     String  @id
   name   String
   icon   String?
+  color  String?
   photos Photo[]
 }

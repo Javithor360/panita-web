@@ -7,10 +7,11 @@ async function main() {
   
   // Seed Editions
   for (const edition of EDITIONS) {
-    const existing = await prisma.edition.findFirst({ where: { name: edition.label } })
+    const existing = await prisma.edition.findUnique({ where: { id: edition.id } })
     if (!existing) {
       const result = await prisma.edition.create({
         data: {
+          id: edition.id,
           name: edition.label,
           icon: edition.iconName,
         },
@@ -18,8 +19,11 @@ async function main() {
       console.log(`Created edition: ${result.name}`)
     } else {
       await prisma.edition.update({
-        where: { id: existing.id },
-        data: { icon: edition.iconName }
+        where: { id: edition.id },
+        data: { 
+          name: edition.label,
+          icon: edition.iconName 
+        }
       })
       console.log(`Updated edition: ${existing.name}`)
     }
@@ -27,19 +31,25 @@ async function main() {
 
   // Seed Categories
   for (const category of CATEGORIES) {
-    const existing = await prisma.category.findFirst({ where: { name: category.label } })
+    const existing = await prisma.category.findUnique({ where: { id: category.id } })
     if (!existing) {
       const result = await prisma.category.create({
         data: {
+          id: category.id,
           name: category.label,
           icon: category.iconName,
+          color: category.color,
         },
       })
       console.log(`Created category: ${result.name}`)
     } else {
       await prisma.category.update({
-        where: { id: existing.id },
-        data: { icon: category.iconName }
+        where: { id: category.id },
+        data: { 
+          name: category.label,
+          icon: category.iconName,
+          color: category.color,
+        }
       })
       console.log(`Updated category: ${existing.name}`)
     }
