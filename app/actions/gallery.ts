@@ -28,6 +28,10 @@ export async function getPhotos(filters: GalleryFilters = {}) {
     // Construct the where clause dynamically
     const where: Prisma.PhotoWhereInput = {
       enabled: true,
+      NOT: [
+        { url: { endsWith: '.mp4', mode: 'insensitive' } },
+        { url: { endsWith: '.webm', mode: 'insensitive' } }
+      ]
     };
 
     if (editionId) {
@@ -71,7 +75,10 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       where,
       skip,
       take: pageSize,
-      orderBy: { date_taken: 'desc' },
+      orderBy: [
+        { date_taken: 'desc' },
+        { id: 'desc' }
+      ],
       include: {
         user: true,
         categories: {

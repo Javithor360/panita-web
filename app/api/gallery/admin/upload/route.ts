@@ -58,6 +58,13 @@ export async function POST(request: Request) {
     for (const file of resources) {
       const publicId = file.public_id;
       const secureUrl = file.secure_url;
+      const format = file.format;
+      const resourceType = file.resource_type;
+
+      if (resourceType === 'video' || format === 'mp4' || format === 'webm') {
+        console.warn(`Saltando archivo de video (omisión temporal): ${publicId}`);
+        continue;
+      }
 
       // Split the path by slashes
       const parts = publicId.split('/');
