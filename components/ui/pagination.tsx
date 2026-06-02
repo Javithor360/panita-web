@@ -50,10 +50,11 @@ function PaginationLink({
       data-slot="pagination-link"
       data-active={isActive}
       className={cn(
-        buttonVariants({
-          variant: isActive ? "outline" : "ghost",
-          size,
-        }),
+        "flex items-center justify-center rounded-md transition-all text-sm cursor-pointer",
+        size === "icon" ? "h-8 w-8" : "h-8 px-3",
+        isActive 
+          ? "bg-primary/20 text-primary font-bold" 
+          : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium",
         className
       )}
       {...props}
