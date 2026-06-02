@@ -10,9 +10,13 @@ const OPTIONS = [
   { value: "45", label: "45 fotos" },
 ];
 
-export function ViewSelect() {
+interface ViewSelectProps {
+  value?: number;
+  onChange?: (val: number) => void;
+}
+
+export function ViewSelect({ value = 15, onChange }: ViewSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState("15");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,7 +29,8 @@ export function ViewSelect() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const selectedOption = OPTIONS.find(o => o.value === selectedValue) || OPTIONS[0];
+  const stringValue = value.toString();
+  const selectedOption = OPTIONS.find(o => o.value === stringValue) || OPTIONS[0];
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -40,12 +45,12 @@ export function ViewSelect() {
       {isOpen && (
         <div className="absolute top-full left-0 mt-1.5 w-full min-w-[150px] bg-background/95 backdrop-blur-xl border border-white/5 rounded-md p-1 shadow-xl z-50 flex flex-col gap-1">
           {OPTIONS.map((option) => {
-            const isSelected = selectedValue === option.value;
+            const isSelected = stringValue === option.value;
             return (
               <button
                 key={option.value}
                 onClick={() => {
-                  setSelectedValue(option.value);
+                  onChange?.(parseInt(option.value, 10));
                   setIsOpen(false);
                 }}
                 className={cn(

@@ -11,12 +11,15 @@ import { getPhotos, GalleryFilters } from "@/app/actions/gallery";
 
 export function GalleryContainer() {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
   const [editionId, setEditionId] = useState<string | null>(null);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [year, setYear] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   
   const [photos, setPhotos] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Debounce search
@@ -32,18 +35,21 @@ export function GalleryContainer() {
       setLoading(true);
       const filters: GalleryFilters = {
         page,
+        pageSize,
         editionId,
         categoryId,
+        year,
         search: debouncedSearch
       };
       const result = await getPhotos(filters);
       setPhotos(result.photos);
       setTotalPages(Math.max(1, result.pagination.totalPages));
+      setTotalItems(result.pagination.totalItems);
       setLoading(false);
     };
 
     fetchPhotos();
-  }, [page, editionId, categoryId, debouncedSearch]);
+  }, [page, pageSize, editionId, categoryId, year, debouncedSearch]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -52,65 +58,101 @@ export function GalleryContainer() {
     }
   };
 
-  const GalleryPagination = () => (
-    <Pagination className="mx-0 w-auto">
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious 
-            onClick={(e) => { e.preventDefault(); handlePageChange(page - 1); }} 
-            href="#" 
-            className={`h-8 px-2 ${page <= 1 ? 'pointer-events-none opacity-50' : ''}`} 
-            text="" 
-          />
+  const GalleryPagination = () => {
+    const [mounted, setMounted] = useState(false);
+    const [width, setWidth] = useState(0);
+
+    useEffect(() => {
+      setMounted(true);
+      setWidth(window.innerWidth);
+      const handleResize = () => setWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    // SSR fallback: Mobile logic
+    const isMd = mounted ? width >= 768 : false;
+    const isXl = mounted ? width >= 1280 : false;
+    const is2xl = mounted ? width >= 1536 : false;
+
+    let showBeforeCount = 2; // +1, +2
+    if (is2xl) showBeforeCount = 3; // +1, +2, +3
+    else if (isMd && !isXl) showBeforeCount = 3; // md but not xl
+
+    let showEndCount = 1; // N
+    if (isXl || is2xl) showEndCount = 2; // N-1, N
+
+    const items: React.ReactNode[] = [];
+    
+    // Always show current page
+    items.push(
+      <PaginationItem key={page}>
+        <PaginationLink href="#" isActive className="h-8 w-8">{page}</PaginationLink>
+      </PaginationItem>
+    );
+
+    let lastAdded = page;
+
+    // Add before items
+    for (let i = 1; i <= showBeforeCount; i++) {
+      const p = page + i;
+      if (p <= totalPages - showEndCount) { // Leave room for end items
+        items.push(
+          <PaginationItem key={p}>
+            <PaginationLink href="#" onClick={(e) => { e.preventDefault(); handlePageChange(p); }} className="h-8 w-8">{p}</PaginationLink>
+          </PaginationItem>
+        );
+        lastAdded = p;
+      }
+    }
+
+    // Add ellipsis if gap exists
+    const firstEndItem = totalPages - showEndCount + 1;
+    if (firstEndItem > lastAdded + 1) {
+      items.push(
+        <PaginationItem key="ellipsis">
+          <PaginationEllipsis className="h-8 w-8" />
         </PaginationItem>
-        
-        <PaginationItem>
-          <PaginationLink href="#" isActive className="h-8 w-8">
-            {page}
-          </PaginationLink>
-        </PaginationItem>
-        
-        {page < totalPages && (
+      );
+    }
+
+    // Add end items
+    for (let i = showEndCount - 1; i >= 0; i--) {
+      const p = totalPages - i;
+      if (p > lastAdded) {
+        items.push(
+          <PaginationItem key={p}>
+            <PaginationLink href="#" onClick={(e) => { e.preventDefault(); handlePageChange(p); }} className="h-8 w-auto px-2">{p}</PaginationLink>
+          </PaginationItem>
+        );
+        lastAdded = p;
+      }
+    }
+
+    return (
+      <Pagination className="mx-0 w-auto">
+        <PaginationContent>
           <PaginationItem>
-            <PaginationLink 
+            <PaginationPrevious 
+              onClick={(e) => { e.preventDefault(); handlePageChange(page - 1); }} 
               href="#" 
-              onClick={(e) => { e.preventDefault(); handlePageChange(page + 1); }}
-              className="h-8 w-8 hidden sm:inline-flex"
-            >
-              {page + 1}
-            </PaginationLink>
+              className={`h-8 px-2 ${page <= 1 ? 'pointer-events-none opacity-50' : ''}`} 
+              text="" 
+            />
           </PaginationItem>
-        )}
-        
-        {page < totalPages - 1 && (
+          {items}
           <PaginationItem>
-            <PaginationEllipsis className="h-8 w-8" />
-          </PaginationItem>
-        )}
-        
-        {page < totalPages - 1 && (
-          <PaginationItem>
-            <PaginationLink 
+            <PaginationNext 
+              onClick={(e) => { e.preventDefault(); handlePageChange(page + 1); }} 
               href="#" 
-              onClick={(e) => { e.preventDefault(); handlePageChange(totalPages); }}
-              className="h-8 w-auto px-2"
-            >
-              {totalPages}
-            </PaginationLink>
+              className={`h-8 px-2 ${page >= totalPages ? 'pointer-events-none opacity-50' : ''}`} 
+              text="" 
+            />
           </PaginationItem>
-        )}
-        
-        <PaginationItem>
-          <PaginationNext 
-            onClick={(e) => { e.preventDefault(); handlePageChange(page + 1); }} 
-            href="#" 
-            className={`h-8 px-2 ${page >= totalPages ? 'pointer-events-none opacity-50' : ''}`} 
-            text="" 
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-  );
+        </PaginationContent>
+      </Pagination>
+    );
+  };
 
   return (
     <div id="gallery-top" className="container mx-auto px-4 py-8 mt-16">
@@ -119,8 +161,10 @@ export function GalleryContainer() {
         <GallerySidebar 
           activeEdition={editionId}
           activeCategory={categoryId}
+          activeYear={year}
           onEditionChange={(id) => { setEditionId(id === editionId ? null : id); setPage(1); }}
           onCategoryChange={(id) => { setCategoryId(id === categoryId ? null : id); setPage(1); }}
+          onYearChange={(y) => { setYear(y === year ? null : y); setPage(1); }}
         />
         
         {/* Main Content */}
@@ -139,19 +183,36 @@ export function GalleryContainer() {
           </div>
 
           {/* Controls & Pagination Row */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center py-2">
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <ViewSelect />
+          <div className="relative flex flex-col md:flex-row gap-4 justify-between items-start md:items-center py-2">
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <ViewSelect 
+                value={pageSize}
+                onChange={(val) => { setPageSize(val); setPage(1); }}
+              />
               <MobileFilterSheet 
                 activeEdition={editionId}
                 activeCategory={categoryId}
+                activeYear={year}
                 onEditionChange={(id) => { setEditionId(id === editionId ? null : id); setPage(1); }}
                 onCategoryChange={(id) => { setCategoryId(id === categoryId ? null : id); setPage(1); }}
+                onYearChange={(y) => { setYear(y === year ? null : y); setPage(1); }}
               />
             </div>
 
-            {/* Right side: Pagination */}
-            <div className="flex items-center justify-end w-full sm:w-auto">
+            {/* Desktop results count text */}
+            {(editionId || categoryId || year || debouncedSearch) ? (
+              <div className="hidden md:block absolute left-1/2 -translate-x-1/2 text-sm text-white/60 font-medium whitespace-nowrap">
+                Revisando {totalItems} resultados
+              </div>
+            ) : null}
+
+            {/* Right side: Mobile Results & Pagination */}
+            <div className="flex items-center justify-between w-full md:w-auto md:justify-end">
+              {(editionId || categoryId || year || debouncedSearch) ? (
+                <div className="md:hidden text-xs text-white/60 font-medium whitespace-nowrap">
+                  Revisando {totalItems} res.
+                </div>
+              ) : null}
               <GalleryPagination />
             </div>
           </div>
@@ -160,26 +221,28 @@ export function GalleryContainer() {
           <GalleryGrid photos={photos} loading={loading} />
 
           {/* Bottom Pagination & Scroll to Top */}
-          <div className="flex justify-between items-center py-4 mt-2 border-t border-white/5 w-full">
-            <div className="flex justify-start">
-              <a 
-                href="#gallery-top"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('gallery-top')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="flex items-center justify-center h-8 w-8 md:w-auto md:px-3 gap-2 rounded-md text-muted-foreground hover:text-foreground transition-colors hover:bg-white/5 shrink-0"
-                title="Volver arriba"
-              >
-                <ArrowUp className="size-6 shrink-0" />
-                <span className="hidden md:inline text-sm font-medium">Volver arriba</span>
-              </a>
+          {photos.length > 0 && (
+            <div className="flex justify-between items-center py-4 mt-2 border-t border-white/5 w-full">
+              <div className="flex justify-start">
+                <a 
+                  href="#gallery-top"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('gallery-top')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="flex items-center justify-center h-8 w-8 md:w-auto md:px-3 gap-2 rounded-md text-muted-foreground hover:text-foreground transition-colors hover:bg-white/5 shrink-0"
+                  title="Volver arriba"
+                >
+                  <ArrowUp className="size-6 shrink-0" />
+                  <span className="hidden md:inline text-sm font-medium">Volver arriba</span>
+                </a>
+              </div>
+              
+              <div className="flex items-center justify-end overflow-x-auto">
+                <GalleryPagination />
+              </div>
             </div>
-            
-            <div className="flex items-center justify-end overflow-x-auto">
-              <GalleryPagination />
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

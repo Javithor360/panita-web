@@ -8,6 +8,7 @@ export interface GalleryFilters {
   pageSize?: number;
   editionId?: string | null;
   categoryId?: string | null;
+  year?: string | null;
   search?: string | null;
 }
 
@@ -17,7 +18,8 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       page = 1, 
       pageSize = 15, 
       editionId, 
-      categoryId, 
+      categoryId,
+      year,
       search 
     } = filters;
 
@@ -35,6 +37,15 @@ export async function getPhotos(filters: GalleryFilters = {}) {
     if (categoryId) {
       where.categories = {
         some: { id: categoryId }
+      };
+    }
+
+    if (year) {
+      const yearStart = new Date(`${year}-01-01T00:00:00.000Z`);
+      const yearEnd = new Date(`${year}-12-31T23:59:59.999Z`);
+      where.date_taken = {
+        gte: yearStart,
+        lte: yearEnd,
       };
     }
 
