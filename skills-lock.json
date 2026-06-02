@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "cloudinary-docs": {
+      "source": "cloudinary-devs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloudinary-docs/SKILL.md",
+      "computedHash": "fcefa1f8d62c2064c0a0efad756c27226e52ead67f6033523e894719a338316d"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
