@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Filter } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { EDITIONS, CATEGORIES } from "@/lib/constants";
@@ -12,31 +10,29 @@ const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => (currentYear - i).toString());
 const DEFAULT_OPEN = ["editions", "categories", "years"];
 
-export function MobileFilterSheet() {
-  const [selectedEditions, setSelectedEditions] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedYears, setSelectedYears] = useState<string[]>([]);
+interface MobileFilterSheetProps {
+  activeEdition?: string | null;
+  activeCategory?: string | null;
+  activeYear?: string | null;
+  onEditionChange?: (id: string) => void;
+  onCategoryChange?: (id: string) => void;
+  onYearChange?: (year: string) => void;
+}
 
-  const toggleEdition = (id: string) => {
-    setSelectedEditions(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
-  const toggleCategory = (id: string) => {
-    setSelectedCategories(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
-  const toggleYear = (year: string) => {
-    setSelectedYears(prev => prev.includes(year) ? prev.filter(y => y !== year) : [...prev, year]);
-  };
-
+export function MobileFilterSheet({
+  activeEdition,
+  activeCategory,
+  activeYear,
+  onEditionChange,
+  onCategoryChange,
+  onYearChange
+}: MobileFilterSheetProps) {
   return (
     <Sheet>
-      <SheetTrigger render={
-        <button className="md:hidden flex-1 flex justify-center items-center gap-2 bg-background/60 backdrop-blur-md border border-white/5 text-sm rounded-md px-4 py-2 text-foreground font-medium hover:bg-white/5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary h-[38px]">
-          <Filter className="size-4" />
-          Filtros
-        </button>
-      } />
+      <SheetTrigger className="md:hidden flex-1 flex justify-center items-center gap-2 bg-background/60 backdrop-blur-md border border-white/5 text-sm rounded-md px-4 py-2 text-foreground font-medium hover:bg-white/5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary h-[38px]">
+        <Filter className="size-4" />
+        Filtros
+      </SheetTrigger>
       <SheetContent side="right" className="!w-full 2xs:!w-[85vw] sm:!w-[400px] border-l-muted/20 p-0 flex flex-col overscroll-none bg-popover">
         <SheetHeader className="text-left p-0 mt-6 px-6 h-12 flex justify-center shrink-0">
           <SheetTitle className="flex items-center gap-2 font-bold text-xl">
@@ -55,12 +51,12 @@ export function MobileFilterSheet() {
             <AccordionContent className="pt-2 pb-3 flex flex-col gap-1">
               {EDITIONS.map((edition) => {
                 const Icon = edition.iconComponent;
-                const isSelected = selectedEditions.includes(edition.id);
+                const isSelected = activeEdition === edition.id;
                 
                 return (
                   <button
                     key={edition.id}
-                    onClick={() => toggleEdition(edition.id)}
+                    onClick={() => onEditionChange?.(edition.id)}
                     className={cn(
                       "flex items-center space-x-3 w-full px-3 py-2 rounded-md transition-all text-sm cursor-pointer",
                       isSelected 
@@ -84,12 +80,12 @@ export function MobileFilterSheet() {
             <AccordionContent className="pt-2 pb-3 flex flex-col gap-1">
               {CATEGORIES.map((cat) => {
                 const Icon = cat.iconComponent;
-                const isSelected = selectedCategories.includes(cat.id);
+                const isSelected = activeCategory === cat.id;
                 
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => toggleCategory(cat.id)}
+                    onClick={() => onCategoryChange?.(cat.id)}
                     className={cn(
                       "flex items-center space-x-3 w-full px-3 py-2 rounded-md transition-all text-sm cursor-pointer",
                       isSelected 
@@ -112,12 +108,12 @@ export function MobileFilterSheet() {
             </AccordionTrigger>
             <AccordionContent className="pt-2 pb-3 flex flex-col gap-1">
               {YEARS.map((year) => {
-                const isSelected = selectedYears.includes(year);
+                const isSelected = activeYear === year;
                 
                 return (
                   <button
                     key={year}
-                    onClick={() => toggleYear(year)}
+                    onClick={() => onYearChange?.(year)}
                     className={cn(
                       "flex items-center space-x-3 w-full px-3 py-2 rounded-md transition-all text-sm cursor-pointer",
                       isSelected 

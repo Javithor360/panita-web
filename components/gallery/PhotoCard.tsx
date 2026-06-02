@@ -76,16 +76,16 @@ export function PhotoCard({ title, author, tagIds = [], tags: legacyTags = [], i
 
   return (
     <Card className="group flex flex-col h-full overflow-hidden p-0 gap-0 rounded-xl border-muted/30 bg-muted/10 transition-all hover:border-primary/50 hover:bg-muted/20 cursor-pointer shadow-none">
-      <div className="relative w-full overflow-hidden bg-muted/20 rounded-t-[0.3rem]">
+      <div className="relative w-full aspect-video overflow-hidden bg-muted/20 rounded-t-[0.3rem]">
         <Image
           src={imageUrl}
           alt={title}
           width={800}
           height={450}
           priority={priority}
-          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
       </div>
       <CardFooter className="flex flex-col flex-1 items-start p-4 gap-3 bg-card/50 backdrop-blur-sm border-t border-muted/20">
         <h3 className="font-semibold text-sm line-clamp-1 group-hover:text-primary transition-colors shrink-0">{title}</h3>

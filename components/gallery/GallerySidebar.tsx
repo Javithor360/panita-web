@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { EDITIONS, CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -9,23 +8,23 @@ const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => (currentYear - i).toString());
 const DEFAULT_OPEN = ["editions", "categories", "years"];
 
-export function GallerySidebar() {
-  const [selectedEditions, setSelectedEditions] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedYears, setSelectedYears] = useState<string[]>([]);
+interface GallerySidebarProps {
+  activeEdition?: string | null;
+  activeCategory?: string | null;
+  activeYear?: string | null;
+  onEditionChange?: (id: string) => void;
+  onCategoryChange?: (id: string) => void;
+  onYearChange?: (year: string) => void;
+}
 
-  const toggleEdition = (id: string) => {
-    setSelectedEditions(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
-  const toggleCategory = (id: string) => {
-    setSelectedCategories(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
-  const toggleYear = (year: string) => {
-    setSelectedYears(prev => prev.includes(year) ? prev.filter(y => y !== year) : [...prev, year]);
-  };
-
+export function GallerySidebar({
+  activeEdition,
+  activeCategory,
+  activeYear,
+  onEditionChange,
+  onCategoryChange,
+  onYearChange
+}: GallerySidebarProps) {
   return (
     <aside className="hidden md:flex flex-col w-[200px] xl:w-[240px] shrink-0 gap-4 xl:gap-6 pb-10">
       
@@ -38,12 +37,12 @@ export function GallerySidebar() {
           <AccordionContent className="pt-1 xl:pt-2 pb-2 xl:pb-3 flex flex-col gap-1">
             {EDITIONS.map((edition) => {
               const Icon = edition.iconComponent;
-              const isSelected = selectedEditions.includes(edition.id);
+              const isSelected = activeEdition === edition.id;
               
               return (
                 <button
                   key={edition.id}
-                  onClick={() => toggleEdition(edition.id)}
+                  onClick={() => onEditionChange?.(edition.id)}
                   className={cn(
                     "flex items-center space-x-2 xl:space-x-3 w-full px-2 xl:px-3 py-1.5 xl:py-2 rounded-md transition-all text-xs xl:text-sm cursor-pointer",
                     isSelected 
@@ -67,12 +66,12 @@ export function GallerySidebar() {
           <AccordionContent className="pt-1 xl:pt-2 pb-2 xl:pb-3 flex flex-col gap-1">
             {CATEGORIES.map((cat) => {
               const Icon = cat.iconComponent;
-              const isSelected = selectedCategories.includes(cat.id);
+              const isSelected = activeCategory === cat.id;
               
               return (
                 <button
                   key={cat.id}
-                  onClick={() => toggleCategory(cat.id)}
+                  onClick={() => onCategoryChange?.(cat.id)}
                   className={cn(
                     "flex items-center space-x-2 xl:space-x-3 w-full px-2 xl:px-3 py-1.5 xl:py-2 rounded-md transition-all text-xs xl:text-sm cursor-pointer",
                     isSelected 
@@ -95,12 +94,12 @@ export function GallerySidebar() {
           </AccordionTrigger>
           <AccordionContent className="pt-1 xl:pt-2 pb-2 xl:pb-3 flex flex-col gap-1">
             {YEARS.map((year) => {
-              const isSelected = selectedYears.includes(year);
+              const isSelected = activeYear === year;
               
               return (
                 <button
                   key={year}
-                  onClick={() => toggleYear(year)}
+                  onClick={() => onYearChange?.(year)}
                   className={cn(
                     "flex items-center space-x-2 xl:space-x-3 w-full px-2 xl:px-3 py-1.5 xl:py-2 rounded-md transition-all text-xs xl:text-sm cursor-pointer",
                     isSelected 
