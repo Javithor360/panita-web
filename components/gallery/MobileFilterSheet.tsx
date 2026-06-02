@@ -32,7 +32,7 @@ export function MobileFilterSheet() {
   return (
     <Sheet>
       <SheetTrigger render={
-        <button className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "md:hidden flex items-center gap-2 h-9 border border-white/5 bg-background/50 text-foreground")}>
+        <button className="md:hidden flex-1 flex justify-center items-center gap-2 bg-background/60 backdrop-blur-md border border-white/5 text-sm rounded-md px-4 py-2 text-foreground font-medium hover:bg-white/5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary h-[38px]">
           <Filter className="size-4" />
           Filtros
         </button>

@@ -72,20 +72,21 @@ export default function GalleryPage() {
           <GalleryGrid />
 
           {/* Bottom Pagination & Scroll to Top */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center py-4 mt-2 border-t border-white/5">
+          <div className="flex justify-between items-center py-4 mt-2 border-t border-white/5 w-full">
             {/* Left side: Scroll to Top */}
-            <div className="flex justify-start w-full sm:w-auto">
+            <div className="flex justify-start">
               <a 
                 href="#gallery-top"
-                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2 rounded-md hover:bg-white/5"
+                className="flex items-center justify-center h-8 w-8 md:w-auto md:px-3 gap-2 rounded-md text-muted-foreground hover:text-foreground transition-colors hover:bg-white/5 shrink-0"
+                title="Volver arriba"
               >
-                <ArrowUp className="size-4" />
-                Volver arriba
+                <ArrowUp className="size-6 shrink-0" />
+                <span className="hidden md:inline text-sm font-medium">Volver arriba</span>
               </a>
             </div>
             
             {/* Right side: Pagination */}
-            <div className="flex items-center justify-end w-full sm:w-auto">
+            <div className="flex items-center justify-end overflow-x-auto">
               <GalleryPagination />
             </div>
           </div>

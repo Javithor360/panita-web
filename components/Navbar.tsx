@@ -25,7 +25,7 @@ export function Navbar() {
             <SheetTrigger render={<Button variant="ghost" className="h-12 w-12 p-0" aria-label="Abrir menú" />}>
               <Menu className="size-8" />
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col p-6 sm:max-w-xs">
+            <SheetContent side="left" className="!w-full 2xs:!w-[85vw] sm:!w-[320px] flex flex-col p-6">
               <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
               <div className="mb-8 mt-2 flex items-center gap-3 px-2 pr-14">
                 <ImageIcon className="h-8 w-8 text-primary shrink-0" />
