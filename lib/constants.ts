@@ -15,7 +15,11 @@ import {
   Trophy, 
   Skull, 
   Calendar,
-  Gamepad2
+  Gamepad2,
+  Paintbrush,
+  Hexagon,
+  MessageSquare,
+  Book
 } from 'lucide-react'
 
 export type FilterOption = {
@@ -48,11 +52,14 @@ export const CATEGORIES: FilterOption[] = [
   { id: "destacada", label: "Destacada", iconName: "Trophy", iconComponent: Trophy, color: "#f59e0b" },
   { id: "broma", label: "Broma", iconName: "Skull", iconComponent: Skull, color: "#f43f5e" },
   { id: "evento", label: "Evento", iconName: "Calendar", iconComponent: Calendar, color: "#a855f7" },
-  { id: "survival", label: "Survival", iconName: "Map", iconComponent: Map, color: "#22c55e" },
   { id: "pvp", label: "PVP", iconName: "Swords", iconComponent: Swords, color: "#ef4444" },
   { id: "nether", label: "Nether", iconName: "Flame", iconComponent: Flame, color: "#dc2626" },
   { id: "end", label: "End", iconName: "Ghost", iconComponent: Ghost, color: "#818cf8" },
   { id: "granja", label: "Granja", iconName: "Pickaxe", iconComponent: Pickaxe, color: "#84cc16" },
-  { id: "redstone", label: "Redstone", iconName: "Zap", iconComponent: Zap, color: "#ef4444" },
-  { id: "comunidad", label: "Comunidad", iconName: "Users", iconComponent: Users, color: "#06b6d4" },
+  { id: "mecanismo", label: "Mecanismo", iconName: "Zap", iconComponent: Zap, color: "#ef4444" },
+  { id: "texturas", label: "Texturas", iconName: "Paintbrush", iconComponent: Paintbrush, color: "#d946ef" },
+  { id: "logos", label: "Logos", iconName: "Hexagon", iconComponent: Hexagon, color: "#6366f1" },
+  { id: "memes", label: "Memes", iconName: "Smile", iconComponent: Smile, color: "#fcd34d" },
+  { id: "mensajes", label: "Mensajes iconicos", iconName: "MessageSquare", iconComponent: MessageSquare, color: "#34d399" },
+  { id: "recetas", label: "Recetas", iconName: "Book", iconComponent: Book, color: "#fb923c" },
 ];

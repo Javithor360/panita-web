@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Image as ImageIcon, LogIn, BookOpen, LayoutGrid, Menu } from "lucide-react"
+import { Image as ImageIcon, LogIn, BookOpen, LayoutGrid, Menu, Heart } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import {
@@ -58,6 +58,18 @@ export function Navbar() {
                   <LayoutGrid className="h-6 w-6" />
                   Galería
                 </Link>
+                <Link 
+                  href="/acknowledgments" 
+                  className={cn(
+                    "flex items-center gap-4 rounded-md px-4 py-4 transition-colors",
+                    pathname.startsWith("/acknowledgments") 
+                      ? "bg-primary/20 text-primary font-semibold" 
+                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  )}
+                >
+                  <Heart className="h-6 w-6" />
+                  Agradecimientos
+                </Link>
               </nav>
 
               {/* Mobile Auth Button - Bottom */}
@@ -104,6 +116,18 @@ export function Navbar() {
           >
             <LayoutGrid className="h-4 w-4" />
             Galería
+          </Link>
+          <Link 
+            href="/acknowledgments" 
+            className={cn(
+              "flex items-center gap-2 rounded-md px-3 py-2 transition-colors",
+              pathname.startsWith("/acknowledgments") 
+                ? "bg-primary/20 text-primary font-semibold" 
+                : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+            )}
+          >
+            <Heart className="h-4 w-4" />
+            Agradecimientos
           </Link>
         </nav>
 

@@ -25,7 +25,7 @@ export function Footer() {
           </Link>
           <div className="flex flex-col items-center gap-1 text-center text-sm text-muted-foreground sm:items-start sm:text-left">
             <p>© {new Date().getFullYear()} Panitacraft. Todos los derechos reservados.</p>
-            <p>Diseñado y desarrollado para la comunidad.</p>
+            <p>Hecho por Javithor & Aerø</p>
           </div>
         </div>
 
