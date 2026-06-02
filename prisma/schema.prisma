@@ -13,6 +13,7 @@ datasource db {
 model Photo {
   id          String    @id @default(uuid())
   url         String
+  title       String?
   description String?
   enabled     Boolean   @default(true)
   date_taken  DateTime?

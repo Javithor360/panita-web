@@ -41,8 +41,22 @@ export async function POST(request: Request) {
     let insertedPhotos = 0;
     let newUsers = 0;
 
+    // Fetch all editions to map their names for the titles
+    const editions = await prisma.edition.findMany();
+    const editionMap = new Map(editions.map(e => [e.id, e.name]));
+
+    // Fetch current counts for iterators
+    const counts = await prisma.photo.groupBy({
+      by: ['edition_id'],
+      _count: { id: true }
+    });
+    const editionCounters: Record<string, number> = {};
+    counts.forEach(c => {
+      if (c.edition_id) editionCounters[c.edition_id] = c._count.id;
+    });
+
     for (const file of resources) {
-      const publicId = file.public_id; // e.g: panita-web/gallery/panitamon/javithor360/46_1_1_2026-01-28_16.42.09
+      const publicId = file.public_id;
       const secureUrl = file.secure_url;
 
       // Split the path by slashes
@@ -62,8 +76,12 @@ export async function POST(request: Request) {
       // Try to extract date (YYYY-MM-DD) from filename
       const dateMatch = filename.match(/\d{4}-\d{2}-\d{2}/);
       let dateTaken = null;
+      let monthYearStr = '';
       if (dateMatch) {
         dateTaken = new Date(dateMatch[0]);
+        const formattedDate = dateTaken.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+        monthYearStr = formattedDate.replace(' de ', ' ');
+        monthYearStr = monthYearStr.charAt(0).toUpperCase() + monthYearStr.slice(1);
       }
 
       // Check if user already exists
@@ -89,16 +107,43 @@ export async function POST(request: Request) {
       });
 
       if (!existingPhoto) {
+        editionCounters[editionId] = (editionCounters[editionId] || 0) + 1;
+        const iterator = editionCounters[editionId];
+        const editionName = editionMap.get(editionId) || editionId;
+        
+        const titleStr = dateTaken 
+          ? `#${iterator} - ${editionName} (${monthYearStr})`
+          : `#${iterator} - ${editionName}`;
+
         await prisma.photo.create({
           data: {
             url: secureUrl,
             edition_id: editionId,
             user_id: user.id,
             date_taken: dateTaken,
+            title: titleStr,
             enabled: true,
           }
         });
         insertedPhotos++;
+      } else {
+        // Update existing photos to ensure they have the latest title format
+        editionCounters[editionId] = (editionCounters[editionId] || 0) + 1;
+        const iterator = editionCounters[editionId];
+        const editionName = editionMap.get(editionId) || editionId;
+        
+        const titleStr = dateTaken 
+          ? `#${iterator} - ${editionName} (${monthYearStr})`
+          : `#${iterator} - ${editionName}`;
+
+        // Only update if the title actually changed
+        if (existingPhoto.title !== titleStr) {
+          await prisma.photo.update({
+            where: { id: existingPhoto.id },
+            data: { title: titleStr }
+          });
+          insertedPhotos++; // Counted as processed/updated
+        }
       }
     }
 
