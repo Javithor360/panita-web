@@ -6,9 +6,9 @@ import { Prisma } from '@/lib/generated/prisma/client';
 export interface GalleryFilters {
   page?: number;
   pageSize?: number;
-  editionId?: string | null;
-  categoryId?: string | null;
-  year?: string | null;
+  editionIds?: string[];
+  categoryIds?: string[];
+  years?: string[];
   search?: string | null;
 }
 
@@ -17,9 +17,9 @@ export async function getPhotos(filters: GalleryFilters = {}) {
     const { 
       page = 1, 
       pageSize = 15, 
-      editionId, 
-      categoryId,
-      year,
+      editionIds = [], 
+      categoryIds = [],
+      years = [],
       search 
     } = filters;
 
@@ -34,23 +34,27 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       ]
     };
 
-    if (editionId) {
-      where.edition_id = editionId;
+    if (editionIds.length > 0) {
+      where.edition_id = { in: editionIds };
     }
 
-    if (categoryId) {
+    if (categoryIds.length > 0) {
       where.categories = {
-        some: { id: categoryId }
+        some: { id: { in: categoryIds } }
       };
     }
 
-    if (year) {
-      const yearStart = new Date(`${year}-01-01T00:00:00.000Z`);
-      const yearEnd = new Date(`${year}-12-31T23:59:59.999Z`);
-      where.date_taken = {
-        gte: yearStart,
-        lte: yearEnd,
-      };
+    if (years.length > 0) {
+      where.OR = years.map(year => {
+        const yearStart = new Date(`${year}-01-01T00:00:00.000Z`);
+        const yearEnd = new Date(`${year}-12-31T23:59:59.999Z`);
+        return {
+          date_taken: {
+            gte: yearStart,
+            lte: yearEnd,
+          }
+        };
+      });
     }
 
     if (search) {

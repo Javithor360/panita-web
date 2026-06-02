@@ -156,9 +156,9 @@ const GalleryPagination = ({ page, totalPages, handlePageChange }: GalleryPagina
 export function GalleryContainer() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(15);
-  const [editionId, setEditionId] = useState<string | null>(null);
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [year, setYear] = useState<string | null>(null);
+  const [editionIds, setEditionIds] = useState<string[]>([]);
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const [years, setYears] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   
   const [photos, setPhotos] = useState<any[]>([]);
@@ -179,9 +179,9 @@ export function GalleryContainer() {
       const filters: GalleryFilters = {
         page,
         pageSize,
-        editionId,
-        categoryId,
-        year,
+        editionIds,
+        categoryIds,
+        years,
         search: debouncedSearch
       };
       const result = await getPhotos(filters);
@@ -192,7 +192,7 @@ export function GalleryContainer() {
     };
 
     fetchPhotos();
-  }, [page, pageSize, editionId, categoryId, year, debouncedSearch]);
+  }, [page, pageSize, editionIds, categoryIds, years, debouncedSearch]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -201,16 +201,31 @@ export function GalleryContainer() {
     }
   };
 
+  const handleEditionToggle = (id: string) => {
+    setEditionIds(prev => prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]);
+    setPage(1);
+  };
+
+  const handleCategoryToggle = (id: string) => {
+    setCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
+    setPage(1);
+  };
+
+  const handleYearToggle = (y: string) => {
+    setYears(prev => prev.includes(y) ? prev.filter(item => item !== y) : [...prev, y]);
+    setPage(1);
+  };
+
   return (
     <div id="gallery-top" className="container mx-auto px-4 py-8 mt-16">
       <div className="flex gap-6 md:gap-2 xl:gap-6 items-start">
         <GallerySidebar 
-          activeEdition={editionId}
-          activeCategory={categoryId}
-          activeYear={year}
-          onEditionChange={(id) => { setEditionId(id === editionId ? null : id); setPage(1); }}
-          onCategoryChange={(id) => { setCategoryId(id === categoryId ? null : id); setPage(1); }}
-          onYearChange={(y) => { setYear(y === year ? null : y); setPage(1); }}
+          activeEditions={editionIds}
+          activeCategories={categoryIds}
+          activeYears={years}
+          onEditionToggle={handleEditionToggle}
+          onCategoryToggle={handleCategoryToggle}
+          onYearToggle={handleYearToggle}
         />
         
         <div className="flex-1 flex flex-col gap-4 min-w-0">
@@ -233,27 +248,16 @@ export function GalleryContainer() {
                 onChange={(val) => { setPageSize(val); setPage(1); }}
               />
               <MobileFilterSheet 
-                activeEdition={editionId}
-                activeCategory={categoryId}
-                activeYear={year}
-                onEditionChange={(id) => { setEditionId(id === editionId ? null : id); setPage(1); }}
-                onCategoryChange={(id) => { setCategoryId(id === categoryId ? null : id); setPage(1); }}
-                onYearChange={(y) => { setYear(y === year ? null : y); setPage(1); }}
+                activeEditions={editionIds}
+                activeCategories={categoryIds}
+                activeYears={years}
+                onEditionToggle={handleEditionToggle}
+                onCategoryToggle={handleCategoryToggle}
+                onYearToggle={handleYearToggle}
               />
             </div>
 
-            {(editionId || categoryId || year || debouncedSearch) ? (
-              <div className="hidden md:block absolute left-1/2 -translate-x-1/2 text-sm text-white/60 font-medium whitespace-nowrap">
-                Revisando {totalItems} resultados
-              </div>
-            ) : null}
-
             <div className="flex items-center justify-between w-full md:w-auto md:justify-end">
-              {(editionId || categoryId || year || debouncedSearch) ? (
-                <div className="md:hidden text-xs text-white/60 font-medium whitespace-nowrap">
-                  Revisando {totalItems} res.
-                </div>
-              ) : null}
               <GalleryPagination page={page} totalPages={totalPages} handlePageChange={handlePageChange} />
             </div>
           </div>
