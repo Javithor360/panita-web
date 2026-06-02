@@ -7,6 +7,12 @@
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
     },
+    "prisma-orm-v7-skills": {
+      "source": "gocallum/nextjs16-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/prisma-orm-v7-skills/SKILL.md",
+      "computedHash": "371d23a97d15be1fdd5ae350b4b2a151045e8fabf83aed0b2d716e747f7ea6d2"
+    },
     "supabase": {
       "source": "supabase/agent-skills",
       "sourceType": "github",
