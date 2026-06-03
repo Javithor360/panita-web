@@ -72,7 +72,7 @@ export async function generateMetadata(
 export default function GalleryPage() {
   return (
     <>
-      <DynamicBackground />
+      <DynamicBackground pattern="squares" />
       <Suspense fallback={<div className="min-h-screen" />}>
         <GalleryContainer />
       </Suspense>

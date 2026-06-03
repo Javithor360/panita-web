@@ -102,18 +102,26 @@ export async function getRoles() {
 export async function saveRole(id: string, name: string, color: string, isNew: boolean) {
   await checkAdmin()
   
-  if (isNew) {
-    await prisma.role.create({
-      data: { id, name, color }
-    })
-  } else {
-    await prisma.role.update({
-      where: { id },
-      data: { name, color }
-    })
+  try {
+    if (isNew) {
+      await prisma.role.create({
+        data: { id, name, color }
+      })
+    } else {
+      await prisma.role.update({
+        where: { id },
+        data: { name, color }
+      })
+    }
+    revalidatePath('/profile')
+    return { success: true }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return { error: 'Ya existe un rango con ese ID.' }
+    }
+    return { error: 'Error inesperado al guardar el rango.' }
   }
-  revalidatePath('/profile')
-  return { success: true }
 }
 
 export async function deleteRole(id: string) {
