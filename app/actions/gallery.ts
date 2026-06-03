@@ -12,6 +12,18 @@ export interface GalleryFilters {
   search?: string | null;
 }
 
+export interface Photo {
+  id: string;
+  title: string;
+  description: string | null;
+  author: string;
+  tagIds: string[];
+  imageUrl: string;
+  date_taken: Date | null;
+  edition_id: string | null;
+  edition_name: string | null;
+}
+
 export async function getPhotos(filters: GalleryFilters = {}) {
   try {
     const { 
@@ -85,19 +97,24 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       ],
       include: {
         user: true,
+        edition: true,
         categories: {
           select: { id: true }
         }
       }
     });
 
-    // Map to the format expected by PhotoCard
-    const photos = dbPhotos.map(photo => ({
+    // Map to the format expected by the client
+    const photos: Photo[] = dbPhotos.map(photo => ({
       id: photo.id,
       title: photo.title || 'Sin título',
+      description: photo.description,
       author: photo.user?.discord_name || 'Anónimo',
       tagIds: photo.categories.map(c => c.id),
       imageUrl: photo.url,
+      date_taken: photo.date_taken,
+      edition_id: photo.edition_id,
+      edition_name: photo.edition?.name || null
     }));
 
     return {
@@ -115,5 +132,37 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       photos: [],
       pagination: { currentPage: 1, totalPages: 0, totalItems: 0 }
     };
+  }
+}
+
+export async function getPhotoById(id: string): Promise<Photo | null> {
+  try {
+    const photo = await prisma.photo.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        edition: true,
+        categories: {
+          select: { id: true }
+        }
+      }
+    });
+
+    if (!photo) return null;
+
+    return {
+      id: photo.id,
+      title: photo.title || 'Sin título',
+      description: photo.description,
+      author: photo.user?.discord_name || 'Anónimo',
+      tagIds: photo.categories.map(c => c.id),
+      imageUrl: photo.url,
+      date_taken: photo.date_taken,
+      edition_id: photo.edition_id,
+      edition_name: photo.edition?.name || null
+    };
+  } catch (error) {
+    console.error(`Error fetching photo by id ${id}:`, error);
+    return null;
   }
 }

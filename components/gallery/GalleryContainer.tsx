@@ -7,7 +7,9 @@ import { MobileFilterSheet } from "@/components/gallery/MobileFilterSheet";
 import { ViewSelect } from "@/components/gallery/ViewSelect";
 import { Search, ArrowUp, MoreHorizontal } from "lucide-react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { getPhotos, GalleryFilters } from "@/app/actions/gallery";
+import { getPhotos, getPhotoById, GalleryFilters, Photo } from "@/app/actions/gallery";
+import { useRouter, useSearchParams } from "next/navigation";
+import { PhotoModal } from "@/components/gallery/PhotoModal";
 
 
 
@@ -161,12 +163,42 @@ export function GalleryContainer() {
   const [years, setYears] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const photoParam = searchParams.get('photo');
+
+  // Handle URL changes for the modal
+  useEffect(() => {
+    if (!photoParam) {
+      setSelectedPhoto(null);
+      return;
+    }
+
+    // Is it in current page results?
+    const existing = photos.find(p => p.id === photoParam);
+    if (existing) {
+      setSelectedPhoto(existing);
+    } else {
+      // It's a direct link to a photo not currently loaded
+      getPhotoById(photoParam).then(fetched => {
+        if (fetched) setSelectedPhoto(fetched);
+      });
+    }
+  }, [photoParam, photos]);
+
+  const closeModal = () => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete('photo');
+    router.push(`?${newParams.toString()}`, { scroll: false });
+  };
   
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 500);
@@ -288,6 +320,13 @@ export function GalleryContainer() {
           )}
         </div>
       </div>
+
+      {selectedPhoto && (
+        <PhotoModal 
+          photo={selectedPhoto} 
+          onClose={closeModal} 
+        />
+      )}
     </div>
   );
 }

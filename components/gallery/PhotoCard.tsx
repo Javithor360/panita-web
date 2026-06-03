@@ -5,6 +5,7 @@ import { User } from "lucide-react";
 import { Card, CardFooter } from "@/components/ui/card";
 import { FilterOption, CATEGORIES } from "@/lib/constants";
 import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface PhotoCardProps {
   id?: string;
@@ -16,13 +17,15 @@ interface PhotoCardProps {
   priority?: boolean;
 }
 
-export function PhotoCard({ title, author, tagIds = [], tags: legacyTags = [], imageUrl, priority }: PhotoCardProps) {
+export function PhotoCard({ id, title, author, tagIds = [], tags: legacyTags = [], imageUrl, priority }: PhotoCardProps) {
   // Resolve tag IDs into full category objects on the client side
   const resolvedTags = tagIds.length > 0 
     ? (tagIds.map(id => CATEGORIES.find(c => c.id === id)).filter(Boolean) as FilterOption[])
     : legacyTags;
   
   const tags = resolvedTags;
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState(3); // SSR default
@@ -74,8 +77,18 @@ export function PhotoCard({ title, author, tagIds = [], tags: legacyTags = [], i
   const hiddenTags = tags.slice(isMeasured ? visibleCount : 3);
   const hiddenCount = hiddenTags.length;
 
+  const handleClick = () => {
+    if (!id) return;
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set('photo', id);
+    router.push(`?${newParams.toString()}`, { scroll: false });
+  };
+
   return (
-    <Card className="group flex flex-col h-full overflow-hidden p-0 gap-0 rounded-xl border-muted/30 bg-muted/10 transition-all hover:border-primary/50 hover:bg-muted/20 cursor-pointer shadow-none">
+    <Card 
+      onClick={handleClick}
+      className="group flex flex-col h-full overflow-hidden p-0 gap-0 rounded-xl border-muted/30 bg-muted/10 transition-all hover:border-primary/50 hover:bg-muted/20 cursor-pointer shadow-none"
+    >
       <div className="relative w-full aspect-video overflow-hidden bg-muted/20 rounded-t-[0.3rem]">
         <Image
           src={imageUrl}
