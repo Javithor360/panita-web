@@ -1,6 +1,8 @@
 import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { DynamicBackground } from "@/components/ui/DynamicBackground";
 import { redirect } from "next/navigation";
+import { ProfileColorExtractor } from "@/components/profile/ProfileColorExtractor";
 import {
   Tooltip,
   TooltipContent,
@@ -16,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Award } from "lucide-react";
 import { Fragment } from "react";
+import { AdminPanel } from "@/components/admin/AdminPanel";
 
 export default async function ProfilePage() {
   const session = await getSession();
@@ -58,19 +61,26 @@ export default async function ProfilePage() {
   
   const formattedDate = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(new Date(user.joined_at));
   const joinedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  
+  const glowColor = primaryRole?.color?.includes('gradient') ? 'var(--primary)' : primaryRole?.color || 'var(--primary)';
 
   return (
-    <div className="w-full relative pb-16">
-      {/* Banner */}
+    <ProfileColorExtractor ign={ign} fallbackColor={glowColor}>
+      <DynamicBackground color="var(--profile-glow)" spacing={64} position="absolute" />
+      <div className="w-full relative z-10 pb-16">
+        {/* Banner */}
       <div 
         className="h-48 md:h-64 w-full"
-        style={{ background: bannerBackground }}
+        style={{ background: 'var(--profile-gradient)' }}
       />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative -mt-24 sm:-mt-32 flex flex-col items-center">
           {/* Avatar de Minecraft */}
-          <div className="rounded-full border-4 border-card bg-card overflow-hidden h-40 w-40 sm:h-48 sm:w-48 shadow-xl">
+          <div 
+            className="rounded-full border-4 border-card bg-card overflow-hidden h-40 w-40 sm:h-48 sm:w-48 shadow-xl transition-all duration-500 hover:scale-105"
+            style={{ boxShadow: '0 10px 30px -15px var(--profile-glow)' }}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={`https://mc-heads.net/avatar/${ign}/256`}
@@ -97,6 +107,7 @@ export default async function ProfilePage() {
                       style={{
                         backgroundImage: isGradient ? role.color : undefined,
                         color: isGradient ? undefined : role.color,
+                        filter: isGradient ? 'drop-shadow(0 0 8px rgba(255,255,255,0.2))' : `drop-shadow(0 0 8px ${role.color}60)`,
                       }}
                     >
                       {role.name}
@@ -118,7 +129,22 @@ export default async function ProfilePage() {
 
           {/* Emblemas */}
           <div className="mt-12 w-full">
-            <h2 className="text-xl font-semibold mb-6 text-center border-b pb-2">Emblemas</h2>
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <div 
+                className="h-[1px] flex-1" 
+                style={{ background: `linear-gradient(to right, transparent, var(--profile-glow))`, opacity: 0.5 }} 
+              />
+              <h2 className="text-xl md:text-2xl font-bold text-foreground uppercase tracking-wide">
+                <span className="select-none mr-3" style={{ color: 'var(--profile-glow)', opacity: 0.8 }}>✦</span>
+                Emblemas
+                <span className="select-none ml-3" style={{ color: 'var(--profile-glow)', opacity: 0.8 }}>✦</span>
+              </h2>
+              <div 
+                className="h-[1px] flex-1" 
+                style={{ background: `linear-gradient(to left, transparent, var(--profile-glow))`, opacity: 0.5 }} 
+              />
+            </div>
+            
             {user.emblems.length > 0 ? (
               <div className="flex flex-wrap justify-center gap-6">
                 {user.emblems.map((emblem) => (
@@ -194,8 +220,15 @@ export default async function ProfilePage() {
               </div>
             )}
           </div>
+
+          {/* Panel de Administrador */}
+          {userRoles.some(r => r.id === 'admin') && (
+            <AdminPanel glowColor="var(--profile-glow)" />
+          )}
+
         </div>
       </div>
-    </div>
+      </div>
+    </ProfileColorExtractor>
   );
 }
