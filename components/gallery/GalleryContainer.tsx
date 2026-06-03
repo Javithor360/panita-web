@@ -8,8 +8,9 @@ import { ViewSelect } from "@/components/gallery/ViewSelect";
 import { Search, ArrowUp, MoreHorizontal } from "lucide-react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { getPhotos, getPhotoById, GalleryFilters, Photo } from "@/app/actions/gallery";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { PhotoModal } from "@/components/gallery/PhotoModal";
+import { useRef } from "react";
 
 
 
@@ -171,12 +172,23 @@ export function GalleryContainer() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const photoParam = searchParams.get('photo');
+  
+  const [isDirectLink, setIsDirectLink] = useState(false);
+  const initialLoadRef = useRef(true);
 
   // Handle URL changes for the modal
   useEffect(() => {
+    if (initialLoadRef.current) {
+      initialLoadRef.current = false;
+      if (photoParam) setIsDirectLink(true);
+    } else {
+      if (!photoParam) setIsDirectLink(false);
+    }
+
     if (!photoParam) {
       setSelectedPhoto(null);
       return;
@@ -197,7 +209,8 @@ export function GalleryContainer() {
   const closeModal = () => {
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.delete('photo');
-    router.push(`?${newParams.toString()}`, { scroll: false });
+    const queryString = newParams.toString();
+    router.push(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
   };
   
   useEffect(() => {
@@ -251,7 +264,7 @@ export function GalleryContainer() {
   let onNext: (() => void) | undefined;
   let onPrev: (() => void) | undefined;
   
-  if (selectedPhoto) {
+  if (selectedPhoto && !isDirectLink) {
     const currentIndex = photos.findIndex(p => p.id === selectedPhoto.id);
     if (currentIndex !== -1) {
       if (currentIndex > 0) {
