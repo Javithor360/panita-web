@@ -113,7 +113,8 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       title: photo.title || 'Sin título',
       description: photo.description,
       author: photo.user?.ign || photo.user?.discord_name || 'Anónimo',
-      tagIds: photo.categories.map(c => c.id),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tagIds: photo.categories.map((c: any) => c.id),
       imageUrl: photo.url,
       date_taken: photo.date_taken,
       edition_id: photo.edition_id,
