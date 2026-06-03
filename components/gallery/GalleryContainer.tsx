@@ -7,7 +7,9 @@ import { MobileFilterSheet } from "@/components/gallery/MobileFilterSheet";
 import { ViewSelect } from "@/components/gallery/ViewSelect";
 import { Search, ArrowUp, MoreHorizontal } from "lucide-react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { getPhotos, GalleryFilters } from "@/app/actions/gallery";
+import { getPhotos, getPhotoById, GalleryFilters, Photo } from "@/app/actions/gallery";
+import { useRouter, useSearchParams } from "next/navigation";
+import { PhotoModal } from "@/components/gallery/PhotoModal";
 
 
 
@@ -161,12 +163,42 @@ export function GalleryContainer() {
   const [years, setYears] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const photoParam = searchParams.get('photo');
+
+  // Handle URL changes for the modal
+  useEffect(() => {
+    if (!photoParam) {
+      setSelectedPhoto(null);
+      return;
+    }
+
+    // Is it in current page results?
+    const existing = photos.find(p => p.id === photoParam);
+    if (existing) {
+      setSelectedPhoto(existing);
+    } else {
+      // It's a direct link to a photo not currently loaded
+      getPhotoById(photoParam).then(fetched => {
+        if (fetched) setSelectedPhoto(fetched);
+      });
+    }
+  }, [photoParam, photos]);
+
+  const closeModal = () => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete('photo');
+    router.push(`?${newParams.toString()}`, { scroll: false });
+  };
   
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 500);
@@ -216,8 +248,33 @@ export function GalleryContainer() {
     setPage(1);
   };
 
+  let onNext: (() => void) | undefined;
+  let onPrev: (() => void) | undefined;
+  
+  if (selectedPhoto) {
+    const currentIndex = photos.findIndex(p => p.id === selectedPhoto.id);
+    if (currentIndex !== -1) {
+      if (currentIndex > 0) {
+        onPrev = () => {
+          const prevId = photos[currentIndex - 1].id;
+          const newParams = new URLSearchParams(searchParams.toString());
+          newParams.set('photo', prevId);
+          router.push(`?${newParams.toString()}`, { scroll: false });
+        };
+      }
+      if (currentIndex < photos.length - 1) {
+        onNext = () => {
+          const nextId = photos[currentIndex + 1].id;
+          const newParams = new URLSearchParams(searchParams.toString());
+          newParams.set('photo', nextId);
+          router.push(`?${newParams.toString()}`, { scroll: false });
+        };
+      }
+    }
+  }
+
   return (
-    <div id="gallery-top" className="container mx-auto px-4 py-8 mt-16">
+    <div className="container mx-auto px-4 py-8 mt-16">
       <div className="flex gap-6 md:gap-2 xl:gap-6 items-start">
         <GallerySidebar 
           activeEditions={editionIds}
@@ -230,7 +287,7 @@ export function GalleryContainer() {
         
         <div className="flex-1 flex flex-col gap-4 min-w-0">
           
-          <div className="relative w-full">
+          <div id="gallery-top" className="relative w-full scroll-mt-28 md:scroll-mt-32">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-foreground z-10" />
             <input 
               type="text" 
@@ -288,6 +345,15 @@ export function GalleryContainer() {
           )}
         </div>
       </div>
+
+      {selectedPhoto && (
+        <PhotoModal 
+          photo={selectedPhoto} 
+          onClose={closeModal} 
+          onNext={onNext}
+          onPrev={onPrev}
+        />
+      )}
     </div>
   );
 }

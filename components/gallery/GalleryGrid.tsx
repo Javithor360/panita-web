@@ -38,6 +38,7 @@ export function GalleryGrid({ photos, loading }: GalleryGridProps) {
         {photos.map((photo, i) => (
           <PhotoCard 
             key={photo.id} 
+            id={photo.id}
             title={photo.title}
             author={photo.author}
             tagIds={photo.tagIds}
