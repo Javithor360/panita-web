@@ -21,8 +21,14 @@ export async function generateMetadata(
   if (photoId) {
     const photo = await getPhotoById(photoId);
     if (photo) {
-      const description = photo.description || `Foto capturada por ${photo.author}`;
-      const title = `${photo.title}`;
+      const description = photo.description || `Fotografía capturada por ${photo.author} en Panitacraft.`;
+      const title = `${photo.title} | Panitacraft`;
+      
+      // Optimize the image for Discord/WhatsApp: less than 300KB, max 800px width
+      let ogImageUrl = photo.imageUrl;
+      if (ogImageUrl.includes('res.cloudinary.com') && ogImageUrl.includes('/upload/')) {
+        ogImageUrl = ogImageUrl.replace('/upload/', '/upload/c_limit,w_800,h_800,q_auto,f_jpg/');
+      }
       
       return {
         title,
@@ -34,8 +40,9 @@ export async function generateMetadata(
           siteName: 'Panitacraft',
           images: [
             {
-              url: photo.imageUrl,
+              url: ogImageUrl,
               alt: photo.title,
+              type: 'image/jpeg',
             },
           ],
           locale: 'es_ES',
@@ -45,7 +52,7 @@ export async function generateMetadata(
           card: 'summary_large_image',
           title: photo.title,
           description,
-          images: [photo.imageUrl],
+          images: [ogImageUrl],
         },
         other: {
           'theme-color': '#5c7cfa',
