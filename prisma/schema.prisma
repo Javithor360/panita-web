@@ -35,15 +35,19 @@ model User {
   discord_id   String  @unique
   password     String?
   enabled      Boolean @default(false)
+  joined_at    DateTime @default(now())
 
   photos Photo[]
+  roles  Role[]
+  emblems Emblem[]
 }
 
 model Edition {
-  id     String  @id
-  name   String
-  icon   String?
-  photos Photo[]
+  id      String   @id
+  name    String
+  icon    String?
+  photos  Photo[]
+  emblems Emblem[]
 }
 
 model Category {
@@ -52,4 +56,21 @@ model Category {
   icon   String?
   color  String?
   photos Photo[]
+}
+
+model Role {
+  id    String @id
+  name  String
+  color String
+  users User[]
+}
+
+model Emblem {
+  id          String   @id
+  name        String
+  description String
+  icon_url    String
+  edition_id  String?
+  edition     Edition? @relation(fields: [edition_id], references: [id])
+  users       User[]
 }
