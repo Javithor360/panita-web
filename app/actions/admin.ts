@@ -192,3 +192,44 @@ export async function deleteEmblem(id: string) {
   revalidatePath('/profile')
   return { success: true }
 }
+
+export async function getEmblemUsers(emblemId: string) {
+  await checkAdmin()
+  const emblem = await prisma.emblem.findUnique({
+    where: { id: emblemId },
+    include: {
+      users: {
+        select: { id: true, ign: true, discord_name: true, discord_id: true }
+      }
+    }
+  })
+  return emblem?.users || []
+}
+
+export async function searchUsersForAssignment(query: string) {
+  await checkAdmin()
+  if (!query || query.length < 2) return []
+  return await prisma.user.findMany({
+    where: {
+      OR: [
+        { ign: { contains: query, mode: 'insensitive' } },
+        { discord_name: { contains: query, mode: 'insensitive' } },
+        { discord_id: { contains: query, mode: 'insensitive' } }
+      ]
+    },
+    select: { id: true, ign: true, discord_name: true, discord_id: true },
+    take: 10
+  })
+}
+
+export async function toggleUserEmblem(userId: number, emblemId: string, assign: boolean) {
+  await checkAdmin()
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      emblems: assign ? { connect: { id: emblemId } } : { disconnect: { id: emblemId } }
+    }
+  })
+  revalidatePath('/profile')
+  return { success: true }
+}
