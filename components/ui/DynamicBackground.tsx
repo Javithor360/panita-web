@@ -3,14 +3,11 @@ export function DynamicBackground({ color, spacing = 32, position = "fixed" }: {
   
   return (
     <div className={`${position} inset-0 z-0 pointer-events-none bg-[#050505] overflow-hidden`}>
-      {/* Grid Pattern */}
+      {/* Cross Pattern (+) */}
       <div 
-        className="absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0"
         style={{
-          backgroundImage: `
-            linear-gradient(to right, var(--foreground) 1px, transparent 1px),
-            linear-gradient(to bottom, var(--foreground) 1px, transparent 1px)
-          `,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='${spacing}' height='${spacing}' viewBox='0 0 ${spacing} ${spacing}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M${spacing/2} ${spacing/2 - 4}v8M${spacing/2 - 4} ${spacing/2}h8' stroke='rgba(255,255,255,0.12)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
           backgroundSize: `${spacing}px ${spacing}px`
         }}
       />
