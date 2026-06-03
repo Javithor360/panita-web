@@ -14,6 +14,10 @@ interface PhotoModalProps {
 export function PhotoModal({ photo, onClose }: PhotoModalProps) {
   const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // Close on Escape key
   useEffect(() => {
@@ -31,6 +35,14 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
       document.body.style.overflow = "unset";
     };
   }, []);
+
+  // Reset scale when details open
+  useEffect(() => {
+    if (showDetails) {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [showDetails]);
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
@@ -61,6 +73,44 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
       console.error("Error downloading image:", err);
       window.open(photo.imageUrl, '_blank');
     }
+  };
+
+  const handleZoom = (delta: number) => {
+    setScale(s => {
+      const newScale = Math.min(Math.max(s + delta, 1), 4);
+      if (newScale === 1) setPosition({ x: 0, y: 0 });
+      return newScale;
+    });
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (showDetails) return;
+    if (e.deltaY < 0) {
+      handleZoom(0.25);
+    } else {
+      handleZoom(-0.25);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (scale <= 1 || showDetails) return;
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || scale <= 1 || showDetails) return;
+    setPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
   };
 
   const resolvedTags = photo.tagIds.map(id => CATEGORIES.find(c => c.id === id)).filter(Boolean) as any[];
@@ -125,7 +175,7 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
 
       {/* Image Area */}
       <div 
-        className="relative w-full flex items-center justify-center transition-all duration-500 ease-in-out" 
+        className="relative w-full flex items-center justify-center transition-all duration-500 ease-in-out group overflow-hidden" 
         style={{ 
           height: showDetails ? '50dvh' : '100dvh', 
           paddingBottom: showDetails ? '2rem' : '10rem', 
@@ -134,13 +184,59 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
           paddingRight: '1rem'
         }}
         onClick={onClose}
+        onWheel={handleWheel}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
         <img 
           src={photo.imageUrl}
           alt={photo.title}
-          className="max-w-full max-h-full object-contain cursor-default drop-shadow-2xl transition-all duration-500 ease-in-out"
+          draggable={false}
+          className={`max-w-full max-h-full object-contain drop-shadow-2xl ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+          style={{ 
+            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transition: isDragging ? 'none' : 'transform 0.15s ease-out'
+          }}
+          onMouseDown={handleMouseDown}
           onClick={(e) => e.stopPropagation()}
         />
+        
+        {/* Zoom Controls */}
+        {!showDetails && (
+          <div className="absolute right-6 bottom-32 md:right-12 md:bottom-40 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleZoom(0.5); }} 
+              className="bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer"
+              title="Acercar"
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+              </svg>
+            </button>
+            {scale > 1 && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); setScale(1); setPosition({x:0, y:0}); }} 
+                className="bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                title="Restablecer"
+              >
+                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            )}
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleZoom(-0.5); }} 
+              className={`bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full backdrop-blur-md transition-all cursor-pointer ${scale <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 active:scale-95'}`}
+              disabled={scale <= 1}
+              title="Alejar"
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Bottom Footer */}
