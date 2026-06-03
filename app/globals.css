@@ -1,3 +1,4 @@
+@import url('https://fonts.cdnfonts.com/css/minecraft-4');
 @import "tailwindcss";
 @source "../components";
 @source "../lib";
@@ -32,39 +33,45 @@
   --breakpoint-2xs: 375px;
 }
 
-:root {
-  /* Default: Semi Dark Mode */
-  --background: oklch(0.18 0 0); /* Dark gray */
-  --foreground: oklch(0.98 0 0); /* White text */
-  
-  --card: oklch(0.22 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  
-  --popover: oklch(0.22 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  
-  /* Primary: Light Blue */
-  --primary: oklch(0.75 0.15 250); 
-  --primary-foreground: oklch(0.18 0 0);
-  
-  /* Secondary: White */
-  --secondary: oklch(0.98 0 0);
-  --secondary-foreground: oklch(0.18 0 0);
-  
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  
-  --accent: oklch(0.25 0 0);
-  --accent-foreground: oklch(0.98 0 0);
-  
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  
-  --border: oklch(0.28 0 0);
-  --input: oklch(0.28 0 0);
-  --ring: oklch(0.75 0.15 250);
-  
-  --radius: 0.3rem;
+@layer base {
+  :root {
+    /* Default: Semi Dark Mode */
+    --background: oklch(0.18 0 0); /* Dark gray */
+    --foreground: oklch(0.98 0 0); /* White text */
+    
+    --card: oklch(0.22 0 0);
+    --card-foreground: oklch(0.98 0 0);
+    
+    --popover: oklch(0.22 0 0);
+    --popover-foreground: oklch(0.98 0 0);
+    
+    /* Primary: Light Blue */
+    --primary: oklch(0.75 0.15 250); 
+    --primary-foreground: oklch(0.18 0 0);
+    
+    /* Secondary: White */
+    --secondary: oklch(0.98 0 0);
+    --secondary-foreground: oklch(0.18 0 0);
+    
+    --muted: oklch(0.25 0 0);
+    --muted-foreground: oklch(0.7 0 0);
+    
+    --accent: oklch(0.25 0 0);
+    --accent-foreground: oklch(0.98 0 0);
+    
+    --destructive: oklch(0.6 0.2 25);
+    --destructive-foreground: oklch(0.98 0 0);
+    
+    --border: oklch(0.28 0 0);
+    --input: oklch(0.28 0 0);
+    --ring: oklch(0.75 0.15 250);
+    
+    --radius: 0.3rem;
+  }
+}
+
+.font-minecraft {
+  font-family: 'Minecraft', sans-serif;
 }
 
 @layer base {
@@ -76,6 +83,16 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Fix browser autofill styling */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px oklch(0.18 0 0) inset !important;
+    -webkit-text-fill-color: oklch(0.98 0 0) !important;
+    transition: background-color 5000s ease-in-out 0s;
   }
 }
 
