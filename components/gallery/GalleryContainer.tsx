@@ -178,15 +178,13 @@ export function GalleryContainer() {
   const photoParam = searchParams.get('photo');
   
   const [isDirectLink, setIsDirectLink] = useState(false);
-  const initialLoadRef = useRef(true);
 
   // Handle URL changes for the modal
   useEffect(() => {
-    if (initialLoadRef.current) {
-      initialLoadRef.current = false;
-      if (photoParam) setIsDirectLink(true);
-    } else {
-      if (!photoParam) setIsDirectLink(false);
+    if (photoParam && photos.length === 0 && loading) {
+      setIsDirectLink(true);
+    } else if (!photoParam) {
+      setIsDirectLink(false);
     }
 
     if (!photoParam) {
@@ -204,13 +202,18 @@ export function GalleryContainer() {
         if (fetched) setSelectedPhoto(fetched);
       });
     }
-  }, [photoParam, photos]);
+  }, [photoParam, photos, loading]);
 
   const closeModal = () => {
+    setSelectedPhoto(null);
     const newParams = new URLSearchParams(searchParams.toString());
     newParams.delete('photo');
     const queryString = newParams.toString();
-    router.push(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
+    if (queryString) {
+      router.push(`${pathname}?${queryString}`, { scroll: false });
+    } else {
+      router.replace(pathname, { scroll: false });
+    }
   };
   
   useEffect(() => {
