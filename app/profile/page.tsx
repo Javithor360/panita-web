@@ -98,9 +98,9 @@ export default async function ProfilePage() {
           </p>
 
           {/* Roles (Con tipografía de Minecraft y color/gradiente) */}
-          <div className="mt-6 flex flex-wrap justify-center items-center gap-6">
+          <div className="mt-6 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 sm:gap-6">
             {userRoles.length > 0 ? (
-              userRoles.map((role, index) => {
+              userRoles.map((role: any, index: number) => {
                 const isGradient = role.color.includes('gradient');
                 return (
                   <Fragment key={role.id}>
@@ -115,7 +115,7 @@ export default async function ProfilePage() {
                       {role.name}
                     </span>
                     {index < userRoles.length - 1 && (
-                      <span className="text-muted-foreground/30 font-minecraft text-xl md:text-2xl select-none">
+                      <span className="text-muted-foreground/30 font-minecraft text-xl md:text-2xl select-none hidden sm:inline">
                         —
                       </span>
                     )}
@@ -136,7 +136,7 @@ export default async function ProfilePage() {
                 className="h-[1px] flex-1" 
                 style={{ background: `linear-gradient(to right, transparent, var(--profile-glow))`, opacity: 0.5 }} 
               />
-              <h2 className="text-xl md:text-2xl font-bold text-foreground uppercase tracking-wide">
+              <h2 className="text-lg tracking-tight sm:text-xl md:text-2xl font-bold text-foreground uppercase sm:tracking-wide">
                 <span className="select-none mr-3" style={{ color: 'var(--profile-glow)', opacity: 0.8 }}>✦</span>
                 Emblemas
                 <span className="select-none ml-3" style={{ color: 'var(--profile-glow)', opacity: 0.8 }}>✦</span>
@@ -149,7 +149,7 @@ export default async function ProfilePage() {
             
             {user.emblems.length > 0 ? (
               <div className="flex flex-wrap justify-center gap-6">
-                {user.emblems.map((emblem) => (
+                {user.emblems.map((emblem: any) => (
                   <Dialog key={emblem.id}>
                     <Tooltip>
                       <TooltipTrigger
@@ -204,9 +204,13 @@ export default async function ProfilePage() {
                           <p className="text-xs text-center font-semibold bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 bg-clip-text text-transparent italic drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">
                             ¡Eres el único con este emblema!
                           </p>
+                        ) : Math.max(0, emblem._count.users - 1) === 1 ? (
+                          <p className="text-xs text-muted-foreground/60 italic text-center">
+                            Otro usuario también tiene este emblema.
+                          </p>
                         ) : (
                           <p className="text-xs text-muted-foreground/60 italic text-center">
-                            Otros {Math.max(0, emblem._count.users - 1)} usuarios tienen este emblema.
+                            Otros {Math.max(0, emblem._count.users - 1)} usuarios también tienen este emblema.
                           </p>
                         )}
                       </div>
@@ -223,7 +227,7 @@ export default async function ProfilePage() {
           </div>
 
           {/* Panel de Administrador */}
-          {userRoles.some((r) => r.id === 'admin') && (
+          {userRoles.some((r: any) => r.id === 'admin') && (
             <AdminPanel glowColor="var(--profile-glow)" />
           )}
 

@@ -15,7 +15,7 @@ export function AdminPanel({ glowColor }: { glowColor?: string }) {
           className="h-[1px] flex-1" 
           style={{ background: `linear-gradient(to right, transparent, ${color})`, opacity: 0.5 }} 
         />
-        <h2 className="text-xl md:text-2xl font-bold text-foreground uppercase tracking-wide">
+        <h2 className="text-lg tracking-tight sm:text-xl md:text-2xl font-bold text-foreground uppercase sm:tracking-wide">
           <span className="select-none mr-3" style={{ color: color, opacity: 0.8 }}>✦</span>
           Gestión del Servidor
           <span className="select-none ml-3" style={{ color: color, opacity: 0.8 }}>✦</span>

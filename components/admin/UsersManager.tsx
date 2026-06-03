@@ -16,7 +16,8 @@ export function UsersManager() {
   const [totalUsers, setTotalUsers] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [skip, setSkip] = useState(0)
-  const TAKE = 5
+  const INITIAL_TAKE = 8
+  const LOAD_MORE_TAKE = 5
 
   const [allRoles, setAllRoles] = useState<Role[]>([])
   const [allEmblems, setAllEmblems] = useState<Emblem[]>([])
@@ -45,7 +46,7 @@ export function UsersManager() {
     setLoading(true)
     try {
       const [uData, rData, eData] = await Promise.all([
-        getUsers(searchQuery, TAKE, 0),
+        getUsers(searchQuery, INITIAL_TAKE, 0),
         getRoles(),
         getEmblems()
       ])
@@ -53,7 +54,7 @@ export function UsersManager() {
       setTotalUsers(uData.total)
       setAllRoles(rData)
       setAllEmblems(eData)
-      setSkip(TAKE)
+      setSkip(INITIAL_TAKE)
     } finally {
       setLoading(false)
     }
@@ -76,10 +77,10 @@ export function UsersManager() {
     const delayDebounceFn = setTimeout(() => {
       setSkip(0)
       setLoading(true)
-      getUsers(searchQuery, TAKE, 0).then(data => {
+      getUsers(searchQuery, INITIAL_TAKE, 0).then(data => {
         setUsers(data.users)
         setTotalUsers(data.total)
-        setSkip(TAKE)
+        setSkip(INITIAL_TAKE)
         setLoading(false)
       })
     }, 500)
@@ -90,12 +91,12 @@ export function UsersManager() {
   const handleLoadMore = async () => {
     setLoadingMore(true)
     try {
-      const data = await getUsers(searchQuery, TAKE, skip)
+      const data = await getUsers(searchQuery, LOAD_MORE_TAKE, skip)
       setUsers(prev => {
         const newUsers = data.users.filter((u: UserWithRelations) => !prev.some(p => p.id === u.id))
         return [...prev, ...newUsers]
       })
-      setSkip(prev => prev + TAKE)
+      setSkip(prev => prev + LOAD_MORE_TAKE)
     } finally {
       setLoadingMore(false)
     }
@@ -217,26 +218,26 @@ export function UsersManager() {
                 Volver a la lista
               </button>
               
-              <div className="flex items-center justify-between gap-4 mb-2 mt-2">
-                <div className="flex items-center gap-4">
-                   <div className="w-16 h-16 rounded-md bg-secondary overflow-hidden shadow-md relative">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 mt-2">
+                <div className="flex items-center gap-4 min-w-0 w-full sm:w-auto">
+                   <div className="w-16 h-16 rounded-md bg-secondary overflow-hidden shadow-md relative flex-shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={ign ? `https://mc-heads.net/avatar/${ign}/128` : "/steve.svg"} alt={ign || 'Steve'} className="w-full h-full object-cover z-10 relative" style={{ imageRendering: 'pixelated' }} />
                     {/* Loading placeholder skeleton underneath */}
                     <div className="absolute inset-0 bg-muted animate-pulse z-0"></div>
                   </div>
-                  <div className="flex flex-col">
-                    <h3 className="font-bold text-xl leading-none">{ign || discordName}</h3>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <p className="text-sm text-muted-foreground">@{selectedUser.discord_name}</p>
-                      <span className="text-muted-foreground/40 text-xs select-none" title="Discord ID">
+                  <div className="flex flex-col min-w-0">
+                    <h3 className="font-bold text-xl leading-none truncate">{ign || discordName}</h3>
+                    <div className="flex flex-col 2xs:flex-row 2xs:items-center gap-1 2xs:gap-2 mt-1.5 min-w-0">
+                      <p className="text-sm text-muted-foreground truncate">@{selectedUser.discord_name}</p>
+                      <span className="text-muted-foreground/40 text-xs select-none truncate" title="Discord ID">
                         ID: {selectedUser.discord_id}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 px-1 py-2">
+                <div className="flex items-center gap-2 px-1 sm:py-2">
                   <input 
                     type="checkbox" 
                     checked={enabled} 
