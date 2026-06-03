@@ -3,9 +3,26 @@
 import { useState, useEffect } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Card } from "@/components/ui/card"
-import { Shield, Save, Loader2, Plus, Trash, ArrowLeft } from "lucide-react"
-import { getRoles, saveRole, deleteRole } from "@/app/actions/admin"
+import { Shield, Save, Loader2, Plus, Trash, ArrowLeft, GripVertical } from "lucide-react"
+import { getRoles, saveRole, deleteRole, updateRolePositions } from "@/app/actions/admin"
 import type { Role } from "@/lib/generated/prisma/client"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +42,61 @@ const extractSolidColor = (c: string) => {
     return match ? match[0] : 'var(--foreground)'
   }
   return c
+}
+
+function SortableRoleItem({ role, onEdit }: { role: Role, onEdit: (r: Role) => void }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: role.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 0,
+    opacity: isDragging ? 0.8 : 1,
+  };
+
+  const isGradient = role.color?.includes('gradient');
+
+  return (
+    <div 
+      ref={setNodeRef}
+      style={style}
+      className={`p-3 border rounded-md flex justify-between items-center group transition-colors select-none ${isDragging ? 'border-primary bg-secondary/10 shadow-lg' : 'bg-card hover:bg-secondary/20'}`}
+    >
+      <div className="flex items-center gap-3 w-full @container overflow-hidden">
+        <div 
+          {...attributes} 
+          {...listeners} 
+          className="cursor-grab hover:text-primary active:cursor-grabbing text-muted-foreground/50 hover:text-foreground transition-colors flex-shrink-0"
+        >
+          <GripVertical className="w-5 h-5" />
+        </div>
+        
+        <div 
+          onClick={() => onEdit(role)}
+          className="flex items-center gap-3 w-full cursor-pointer overflow-hidden"
+        >
+          <div className="w-4 h-4 rounded-full shadow-sm flex-shrink-0" style={{ background: role.color || 'var(--foreground)' }} />
+          <span 
+            className={`font-minecraft tracking-wider leading-none relative -top-[2px] text-[clamp(0.875rem,8cqw,1.25rem)] truncate ${isGradient ? 'text-transparent bg-clip-text' : 'drop-shadow-sm'}`} 
+            style={{ 
+              color: !isGradient ? extractSolidColor(role.color) : undefined,
+              backgroundImage: isGradient ? role.color : undefined,
+              filter: isGradient ? 'drop-shadow(0 0 8px rgba(255,255,255,0.15))' : undefined
+            }}
+          >
+            {role.name}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function RoleEditor({ 
@@ -261,6 +333,38 @@ export function RolesManager() {
     loadRoles()
   }
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = roles.findIndex((i) => i.id === active.id);
+      const newIndex = roles.findIndex((i) => i.id === over.id);
+
+      const newItems = arrayMove(roles, oldIndex, newIndex);
+      setRoles(newItems);
+      
+      const positions = newItems.map((item, index) => ({
+        id: item.id,
+        position: index,
+      }));
+      
+      updateRolePositions(positions).catch(err => {
+         console.error("Failed to update positions", err);
+      });
+    }
+  };
+
   return (
     <>
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -289,30 +393,20 @@ export function RolesManager() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {roles.map(r => {
-                    const isGradient = r.color?.includes('gradient');
-                    return (
-                      <div 
-                        key={r.id} 
-                        onClick={() => handleEdit(r)}
-                        className="p-3 border rounded-md flex justify-between items-center group hover:bg-secondary/20 cursor-pointer transition-colors"
-                      >
-                        <div className="flex items-center gap-3 @container overflow-hidden w-full">
-                          <div className="w-4 h-4 rounded-full shadow-sm flex-shrink-0" style={{ background: r.color || 'var(--foreground)' }} />
-                          <span 
-                            className={`font-minecraft tracking-wider leading-none relative -top-[2px] text-[clamp(0.875rem,8cqw,1.25rem)] truncate ${isGradient ? 'text-transparent bg-clip-text' : 'drop-shadow-sm'}`} 
-                            style={{ 
-                              color: !isGradient ? extractSolidColor(r.color) : undefined,
-                              backgroundImage: isGradient ? r.color : undefined,
-                              filter: isGradient ? 'drop-shadow(0 0 8px rgba(255,255,255,0.15))' : undefined
-                            }}
-                          >
-                            {r.name}
-                          </span>
-                        </div>
-                      </div>
-                    )
-                  })}
+                  <DndContext 
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext 
+                      items={roles.map(r => r.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {roles.map(r => (
+                        <SortableRoleItem key={r.id} role={r} onEdit={handleEdit} />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                   <button 
                     onClick={handleCreate}
                     className="flex items-center gap-2 bg-primary/10 text-primary p-3 rounded-md justify-center font-medium hover:bg-primary/20 transition-colors mt-2 cursor-pointer"

@@ -59,10 +59,11 @@ model Category {
 }
 
 model Role {
-  id    String @id
-  name  String
-  color String
-  users User[]
+  id       String @id
+  name     String
+  color    String
+  position Int    @default(0)
+  users    User[]
 }
 
 model Emblem {

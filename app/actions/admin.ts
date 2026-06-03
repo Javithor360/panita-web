@@ -35,7 +35,7 @@ export async function getUsers(search?: string, take: number = 5, skip: number =
     prisma.user.findMany({
       where,
       include: {
-        roles: true,
+        roles: { orderBy: { position: 'asc' } },
         emblems: true
       },
       orderBy: [
@@ -95,7 +95,7 @@ export async function updateUser(userId: number, data: {
 export async function getRoles() {
   await checkAdmin()
   return await prisma.role.findMany({
-    orderBy: { name: 'asc' }
+    orderBy: { position: 'asc' }
   })
 }
 
@@ -127,6 +127,22 @@ export async function saveRole(id: string, name: string, color: string, isNew: b
 export async function deleteRole(id: string) {
   await checkAdmin()
   await prisma.role.delete({ where: { id } })
+  revalidatePath('/profile')
+  return { success: true }
+}
+
+export async function updateRolePositions(positions: { id: string, position: number }[]) {
+  await checkAdmin()
+  
+  await prisma.$transaction(
+    positions.map(p => 
+      prisma.role.update({
+        where: { id: p.id },
+        data: { position: p.position }
+      })
+    )
+  )
+  
   revalidatePath('/profile')
   return { success: true }
 }

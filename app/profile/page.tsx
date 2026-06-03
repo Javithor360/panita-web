@@ -29,7 +29,9 @@ export default async function ProfilePage() {
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     include: {
-      roles: true,
+      roles: {
+        orderBy: { position: 'asc' }
+      },
       emblems: {
         include: { 
           edition: true,
