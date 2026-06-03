@@ -20,15 +20,34 @@ async function checkAdmin() {
 
 // --- USERS ---
 
-export async function getUsers() {
+export async function getUsers(search?: string, take: number = 5, skip: number = 0) {
   await checkAdmin()
-  return await prisma.user.findMany({
-    include: {
-      roles: true,
-      emblems: true
-    },
-    orderBy: { joined_at: 'desc' }
-  })
+  
+  const where = search ? {
+    OR: [
+      { ign: { contains: search, mode: 'insensitive' as const } },
+      { discord_name: { contains: search, mode: 'insensitive' as const } }
+    ]
+  } : {}
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      include: {
+        roles: true,
+        emblems: true
+      },
+      orderBy: [
+        { joined_at: 'desc' },
+        { id: 'asc' }
+      ],
+      take,
+      skip
+    }),
+    prisma.user.count({ where })
+  ])
+
+  return { users, total }
 }
 
 export async function updateUser(userId: number, data: {

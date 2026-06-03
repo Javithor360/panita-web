@@ -69,7 +69,7 @@ export function RolesManager() {
         }
       >
         <Shield className="w-8 h-8" style={{ color: 'var(--profile-glow)' }} />
-        <span className="font-semibold text-lg">Roles</span>
+        <span className="font-semibold text-lg select-none">Roles</span>
       </SheetTrigger>
       
       <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
@@ -167,7 +167,7 @@ export function RolesManager() {
               <button 
                 onClick={handleSave}
                 disabled={!roleId || !name || !color}
-                className="mt-6 flex items-center justify-center gap-2 bg-primary text-primary-foreground p-2 rounded-md hover:opacity-90 font-medium disabled:opacity-50"
+                className="mt-6 flex items-center justify-center gap-2 bg-primary text-primary-foreground p-2 rounded-md hover:opacity-90 font-medium select-none disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 Guardar Rol
