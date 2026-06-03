@@ -21,8 +21,8 @@ export async function generateMetadata(
   if (photoId) {
     const photo = await getPhotoById(photoId);
     if (photo) {
-      const description = photo.description || `Fotografía capturada por ${photo.author} en Panitacraft.`;
-      const title = `${photo.title} | Panitacraft`;
+      const description = photo.description || `Foto capturada por ${photo.author}.`;
+      const title = `${photo.title}`;
       
       // Optimize the image for Discord/WhatsApp: less than 300KB, max 800px width
       let ogImageUrl = photo.imageUrl;
