@@ -76,7 +76,10 @@ export async function getPhotos(filters: GalleryFilters = {}) {
         { description: { contains: search, mode: 'insensitive' } },
         { 
           user: {
-            discord_name: { contains: search, mode: 'insensitive' }
+            OR: [
+              { discord_name: { contains: search, mode: 'insensitive' } },
+              { ign: { contains: search, mode: 'insensitive' } }
+            ]
           }
         }
       ];
@@ -109,7 +112,7 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       id: photo.id,
       title: photo.title || 'Sin título',
       description: photo.description,
-      author: photo.user?.discord_name || 'Anónimo',
+      author: photo.user?.ign || photo.user?.discord_name || 'Anónimo',
       tagIds: photo.categories.map(c => c.id),
       imageUrl: photo.url,
       date_taken: photo.date_taken,
@@ -154,7 +157,7 @@ export async function getPhotoById(id: string): Promise<Photo | null> {
       id: photo.id,
       title: photo.title || 'Sin título',
       description: photo.description,
-      author: photo.user?.discord_name || 'Anónimo',
+      author: photo.user?.ign || photo.user?.discord_name || 'Anónimo',
       tagIds: photo.categories.map(c => c.id),
       imageUrl: photo.url,
       date_taken: photo.date_taken,
