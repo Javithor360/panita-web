@@ -18,12 +18,13 @@ export async function POST(request: Request) {
     }
 
     // Get resources from the folder using Cloudinary search API
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let resources: any[] = [];
-    let nextCursor = null;
+    let nextCursor: string | undefined = undefined;
 
     do {
       // Use /* to include all subfolders (players) within the edition folder
-      const result: any = await cloudinary.search
+      const result = await cloudinary.search
         .expression(`folder:"${folderPath}/*"`)
         .sort_by('public_id', 'asc')
         .max_results(500)

@@ -35,7 +35,11 @@ export async function loginAction(prevState: any, formData: FormData) {
       return { error: 'Esta cuenta no tiene contraseña configurada. Debes activarla primero.' };
     }
 
-    const isValid = await bcrypt.compare(password, user.password);
+    async function verifyPassword(password: string, hash: string) {
+      return await bcrypt.compare(password, hash);
+    }
+
+    const isValid = await verifyPassword(password, user.password);
     if (!isValid) {
       return { error: 'Credenciales incorrectas.' };
     }

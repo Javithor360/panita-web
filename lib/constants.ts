@@ -44,6 +44,12 @@ export const EDITIONS: FilterOption[] = [
   { id: "panitamon", label: "Panitamon", iconName: "lucide-Target", iconComponent: Target }, 
 ];
 
+export const RANGOS: Record<string, {name: string, color: string}> = {
+  admin: { name: "Admin", color: "#ef4444" },
+  moderador: { name: "Moderador", color: "#3b82f6" },
+  veterano: { name: "Veterano", color: "#eab308" },
+};
+
 export const CATEGORIES: FilterOption[] = [
   { id: "group", label: "Foto grupal", iconName: "lucide-Users", iconComponent: Users, color: "#3b82f6" },
   { id: "build", label: "Construcción", iconName: "lucide-Construction", iconComponent: Construction, color: "#f97316" },

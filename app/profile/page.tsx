@@ -151,7 +151,6 @@ export default async function ProfilePage() {
                   <Dialog key={emblem.id}>
                     <Tooltip>
                       <TooltipTrigger
-                        nativeButton={false}
                         render={
                           <DialogTrigger 
                             nativeButton={false}
@@ -222,7 +221,7 @@ export default async function ProfilePage() {
           </div>
 
           {/* Panel de Administrador */}
-          {userRoles.some(r => r.id === 'admin') && (
+          {userRoles.some((r) => r.id === 'admin') && (
             <AdminPanel glowColor="var(--profile-glow)" />
           )}
 

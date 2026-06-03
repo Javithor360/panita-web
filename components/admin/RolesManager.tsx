@@ -3,15 +3,16 @@
 import { useState, useEffect } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Card } from "@/components/ui/card"
-import { Shield, Save, Plus, Trash } from "lucide-react"
+import { Shield, Save, Loader2, Plus, Trash } from "lucide-react"
 import { getRoles, saveRole, deleteRole } from "@/app/actions/admin"
+import type { Role } from "@/lib/generated/prisma/client"
 
 export function RolesManager() {
   const [isOpen, setIsOpen] = useState(false)
-  const [roles, setRoles] = useState<any[]>([])
+  const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(false)
   
-  const [selectedRole, setSelectedRole] = useState<any | null>(null)
+  const [selectedRole, setSelectedRole] = useState<Partial<Role> | null>(null)
   const [isNew, setIsNew] = useState(false)
 
   // Form states
@@ -19,18 +20,19 @@ export function RolesManager() {
   const [name, setName] = useState('')
   const [color, setColor] = useState('')
 
-  useEffect(() => {
-    if (isOpen) {
-      loadRoles()
-    }
-  }, [isOpen])
-
   const loadRoles = async () => {
     setLoading(true)
     const data = await getRoles()
     setRoles(data)
     setLoading(false)
   }
+
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadRoles()
+    }
+  }, [isOpen])
 
   const handleCreate = () => {
     setSelectedRole({})
@@ -40,7 +42,7 @@ export function RolesManager() {
     setColor('#ffffff')
   }
 
-  const handleEdit = (r: any) => {
+  const handleEdit = (r: Role) => {
     setSelectedRole(r)
     setIsNew(false)
     setRoleId(r.id)

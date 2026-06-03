@@ -4,19 +4,24 @@ import { cookies } from 'next/headers';
 const secretKey = process.env.SESSION_SECRET || 'panita_secret_fallback_123';
 const key = new TextEncoder().encode(secretKey);
 
-export async function encrypt(payload: any) {
-  return await new SignJWT(payload)
+interface SessionPayload {
+  userId: number;
+  expires: Date;
+}
+
+export async function encrypt(payload: SessionPayload) {
+  return await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
     .sign(key);
 }
 
-export async function decrypt(input: string): Promise<any> {
+export async function decrypt(input: string): Promise<SessionPayload> {
   const { payload } = await jwtVerify(input, key, {
     algorithms: ['HS256'],
   });
-  return payload;
+  return payload as unknown as SessionPayload;
 }
 
 export async function loginSession(userId: number) {

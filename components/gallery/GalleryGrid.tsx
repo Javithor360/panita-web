@@ -2,7 +2,7 @@ import { PhotoCard } from "./PhotoCard";
 import { Loader2 } from "lucide-react";
 
 interface GalleryGridProps {
-  photos: any[];
+  photos: Array<{ id: string, title: string, author: string, tagIds: string[], imageUrl: string }>;
   loading?: boolean;
 }
 

@@ -6,20 +6,23 @@ import { Card } from "@/components/ui/card"
 import { Users, Search, Check, Loader2, Plus, ArrowLeft } from "lucide-react"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { getUsers, updateUser, getRoles, getEmblems } from "@/app/actions/admin"
+import type { User as PrismaUser, Role, Emblem } from "@/lib/generated/prisma/client"
+
+type UserWithRelations = PrismaUser & { roles: Role[], emblems: Emblem[] }
 
 export function UsersManager() {
   const [isOpen, setIsOpen] = useState(false)
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<UserWithRelations[]>([])
   const [totalUsers, setTotalUsers] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [skip, setSkip] = useState(0)
   const TAKE = 5
 
-  const [allRoles, setAllRoles] = useState<any[]>([])
-  const [allEmblems, setAllEmblems] = useState<any[]>([])
+  const [allRoles, setAllRoles] = useState<Role[]>([])
+  const [allEmblems, setAllEmblems] = useState<Emblem[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<any | null>(null)
+  const [selectedUser, setSelectedUser] = useState<UserWithRelations | null>(null)
   
   const extractSolidColor = (c: string) => {
     if (!c) return 'var(--foreground)'
@@ -89,7 +92,7 @@ export function UsersManager() {
     try {
       const data = await getUsers(searchQuery, TAKE, skip)
       setUsers(prev => {
-        const newUsers = data.users.filter((u: any) => !prev.some(p => p.id === u.id))
+        const newUsers = data.users.filter((u: UserWithRelations) => !prev.some(p => p.id === u.id))
         return [...prev, ...newUsers]
       })
       setSkip(prev => prev + TAKE)
@@ -98,14 +101,14 @@ export function UsersManager() {
     }
   }
 
-  const handleSelect = (u: any) => {
+  const handleSelect = (u: UserWithRelations) => {
     setSelectedUser(u)
     setIgn(u.ign || '')
     setDiscordName(u.discord_name || '')
     setEnabled(u.enabled || false)
     setJoinedAt(u.joined_at ? new Date(u.joined_at).toISOString().split('T')[0] : '')
-    setRoles(u.roles?.map((r: any) => r.id) || [])
-    setEmblems(u.emblems?.map((e: any) => e.id) || [])
+    setRoles(u.roles?.map((r: Role) => r.id) || [])
+    setEmblems(u.emblems?.map((e: Emblem) => e.id) || [])
   }
 
   const handleSave = async () => {

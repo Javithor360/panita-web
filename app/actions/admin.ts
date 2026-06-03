@@ -3,6 +3,7 @@
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import type { User as PrismaUser, Role, Emblem, Edition } from "@/lib/generated/prisma/client"
 
 async function checkAdmin() {
   const session = await getSession()
@@ -20,7 +21,7 @@ async function checkAdmin() {
 
 // --- USERS ---
 
-export async function getUsers(search?: string, take: number = 5, skip: number = 0) {
+export async function getUsers(search?: string, take: number = 5, skip: number = 0): Promise<{ users: (PrismaUser & { roles: Role[], emblems: Emblem[] })[], total: number }> {
   await checkAdmin()
   
   const where = search ? {
@@ -60,7 +61,8 @@ export async function updateUser(userId: number, data: {
 }) {
   await checkAdmin()
 
-  const updateData: any = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateData: Record<string, unknown> = {
     ign: data.ign,
     discord_name: data.discord_name,
     enabled: data.enabled,
@@ -123,7 +125,7 @@ export async function deleteRole(id: string) {
 
 // --- EMBLEMS ---
 
-export async function getEmblems() {
+export async function getEmblems(): Promise<(Emblem & { edition: Edition | null })[]> {
   await checkAdmin()
   return await prisma.emblem.findMany({
     include: { edition: true },

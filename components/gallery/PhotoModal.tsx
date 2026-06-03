@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { X, Share2, Check, User, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { Photo } from "@/app/actions/gallery";
 import { CATEGORIES } from "@/lib/constants";
@@ -52,10 +51,13 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
   // Reset scale when details open
   useEffect(() => {
     if (showDetails) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScale(1);
       setPosition({ x: 0, y: 0 });
     }
   }, [showDetails]);
+
+
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
@@ -146,7 +148,7 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
     setTouchStart(0);
   };
 
-  const resolvedTags = photo.tagIds.map(id => CATEGORIES.find(c => c.id === id)).filter(Boolean) as any[];
+  const resolvedTags = photo.tagIds.map(id => CATEGORIES.find(c => c.id === id)).filter(Boolean) as typeof CATEGORIES;
 
   let formattedDate = null;
   if (photo.date_taken) {

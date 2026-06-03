@@ -3,16 +3,17 @@
 import { useState, useEffect } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Card } from "@/components/ui/card"
-import { Award, Save, Plus, Trash } from "lucide-react"
+import { Save, Loader2, Award, Plus, Trash } from "lucide-react"
 import { getEmblems, getEditions, saveEmblem, deleteEmblem } from "@/app/actions/admin"
+import type { Emblem, Edition } from "@/lib/generated/prisma/client"
 
 export function EmblemsManager() {
   const [isOpen, setIsOpen] = useState(false)
-  const [emblems, setEmblems] = useState<any[]>([])
-  const [editions, setEditions] = useState<any[]>([])
+  const [emblems, setEmblems] = useState<Emblem[]>([])
+  const [editions, setEditions] = useState<Edition[]>([])
   const [loading, setLoading] = useState(false)
   
-  const [selectedEmblem, setSelectedEmblem] = useState<any | null>(null)
+  const [selectedEmblem, setSelectedEmblem] = useState<Partial<Emblem> | null>(null)
   const [isNew, setIsNew] = useState(false)
 
   // Form states
@@ -21,12 +22,6 @@ export function EmblemsManager() {
   const [description, setDescription] = useState('')
   const [iconUrl, setIconUrl] = useState('')
   const [editionId, setEditionId] = useState('')
-
-  useEffect(() => {
-    if (isOpen) {
-      loadData()
-    }
-  }, [isOpen])
 
   const loadData = async () => {
     setLoading(true)
@@ -39,6 +34,13 @@ export function EmblemsManager() {
     setLoading(false)
   }
 
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadData()
+    }
+  }, [isOpen])
+
   const handleCreate = () => {
     setSelectedEmblem({})
     setIsNew(true)
@@ -49,7 +51,7 @@ export function EmblemsManager() {
     setEditionId('')
   }
 
-  const handleEdit = (e: any) => {
+  const handleEdit = (e: Emblem) => {
     setSelectedEmblem(e)
     setIsNew(false)
     setEmblemId(e.id)

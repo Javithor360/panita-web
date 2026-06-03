@@ -12,8 +12,7 @@ type Props = {
 };
 
 export async function generateMetadata(
-  props: Props,
-  parent: ResolvingMetadata
+  props: Props
 ): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const photoId = searchParams?.photo as string | undefined;
