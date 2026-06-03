@@ -4,15 +4,18 @@ import { DynamicBackground } from "@/components/ui/DynamicBackground";
 import { GalleryContainer } from "@/components/gallery/GalleryContainer";
 import { getPhotoById } from "@/app/actions/gallery";
 
+export const dynamic = 'force-dynamic';
+
 type Props = {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export async function generateMetadata(
-  { searchParams }: Props,
+  props: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const searchParams = await props.searchParams;
   const photoId = searchParams?.photo as string | undefined;
 
   if (photoId) {

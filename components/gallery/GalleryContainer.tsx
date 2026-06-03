@@ -212,7 +212,8 @@ export function GalleryContainer() {
     if (queryString) {
       router.push(`${pathname}?${queryString}`, { scroll: false });
     } else {
-      router.replace(pathname, { scroll: false });
+      window.history.replaceState(null, '', pathname);
+      router.replace(`${pathname}?`, { scroll: false });
     }
   };
   
