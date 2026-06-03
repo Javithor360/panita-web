@@ -211,8 +211,8 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
         className="relative w-full flex items-center justify-center transition-all duration-500 ease-in-out group overflow-hidden" 
         style={{ 
           height: showDetails ? '50dvh' : '100dvh', 
-          paddingBottom: showDetails ? '2rem' : '10rem', 
-          paddingTop: '6rem',
+          paddingBottom: showDetails ? '2rem' : '8rem', 
+          paddingTop: '8rem',
           paddingLeft: '1rem',
           paddingRight: '1rem'
         }}
@@ -299,7 +299,7 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
 
       {/* Bottom Footer */}
       <div 
-        className={`absolute bottom-0 left-0 right-0 flex flex-col z-10 transition-all duration-500 ease-in-out px-6 md:px-12 py-8 md:py-10 min-h-[200px] ${showDetails ? 'max-h-[50dvh] overflow-y-auto bg-black/85 shadow-[0_-60px_100px_40px_rgba(0,0,0,0.95)] pointer-events-auto' : 'pointer-events-none overflow-hidden bg-gradient-to-t from-black/95 via-black/70 to-transparent'}`}
+        className={`absolute bottom-0 left-0 right-0 flex flex-col z-10 transition-all duration-500 ease-in-out px-6 md:px-12 py-6 md:py-8 min-h-[200px] ${showDetails ? 'max-h-[50dvh] overflow-y-auto bg-black/85 shadow-[0_-60px_100px_40px_rgba(0,0,0,0.95)] pointer-events-auto' : 'pointer-events-none overflow-hidden bg-gradient-to-t from-black/95 via-black/70 to-transparent'}`}
       >
         <div key={photo.id} className="flex flex-col gap-3 w-full mt-auto animate-in fade-in duration-300">
           {/* Tags */}
