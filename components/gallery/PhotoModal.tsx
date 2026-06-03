@@ -2,31 +2,44 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { X, Share2, Check, User, Download } from "lucide-react";
+import { X, Share2, Check, User, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { Photo } from "@/app/actions/gallery";
 import { CATEGORIES } from "@/lib/constants";
 
 interface PhotoModalProps {
   photo: Photo;
   onClose: () => void;
+  onNext?: () => void;
+  onPrev?: () => void;
 }
 
-export function PhotoModal({ photo, onClose }: PhotoModalProps) {
+export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) {
   const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [slideDir, setSlideDir] = useState<'next' | 'prev' | null>(null);
 
-  // Close on Escape key
+  // Close on Escape key and navigate with arrows
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight" && onNext && scale === 1) {
+        e.preventDefault();
+        setSlideDir('next');
+        onNext();
+      }
+      if (e.key === "ArrowLeft" && onPrev && scale === 1) {
+        e.preventDefault();
+        setSlideDir('prev');
+        onPrev();
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, onNext, onPrev, scale]);
 
   // Lock body scroll
   useEffect(() => {
@@ -113,6 +126,26 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
     setIsDragging(false);
   };
 
+  const [touchStart, setTouchStart] = useState(0);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (scale > 1) return;
+    setTouchStart(e.touches[0].clientX);
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (scale > 1 || !touchStart) return;
+    const touchEnd = e.changedTouches[0].clientX;
+    const distance = touchStart - touchEnd;
+    if (distance > 50 && onNext) {
+      setSlideDir('next');
+      onNext();
+    }
+    if (distance < -50 && onPrev) {
+      setSlideDir('prev');
+      onPrev();
+    }
+    setTouchStart(0);
+  };
+
   const resolvedTags = photo.tagIds.map(id => CATEGORIES.find(c => c.id === id)).filter(Boolean) as any[];
 
   let formattedDate = null;
@@ -128,7 +161,7 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
   const hasDescription = Boolean(photo.description && photo.description.trim() !== "");
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col justify-start bg-black/40 backdrop-blur-xl animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[100] flex flex-col justify-start bg-black/40 backdrop-blur-lg lg:backdrop-blur-xs animate-in fade-in duration-300">
       {/* Top Header */}
       <div 
         className="absolute top-0 left-0 right-0 px-6 py-6 md:px-12 md:py-8 flex justify-between items-start z-10 pointer-events-none transition-all duration-500 ease-in-out opacity-100 bg-gradient-to-b from-black/95 via-black/50 to-transparent min-h-[150px]"
@@ -188,12 +221,15 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <img 
+          key={photo.id}
           src={photo.imageUrl}
           alt={photo.title}
           draggable={false}
-          className={`max-w-full max-h-full object-contain drop-shadow-2xl ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+          className={`max-w-full max-h-full object-contain drop-shadow-2xl animate-in fade-in duration-300 ${slideDir === 'next' ? 'slide-in-from-right-12' : slideDir === 'prev' ? 'slide-in-from-left-12' : 'zoom-in-95'} ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
           style={{ 
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transition: isDragging ? 'none' : 'transform 0.15s ease-out'
@@ -201,6 +237,28 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
           onMouseDown={handleMouseDown}
           onClick={(e) => e.stopPropagation()}
         />
+
+        {/* Navigation Arrows */}
+        {scale === 1 && !showDetails && (
+          <>
+            {onPrev && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); setSlideDir('prev'); onPrev(); }}
+                className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 size-10 md:size-12 flex items-center justify-center bg-black/40 hover:bg-black/70 text-white rounded-full backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer"
+              >
+                <ChevronLeft className="size-6 md:size-8" />
+              </button>
+            )}
+            {onNext && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); setSlideDir('next'); onNext(); }}
+                className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 size-10 md:size-12 flex items-center justify-center bg-black/40 hover:bg-black/70 text-white rounded-full backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer"
+              >
+                <ChevronRight className="size-6 md:size-8" />
+              </button>
+            )}
+          </>
+        )}
         
         {/* Zoom Controls */}
         {!showDetails && (
@@ -243,7 +301,7 @@ export function PhotoModal({ photo, onClose }: PhotoModalProps) {
       <div 
         className={`absolute bottom-0 left-0 right-0 flex flex-col z-10 transition-all duration-500 ease-in-out px-6 md:px-12 py-8 md:py-10 min-h-[200px] ${showDetails ? 'max-h-[50dvh] overflow-y-auto bg-black/85 shadow-[0_-60px_100px_40px_rgba(0,0,0,0.95)] pointer-events-auto' : 'pointer-events-none overflow-hidden bg-gradient-to-t from-black/95 via-black/70 to-transparent'}`}
       >
-        <div className="flex flex-col gap-3 w-full mt-auto">
+        <div key={photo.id} className="flex flex-col gap-3 w-full mt-auto animate-in fade-in duration-300">
           {/* Tags */}
           {resolvedTags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-1 pointer-events-auto">

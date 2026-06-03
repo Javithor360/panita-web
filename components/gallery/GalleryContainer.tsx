@@ -248,8 +248,33 @@ export function GalleryContainer() {
     setPage(1);
   };
 
+  let onNext: (() => void) | undefined;
+  let onPrev: (() => void) | undefined;
+  
+  if (selectedPhoto) {
+    const currentIndex = photos.findIndex(p => p.id === selectedPhoto.id);
+    if (currentIndex !== -1) {
+      if (currentIndex > 0) {
+        onPrev = () => {
+          const prevId = photos[currentIndex - 1].id;
+          const newParams = new URLSearchParams(searchParams.toString());
+          newParams.set('photo', prevId);
+          router.push(`?${newParams.toString()}`, { scroll: false });
+        };
+      }
+      if (currentIndex < photos.length - 1) {
+        onNext = () => {
+          const nextId = photos[currentIndex + 1].id;
+          const newParams = new URLSearchParams(searchParams.toString());
+          newParams.set('photo', nextId);
+          router.push(`?${newParams.toString()}`, { scroll: false });
+        };
+      }
+    }
+  }
+
   return (
-    <div id="gallery-top" className="container mx-auto px-4 py-8 mt-16">
+    <div className="container mx-auto px-4 py-8 mt-16">
       <div className="flex gap-6 md:gap-2 xl:gap-6 items-start">
         <GallerySidebar 
           activeEditions={editionIds}
@@ -262,7 +287,7 @@ export function GalleryContainer() {
         
         <div className="flex-1 flex flex-col gap-4 min-w-0">
           
-          <div className="relative w-full">
+          <div id="gallery-top" className="relative w-full scroll-mt-28 md:scroll-mt-32">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-foreground z-10" />
             <input 
               type="text" 
@@ -325,6 +350,8 @@ export function GalleryContainer() {
         <PhotoModal 
           photo={selectedPhoto} 
           onClose={closeModal} 
+          onNext={onNext}
+          onPrev={onPrev}
         />
       )}
     </div>
