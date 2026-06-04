@@ -31,6 +31,7 @@ export function PhotoCard({ id, title, author, authorIgn, tagIds = [], tags: leg
   const containerRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState(3); // SSR default
   const [isMeasured, setIsMeasured] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -95,14 +96,15 @@ export function PhotoCard({ id, title, author, authorIgn, tagIds = [], tags: leg
       onClick={handleClick}
       className="group flex flex-col h-full overflow-hidden p-0 gap-0 rounded-xl border-muted/30 bg-muted/10 transition-all hover:border-primary/50 hover:bg-muted/20 cursor-pointer shadow-none"
     >
-      <div className="relative w-full aspect-video overflow-hidden bg-muted/20 rounded-t-[0.3rem]">
+      <div className={`relative w-full aspect-video overflow-hidden rounded-t-[0.3rem] ${!imageLoaded ? 'bg-muted/40 animate-pulse' : 'bg-muted/20'}`}>
         <Image
           src={optimizedUrl}
           alt={title}
           width={800}
           height={450}
           priority={priority}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onLoad={() => setImageLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out group-hover:scale-105 ${imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
       </div>
