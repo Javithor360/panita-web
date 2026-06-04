@@ -16,7 +16,7 @@ export function DynamicBackground({
     : `%3Csvg width='${spacing}' height='${spacing}' viewBox='0 0 ${spacing} ${spacing}' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='${spacing}' height='${spacing}' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3C/svg%3E`;
   
   return (
-    <div className={`${position} inset-0 z-0 pointer-events-none bg-[#050505] overflow-hidden`}>
+    <div className={`${position} inset-0 z-[-1] pointer-events-none bg-[#050505] overflow-hidden`}>
       {/* Pattern */}
       <div 
         className="absolute inset-0"

@@ -14,7 +14,7 @@ const DiscordIcon = ({ className }: { className?: string }) => (
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/40 bg-background py-10">
+    <footer className="relative z-10 border-t border-border/40 bg-background py-10">
       <div className="container mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-8">
         
         {/* Left - Logo and Copyright */}
