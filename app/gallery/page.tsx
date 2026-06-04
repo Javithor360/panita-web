@@ -12,8 +12,7 @@ type Props = {
 };
 
 export async function generateMetadata(
-  props: Props,
-  parent: ResolvingMetadata
+  props: Props
 ): Promise<Metadata> {
   const searchParams = await props.searchParams;
   const photoId = searchParams?.photo as string | undefined;
@@ -73,7 +72,7 @@ export async function generateMetadata(
 export default function GalleryPage() {
   return (
     <>
-      <DynamicBackground />
+      <DynamicBackground pattern="squares" />
       <Suspense fallback={<div className="min-h-screen" />}>
         <GalleryContainer />
       </Suspense>

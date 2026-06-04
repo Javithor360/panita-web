@@ -27,6 +27,7 @@ const GalleryPagination = ({ page, totalPages, handlePageChange }: GalleryPagina
   const [jumpPage, setJumpPage] = useState("");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     setWidth(window.innerWidth);
     const handleResize = () => setWidth(window.innerWidth);
@@ -182,6 +183,7 @@ export function GalleryContainer() {
   // Handle URL changes for the modal
   useEffect(() => {
     if (photoParam && photos.length === 0 && loading) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsDirectLink(true);
     } else if (!photoParam) {
       setIsDirectLink(false);

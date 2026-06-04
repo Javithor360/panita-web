@@ -107,13 +107,14 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       }
     });
 
-    // Map to the format expected by the client
-    const photos: Photo[] = dbPhotos.map(photo => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const photos: Photo[] = dbPhotos.map((photo: any) => ({
       id: photo.id,
       title: photo.title || 'Sin título',
       description: photo.description,
       author: photo.user?.ign || photo.user?.discord_name || 'Anónimo',
-      tagIds: photo.categories.map(c => c.id),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tagIds: photo.categories.map((c: any) => c.id),
       imageUrl: photo.url,
       date_taken: photo.date_taken,
       edition_id: photo.edition_id,
@@ -158,7 +159,8 @@ export async function getPhotoById(id: string): Promise<Photo | null> {
       title: photo.title || 'Sin título',
       description: photo.description,
       author: photo.user?.ign || photo.user?.discord_name || 'Anónimo',
-      tagIds: photo.categories.map(c => c.id),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tagIds: photo.categories.map((c: any) => c.id),
       imageUrl: photo.url,
       date_taken: photo.date_taken,
       edition_id: photo.edition_id,

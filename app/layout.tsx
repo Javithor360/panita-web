@@ -19,11 +19,32 @@ export const metadata: Metadata = {
   description: "Galería y museo digital de las ediciones de Panitacraft",
 };
 
-export default function RootLayout({
+import { getSession } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession();
+  let user = null;
+  
+  if (session?.userId) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { ign: true, discord_name: true }
+    });
+    
+    if (dbUser) {
+      user = {
+        ign: dbUser.ign || dbUser.discord_name,
+      };
+    }
+  }
+
   return (
     <html
       lang="es"
@@ -31,9 +52,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">
-        <Navbar />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <Footer />
+        <TooltipProvider>
+          <Navbar user={user} />
+          <main className="flex flex-1 flex-col">{children}</main>
+          <Footer />
+        </TooltipProvider>
       </body>
     </html>
   );

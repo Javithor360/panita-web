@@ -18,12 +18,13 @@ export async function POST(request: Request) {
     }
 
     // Get resources from the folder using Cloudinary search API
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let resources: any[] = [];
-    let nextCursor = null;
+    let nextCursor: string | undefined = undefined;
 
     do {
       // Use /* to include all subfolders (players) within the edition folder
-      const result: any = await cloudinary.search
+      const result = await cloudinary.search
         .expression(`folder:"${folderPath}/*"`)
         .sort_by('public_id', 'asc')
         .max_results(500)
@@ -43,7 +44,8 @@ export async function POST(request: Request) {
 
     // Fetch all editions to map their names for the titles
     const editions = await prisma.edition.findMany();
-    const editionMap = new Map(editions.map(e => [e.id, e.name]));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const editionMap = new Map(editions.map((e: any) => [e.id, e.name]));
 
     // Fetch current counts for iterators
     const counts = await prisma.photo.groupBy({
@@ -51,7 +53,8 @@ export async function POST(request: Request) {
       _count: { id: true }
     });
     const editionCounters: Record<string, number> = {};
-    counts.forEach(c => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    counts.forEach((c: any) => {
       if (c.edition_id) editionCounters[c.edition_id] = c._count.id;
     });
 

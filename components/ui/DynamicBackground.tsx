@@ -1,15 +1,40 @@
-export function DynamicBackground() {
+export function DynamicBackground({ 
+  color, 
+  spacing = 32, 
+  position = "fixed",
+  pattern = "crosses"
+}: { 
+  color?: string, 
+  spacing?: number, 
+  position?: "fixed" | "absolute",
+  pattern?: "crosses" | "squares"
+}) {
+  const primaryColor = color || 'var(--primary)';
+  
+  const svgPattern = pattern === "crosses" 
+    ? `%3Csvg width='${spacing}' height='${spacing}' viewBox='0 0 ${spacing} ${spacing}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M${spacing/2} ${spacing/2 - 4}v8M${spacing/2 - 4} ${spacing/2}h8' stroke='rgba(255,255,255,0.12)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E`
+    : `%3Csvg width='${spacing}' height='${spacing}' viewBox='0 0 ${spacing} ${spacing}' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='${spacing}' height='${spacing}' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3C/svg%3E`;
+  
   return (
-    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[oklch(0.14_0_0)]"
-         style={{
-           backgroundImage: `
-             radial-gradient(ellipse 60% 60% at 20% 0%, color-mix(in oklab, var(--primary) 12%, transparent), transparent),
-             radial-gradient(ellipse 60% 60% at 80% 100%, color-mix(in oklab, var(--primary) 12%, transparent), transparent),
-             linear-gradient(to right, color-mix(in oklab, var(--foreground) 3%, transparent) 1px, transparent 1px),
-             linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 3%, transparent) 1px, transparent 1px)
-           `,
-           backgroundSize: '100% 100%, 100% 100%, 32px 32px, 32px 32px'
-         }}
-    />
+    <div className={`${position} inset-0 z-0 pointer-events-none bg-[#050505] overflow-hidden`}>
+      {/* Pattern */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,${svgPattern}")`,
+          backgroundSize: `${spacing}px ${spacing}px`
+        }}
+      />
+      {/* Glow Top Left */}
+      <div 
+        className="absolute -top-[10%] -left-[10%] w-[70%] h-[70%] rounded-full opacity-[0.12] blur-[120px]"
+        style={{ backgroundColor: primaryColor }}
+      />
+      {/* Glow Bottom Right */}
+      <div 
+        className="absolute -bottom-[10%] -right-[10%] w-[70%] h-[70%] rounded-full opacity-[0.12] blur-[120px]"
+        style={{ backgroundColor: primaryColor }}
+      />
+    </div>
   );
 }
