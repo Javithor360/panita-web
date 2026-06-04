@@ -9,13 +9,17 @@ interface ProfileColorExtractorProps {
 }
 
 export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileColorExtractorProps) {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [styles, setStyles] = useState<React.CSSProperties>({
     '--profile-glow': fallbackColor,
     '--profile-gradient': fallbackColor,
   } as React.CSSProperties)
 
   useEffect(() => {
-    if (!ign) return;
+    if (!ign) {
+      setIsLoaded(true);
+      return;
+    }
 
     const getColors = async () => {
       try {
@@ -69,6 +73,8 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
         }
       } catch (e) {
         console.error("No se pudo extraer colores de la skin", e)
+      } finally {
+        setIsLoaded(true)
       }
     }
 
@@ -76,7 +82,7 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
   }, [ign])
 
   return (
-    <div className="w-full relative" style={styles}>
+    <div className={`w-full relative transition-opacity duration-1000 ease-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={styles}>
       {children}
     </div>
   )

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useRef } from "react";
 import { X, Share2, Check, User, Download, ChevronLeft, ChevronRight, Edit3, EyeOff } from "lucide-react";
 import { Photo, updatePhoto } from "@/app/actions/gallery";
 import { CATEGORIES } from "@/lib/constants";
@@ -33,16 +33,17 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
   const [localPhoto, setLocalPhoto] = useState(photo);
   const [isPending, startTransition] = useTransition();
   const [imageLoaded, setImageLoaded] = useState(false);
+  const loadedImagesRef = useRef<Set<string>>(new Set());
 
-  // Reset local photo when photo prop changes
-  useEffect(() => {
-    setLocalPhoto(prev => {
-      if (prev.id !== photo.id) {
-        setImageLoaded(false);
-      }
-      return photo;
-    });
-  }, [photo]);
+  // Handle prop changes synchronously to avoid UI flicker
+  if (photo.id !== localPhoto.id) {
+    setLocalPhoto(photo);
+    if (!loadedImagesRef.current.has(photo.id)) {
+      setImageLoaded(false);
+    } else {
+      setImageLoaded(true);
+    }
+  }
 
   // Close on Escape key and navigate with arrows
   useEffect(() => {
@@ -250,9 +251,9 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
             )}
 
             {isEditMode && (
-              <div className="flex items-center gap-2 ml-1 w-full min-[480px]:w-auto min-[480px]:ml-4">
+              <div className="flex items-center gap-2 w-full min-[480px]:w-auto">
                 <span className="hidden min-[480px]:inline text-white/40">•</span>
-                <span className="text-white/60 text-sm min-[480px]:ml-2">Visible:</span>
+                <span className="text-white/60 text-sm">Visible:</span>
                 <button 
                   disabled={isPending}
                   onClick={() => {
@@ -356,7 +357,10 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
           src={optimizedUrl}
           alt={localPhoto.title}
           draggable={false}
-          onLoad={() => setImageLoaded(true)}
+          onLoad={() => {
+            setImageLoaded(true);
+            loadedImagesRef.current.add(localPhoto.id);
+          }}
           className={`max-w-full max-h-full object-contain drop-shadow-2xl animate-in fade-in duration-300 ${slideDir === 'next' ? 'slide-in-from-right-12' : slideDir === 'prev' ? 'slide-in-from-left-12' : 'zoom-in-95'} ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} ${!imageLoaded ? 'opacity-0' : 'opacity-100'}`}
           style={{ 
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
