@@ -85,6 +85,11 @@ export function PhotoCard({ id, title, author, authorIgn, tagIds = [], tags: leg
     router.push(`?${newParams.toString()}`, { scroll: false });
   };
 
+  let optimizedUrl = imageUrl;
+  if (optimizedUrl.includes('res.cloudinary.com') && optimizedUrl.includes('/upload/')) {
+    optimizedUrl = optimizedUrl.replace('/upload/', '/upload/c_limit,w_800,q_auto,f_auto/');
+  }
+
   return (
     <Card 
       onClick={handleClick}
@@ -92,7 +97,7 @@ export function PhotoCard({ id, title, author, authorIgn, tagIds = [], tags: leg
     >
       <div className="relative w-full aspect-video overflow-hidden bg-muted/20 rounded-t-[0.3rem]">
         <Image
-          src={imageUrl}
+          src={optimizedUrl}
           alt={title}
           width={800}
           height={450}

@@ -71,10 +71,10 @@ export function Navbar({ user }: NavbarProps) {
                   Galería
                 </Link>
                 <Link 
-                  href="/acknowledgments" 
+                  href="/credits" 
                   className={cn(
                     "flex items-center gap-4 rounded-md px-4 py-4 transition-colors",
-                    pathname.startsWith("/acknowledgments") 
+                    pathname.startsWith("/credits") 
                       ? "bg-primary/20 text-primary font-semibold" 
                       : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                   )}
@@ -152,10 +152,10 @@ export function Navbar({ user }: NavbarProps) {
             Galería
           </Link>
           <Link 
-            href="/acknowledgments" 
+            href="/credits" 
             className={cn(
               "flex items-center gap-2 rounded-md px-3 py-2 transition-colors",
-              pathname.startsWith("/acknowledgments") 
+              pathname.startsWith("/credits") 
                 ? "bg-primary/20 text-primary font-semibold" 
                 : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
             )}

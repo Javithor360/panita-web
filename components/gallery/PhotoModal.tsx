@@ -32,10 +32,12 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
   const [isEditMode, setIsEditMode] = useState(false);
   const [localPhoto, setLocalPhoto] = useState(photo);
   const [isPending, startTransition] = useTransition();
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Reset local photo when photo prop changes
   useEffect(() => {
     setLocalPhoto(photo);
+    setImageLoaded(false);
   }, [photo]);
 
   // Close on Escape key and navigate with arrows
@@ -171,8 +173,15 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
 
   const hasDescription = Boolean(localPhoto.description && localPhoto.description.trim() !== "");
 
+  let optimizedUrl = localPhoto.imageUrl;
+  let thumbnailUrl = localPhoto.imageUrl;
+  if (optimizedUrl.includes('res.cloudinary.com') && optimizedUrl.includes('/upload/')) {
+    optimizedUrl = optimizedUrl.replace('/upload/', '/upload/c_limit,w_1920,q_auto,f_auto/');
+    thumbnailUrl = thumbnailUrl.replace('/upload/', '/upload/c_limit,w_800,q_auto,f_auto/');
+  }
+
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col justify-start bg-black/40 backdrop-blur-lg lg:backdrop-blur-xs animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[100] flex flex-col justify-start bg-black/40 backdrop-blur-lg lg:backdrop-blur-xs animate-in fade-in zoom-in-95 duration-500 ease-out">
       {/* Top Header */}
       <div 
         className="absolute top-0 left-0 right-0 px-6 py-6 md:px-12 md:py-8 flex justify-between items-start z-10 pointer-events-none transition-all duration-500 ease-in-out opacity-100 bg-gradient-to-b from-black/95 via-black/50 to-transparent min-h-[150px]"
@@ -317,12 +326,30 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Placeholder from cache */}
+        {!imageLoaded && (
+          <img 
+            key={`${localPhoto.id}-thumb`}
+            src={thumbnailUrl}
+            alt="Cargando..."
+            draggable={false}
+            className={`absolute max-w-full max-h-full object-contain blur-md animate-pulse ${scale > 1 ? 'cursor-grab' : 'cursor-default'}`}
+            style={{ 
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+              filter: (!localPhoto.enabled && canEdit) ? 'grayscale(100%) opacity(50%) blur(8px)' : 'blur(8px)'
+            }}
+          />
+        )}
+        
+        {/* High-res Image */}
         <img 
           key={localPhoto.id}
-          src={localPhoto.imageUrl}
+          src={optimizedUrl}
           alt={localPhoto.title}
           draggable={false}
-          className={`max-w-full max-h-full object-contain drop-shadow-2xl animate-in fade-in duration-300 ${slideDir === 'next' ? 'slide-in-from-right-12' : slideDir === 'prev' ? 'slide-in-from-left-12' : 'zoom-in-95'} ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+          onLoad={() => setImageLoaded(true)}
+          className={`max-w-full max-h-full object-contain drop-shadow-2xl animate-in fade-in duration-300 ${slideDir === 'next' ? 'slide-in-from-right-12' : slideDir === 'prev' ? 'slide-in-from-left-12' : 'zoom-in-95'} ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} ${!imageLoaded ? 'opacity-0' : 'opacity-100'}`}
           style={{ 
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transition: isDragging ? 'none' : 'transform 0.15s ease-out',
