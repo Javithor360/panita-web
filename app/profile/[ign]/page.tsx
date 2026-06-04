@@ -1,7 +1,6 @@
-import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { DynamicBackground } from "@/components/ui/DynamicBackground";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ProfileColorExtractor } from "@/components/profile/ProfileColorExtractor";
 import {
   Tooltip,
@@ -18,16 +17,30 @@ import {
 } from "@/components/ui/dialog";
 import { Award } from "lucide-react";
 import { Fragment } from "react";
-import { AdminPanel } from "@/components/admin/AdminPanel";
+import type { Metadata } from "next";
 
-export default async function ProfilePage() {
-  const session = await getSession();
-  if (!session?.userId) {
-    redirect('/login');
-  }
+export async function generateMetadata(
+  props: { params: Promise<{ ign: string }> }
+): Promise<Metadata> {
+  const params = await props.params;
+  const ign = decodeURIComponent(params.ign);
+  return {
+    title: `Perfil de ${ign} - Panitacraft`,
+    description: `Descubre los roles, emblemas y trayectoria de ${ign} en Panitacraft.`,
+  };
+}
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
+export default async function PublicProfilePage(props: { params: Promise<{ ign: string }> }) {
+  const params = await props.params;
+  const targetIgn = decodeURIComponent(params.ign);
+
+  const user = await prisma.user.findFirst({
+    where: { 
+      ign: {
+        equals: targetIgn,
+        mode: 'insensitive'
+      }
+    },
     include: {
       roles: {
         orderBy: { position: 'asc' }
@@ -44,7 +57,7 @@ export default async function ProfilePage() {
   });
 
   if (!user) {
-    redirect('/login');
+    notFound();
   }
 
   const ign = user.ign || user.discord_name;
@@ -208,7 +221,7 @@ export default async function ProfilePage() {
                       <div className="border-t pt-4 mt-2">
                         {Math.max(0, emblem._count.users - 1) === 0 ? (
                           <p className="text-xs text-center font-semibold bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 bg-clip-text text-transparent italic drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">
-                            ¡Eres el único con este emblema!
+                            ¡Es el único con este emblema!
                           </p>
                         ) : Math.max(0, emblem._count.users - 1) === 1 ? (
                           <p className="text-xs text-muted-foreground/60 italic text-center">
@@ -227,16 +240,10 @@ export default async function ProfilePage() {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/40">
                 <Award className="w-16 h-16 mb-4 opacity-20" />
-                <p className="text-sm">Aún no has desbloqueado ningún emblema.</p>
+                <p className="text-sm">Aún no ha desbloqueado ningún emblema.</p>
               </div>
             )}
           </div>
-
-          {/* Panel de Administrador */}
-          {userRoles.some((r: any) => r.id === 'admin') && (
-            <AdminPanel glowColor="var(--profile-glow)" />
-          )}
-
         </div>
       </div>
       </div>

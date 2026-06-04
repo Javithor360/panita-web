@@ -305,31 +305,32 @@ export function UsersManager() {
                     const r = allRoles.find(x => x.id === roleId);
                     if (!r) return null;
                     const solidColor = extractSolidColor(r.color);
+                    const isCritical = r.id === 'admin' || r.id === 'mod';
                     return (
                       <button
                         key={r.id}
-                        onClick={() => setRoles(roles.filter(id => id !== r.id))}
-                        className="px-2.5 py-1 text-xs rounded-full border transition-all select-none cursor-pointer flex items-center gap-1 group"
+                        onClick={isCritical ? undefined : () => setRoles(roles.filter(id => id !== r.id))}
+                        className={`px-2.5 py-1 text-xs rounded-full border transition-all select-none flex items-center gap-1 group ${isCritical ? 'cursor-default' : 'cursor-pointer hover:opacity-80'}`}
                         style={{ 
                           color: solidColor, 
                           borderColor: solidColor, 
                           backgroundColor: `color-mix(in srgb, ${solidColor} 15%, transparent)` 
                         }}
-                        title="Click para remover"
+                        title={isCritical ? "Rol protegido" : "Click para remover"}
                       >
                         {r.name}
-                        <span className="text-[12px] ml-1 opacity-70 group-hover:opacity-100">&times;</span>
+                        {!isCritical && <span className="text-[12px] ml-1 opacity-70 group-hover:opacity-100">&times;</span>}
                       </button>
                     )
                   })}
                   
-                  {allRoles.filter(r => !roles.includes(r.id)).length > 0 && (
+                  {allRoles.filter(r => !roles.includes(r.id) && r.id !== 'admin' && r.id !== 'mod').length > 0 && (
                     <DropdownMenu>
                       <DropdownMenuTrigger className="h-7 w-7 rounded-full border border-dashed border-border bg-secondary/10 hover:bg-secondary/30 transition-colors select-none cursor-pointer flex items-center justify-center text-muted-foreground hover:text-foreground">
                         <Plus className="w-4 h-4" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="w-48">
-                        {allRoles.filter(r => !roles.includes(r.id)).map(r => (
+                        {allRoles.filter(r => !roles.includes(r.id) && r.id !== 'admin' && r.id !== 'mod').map(r => (
                           <DropdownMenuItem
                             key={r.id}
                             onClick={() => setRoles([...roles, r.id])}

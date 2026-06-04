@@ -72,7 +72,7 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
           } as React.CSSProperties)
         }
       } catch (e) {
-        console.error("No se pudo extraer colores de la skin", e)
+        // Silently fallback if skin extraction fails
       } finally {
         setIsLoaded(true)
       }
