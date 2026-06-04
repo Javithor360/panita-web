@@ -20,8 +20,8 @@ export function Footer() {
         {/* Left - Logo and Copyright */}
         <div className="flex flex-col items-center gap-4 sm:items-start">
           <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-            <ImageIcon className="h-6 w-6 text-primary" />
-            <span className="font-bold tracking-tight">Panitacraft</span>
+            <img src="/assets/logo_white.svg" alt="Panitacraft" className="h-7 w-7" />
+            <span className="font-bold tracking-tight text-lg">Panitacraft</span>
           </Link>
           <div className="flex flex-col items-center gap-1 text-center text-sm text-muted-foreground sm:items-start sm:text-left">
             <p>© {new Date().getFullYear()} Panitacraft. Todos los derechos reservados.</p>

@@ -19,6 +19,29 @@ export const metadata: Metadata = {
   description: "Sitio web oficial del servidor de Panitacraft",
   icons: {
     icon: "/assets/logo_white.svg"
+  },
+  openGraph: {
+    title: "Panitacraft",
+    description: "Sitio web oficial del servidor de Panitacraft",
+    url: "https://panita.vercel.app",
+    siteName: "Panitacraft",
+    images: [
+      {
+        url: "/assets/logo_white.svg",
+        alt: "Panitacraft Logo",
+      },
+    ],
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Panitacraft",
+    description: "Sitio web oficial del servidor de Panitacraft",
+    images: ["/assets/logo_white.svg"],
+  },
+  other: {
+    "theme-color": "#5c7cfa",
   }
 };
 
