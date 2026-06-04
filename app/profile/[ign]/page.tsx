@@ -250,9 +250,12 @@ export default async function PublicProfilePage(props: { params: Promise<{ ign: 
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/40">
-                <Award className="w-16 h-16 mb-4 opacity-20" />
-                <p className="text-sm">Aún no ha desbloqueado ningún emblema.</p>
+              <div 
+                className="flex flex-col items-center justify-center py-12"
+                style={{ color: 'var(--profile-glow)' }}
+              >
+                <Award className="w-16 h-16 mb-4 opacity-40 drop-shadow-md" />
+                <p className="text-sm font-medium opacity-80">Aún no ha desbloqueado ningún emblema.</p>
               </div>
             )}
           </div>

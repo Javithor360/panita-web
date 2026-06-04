@@ -25,11 +25,11 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
       try {
         const img = new Image()
         img.crossOrigin = 'Anonymous'
-        img.src = `https://mc-heads.net/avatar/${ign}/256`
         
         await new Promise((resolve, reject) => {
           img.onload = resolve
           img.onerror = reject
+          img.src = `https://mc-heads.net/avatar/${ign}/256`
         })
 
         const canvas = document.createElement('canvas')

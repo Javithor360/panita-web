@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, ChevronDown, ChevronUp, ImageOff } from 'lucide-react';
 import type { Photo } from '@/app/actions/gallery';
 import { UploadPhotoModal } from './UploadPhotoModal';
 import { PhotoModal } from '@/components/gallery/PhotoModal';
@@ -94,16 +94,26 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn }:
       </div>
 
       <div className="relative w-full max-w-5xl mx-auto">
-        <div className="relative">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {visibleItems}
-          </div>
+        {totalItems > 0 ? (
+          <div className="relative">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {visibleItems}
+            </div>
 
-          {/* Fade-out Overlay when there are more items */}
-          {visibleCount < totalItems && (
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
-          )}
-        </div>
+            {/* Fade-out Overlay when there are more items */}
+            {visibleCount < totalItems && (
+              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
+            )}
+          </div>
+        ) : (
+          <div 
+            className="flex flex-col items-center justify-center py-12"
+            style={{ color: 'var(--profile-glow)' }}
+          >
+            <ImageOff className="w-16 h-16 mb-4 opacity-40 drop-shadow-md" />
+            <p className="text-sm font-medium opacity-80">Sin registros de publicaciones hasta la fecha.</p>
+          </div>
+        )}
 
         {/* Action Buttons */}
         {totalItems > 6 && (

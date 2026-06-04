@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { EditionIcon } from "@/components/ui/EditionIcon";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
 
 interface UserEdition {
   id: string;
@@ -60,7 +60,7 @@ function TrajectoryNode({
             <path d="M 7 10 L 5 25 L 22 28" />
           </svg>
           <span className="text-sm sm:text-base font-['Comic_Sans_MS',_'Chalkboard_SE',_'Comic_Neue',_cursive] tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-            ¡Aquí inicia tu aventura!
+            ¡Aquí inicia la aventura!
           </span>
         </div>
       )}
@@ -220,8 +220,14 @@ export function ProfileTrajectory({ userEditions }: ProfileTrajectoryProps) {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-muted-foreground/40 text-center">
-            <p className="text-sm italic">No hay registros de trayectoria.</p>
+          <div 
+            className="flex flex-col items-center justify-center py-12 text-center"
+            style={{ color: 'var(--profile-glow)' }}
+          >
+            <MapPin className="w-16 h-16 mb-4 opacity-40 drop-shadow-md" />
+            <p className="text-sm font-medium opacity-80">
+              Un lienzo en blanco aguarda.<br/>Una gran historia y legado están por escribirse.
+            </p>
           </div>
         )}
       </div>
