@@ -80,7 +80,7 @@ export function EditableTags({
         </button>
 
         {open && (
-          <div className="absolute top-full left-0 mt-2 w-[200px] z-50 rounded-md border border-white/10 bg-black/90 backdrop-blur-md text-white shadow-xl overflow-hidden flex flex-col max-h-[300px]">
+          <div className="absolute bottom-full left-0 mb-2 w-[200px] z-50 rounded-md border border-white/10 bg-black/90 backdrop-blur-md text-white shadow-xl overflow-hidden flex flex-col max-h-[300px]">
             <input 
               type="text"
               autoFocus

@@ -36,8 +36,12 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
 
   // Reset local photo when photo prop changes
   useEffect(() => {
-    setLocalPhoto(photo);
-    setImageLoaded(false);
+    setLocalPhoto(prev => {
+      if (prev.id !== photo.id) {
+        setImageLoaded(false);
+      }
+      return photo;
+    });
   }, [photo]);
 
   // Close on Escape key and navigate with arrows
@@ -184,10 +188,10 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
     <div className="fixed inset-0 z-[100] flex flex-col justify-start bg-black/40 backdrop-blur-lg lg:backdrop-blur-xs animate-in fade-in zoom-in-95 duration-500 ease-out">
       {/* Top Header */}
       <div 
-        className="absolute top-0 left-0 right-0 px-6 py-6 md:px-12 md:py-8 flex justify-between items-start z-10 pointer-events-none transition-all duration-500 ease-in-out opacity-100 bg-gradient-to-b from-black/95 via-black/50 to-transparent min-h-[150px]"
+        className="absolute top-0 left-0 right-0 px-6 py-6 md:px-12 md:py-8 flex flex-col-reverse lg:flex-row justify-between lg:items-start gap-4 lg:gap-0 z-10 pointer-events-none transition-all duration-500 ease-in-out opacity-100 bg-gradient-to-b from-black/95 via-black/50 to-transparent min-h-[150px]"
       >
         {/* Left side info */}
-        <div className="flex flex-col gap-2 pointer-events-auto mt-1">
+        <div className="flex flex-col gap-2 pointer-events-auto mt-1 w-full lg:w-auto">
           {isEditMode ? (
             <EditableAuthor 
               authorId={localPhoto.authorId}
@@ -246,9 +250,9 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
             )}
 
             {isEditMode && (
-              <div className="flex items-center gap-2 ml-4">
-                <span className="text-white/40">•</span>
-                <span className="text-white/60 text-sm ml-2">Visible:</span>
+              <div className="flex items-center gap-2 ml-1 w-full min-[480px]:w-auto min-[480px]:ml-4">
+                <span className="hidden min-[480px]:inline text-white/40">•</span>
+                <span className="text-white/60 text-sm min-[480px]:ml-2">Visible:</span>
                 <button 
                   disabled={isPending}
                   onClick={() => {
@@ -269,12 +273,19 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
         </div>
 
         {/* Right side actions */}
-        <div className="flex flex-wrap items-center justify-end gap-3 pointer-events-auto">
+        <div className="flex flex-wrap items-center justify-end gap-3 pointer-events-auto w-full lg:w-auto">
           {canEdit && (
             <button 
               onClick={() => {
-                setIsEditMode(!isEditMode);
-                if (!isEditMode && !showDetails) setShowDetails(true);
+                if (!isEditMode) {
+                  setIsEditMode(true);
+                  setShowDetails(true);
+                } else {
+                  setIsEditMode(false);
+                  if (!hasDescription) {
+                    setShowDetails(false);
+                  }
+                }
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all duration-200 text-sm font-medium cursor-pointer ${isEditMode ? 'bg-primary/80 text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
             >
@@ -310,13 +321,10 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
 
       {/* Image Area */}
       <div 
-        className="relative w-full flex items-center justify-center transition-all duration-500 ease-in-out group overflow-hidden" 
+        className="relative w-full flex items-center justify-center transition-all duration-500 ease-in-out group overflow-hidden pt-52 lg:pt-32 px-4" 
         style={{ 
           height: showDetails ? '50dvh' : '100dvh', 
-          paddingBottom: showDetails ? '2rem' : '8rem', 
-          paddingTop: '8rem',
-          paddingLeft: '1rem',
-          paddingRight: '1rem'
+          paddingBottom: showDetails ? '2rem' : '8rem'
         }}
         onClick={onClose}
         onWheel={handleWheel}
@@ -427,7 +435,7 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
 
       {/* Bottom Footer */}
       <div 
-        className={`absolute bottom-0 left-0 right-0 flex flex-col z-10 transition-all duration-500 ease-in-out px-6 md:px-12 py-6 md:py-8 min-h-[200px] ${showDetails ? 'max-h-[50dvh] overflow-y-auto bg-black/85 shadow-[0_-60px_100px_40px_rgba(0,0,0,0.95)] pointer-events-auto' : 'pointer-events-none overflow-hidden bg-gradient-to-t from-black/95 via-black/70 to-transparent'}`}
+        className={`absolute bottom-0 left-0 right-0 flex flex-col z-10 transition-all duration-500 ease-in-out px-6 md:px-12 py-6 md:py-8 min-h-[200px] ${showDetails ? `max-h-[50dvh] ${isEditMode ? 'overflow-visible' : 'overflow-y-auto'} bg-black/85 shadow-[0_-60px_100px_40px_rgba(0,0,0,0.95)] pointer-events-auto` : 'pointer-events-none overflow-hidden bg-gradient-to-t from-black/95 via-black/70 to-transparent'}`}
       >
         <div className="flex flex-col gap-3 w-full mt-auto animate-in fade-in duration-300">
           {/* Tags */}

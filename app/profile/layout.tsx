@@ -4,7 +4,7 @@ export default function ProfileLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-background text-foreground min-h-[calc(100vh-4rem)]">
+    <div className="text-foreground min-h-[calc(100vh-4rem)]">
       {children}
     </div>
   )
