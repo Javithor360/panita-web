@@ -41,6 +41,7 @@ export function GalleryGrid({ photos, loading }: GalleryGridProps) {
             id={photo.id}
             title={photo.title}
             author={photo.author}
+            authorIgn={(photo as any).authorIgn}
             tagIds={photo.tagIds}
             imageUrl={photo.imageUrl}
             priority={i < 4} 

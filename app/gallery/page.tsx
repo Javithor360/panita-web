@@ -69,12 +69,28 @@ export async function generateMetadata(
   };
 }
 
-export default function GalleryPage() {
+import { getSession } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import type { Role } from "@/lib/generated/prisma/client";
+
+export default async function GalleryPage() {
+  const session = await getSession();
+  let canEdit = false;
+  if (session?.userId) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      include: { roles: true }
+    });
+    if (user?.roles.some((r: Role) => r.id === 'admin' || r.id === 'mod')) {
+      canEdit = true;
+    }
+  }
+
   return (
     <>
       <DynamicBackground pattern="squares" />
       <Suspense fallback={<div className="min-h-screen" />}>
-        <GalleryContainer />
+        <GalleryContainer canEdit={canEdit} />
       </Suspense>
     </>
   );

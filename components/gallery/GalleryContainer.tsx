@@ -157,7 +157,7 @@ const GalleryPagination = ({ page, totalPages, handlePageChange }: GalleryPagina
   );
 };
 
-export function GalleryContainer() {
+export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(15);
   const [editionIds, setEditionIds] = useState<string[]>([]);
@@ -371,6 +371,11 @@ export function GalleryContainer() {
           onClose={closeModal} 
           onNext={onNext}
           onPrev={onPrev}
+          canEdit={canEdit}
+          onUpdate={(updatedPhoto) => {
+            setPhotos(prev => prev.map(p => p.id === updatedPhoto.id ? updatedPhoto : p));
+            setSelectedPhoto(updatedPhoto);
+          }}
         />
       )}
     </div>

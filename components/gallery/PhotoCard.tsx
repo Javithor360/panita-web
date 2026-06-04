@@ -11,13 +11,14 @@ interface PhotoCardProps {
   id?: string;
   title: string;
   author: string;
+  authorIgn?: string | null;
   tagIds?: string[];
   tags?: FilterOption[]; // legacy support
   imageUrl: string;
   priority?: boolean;
 }
 
-export function PhotoCard({ id, title, author, tagIds = [], tags: legacyTags = [], imageUrl, priority }: PhotoCardProps) {
+export function PhotoCard({ id, title, author, authorIgn, tagIds = [], tags: legacyTags = [], imageUrl, priority }: PhotoCardProps) {
   // Resolve tag IDs into full category objects on the client side
   const resolvedTags = tagIds.length > 0 
     ? (tagIds.map(id => CATEGORIES.find(c => c.id === id)).filter(Boolean) as FilterOption[])
@@ -157,7 +158,11 @@ export function PhotoCard({ id, title, author, tagIds = [], tags: legacyTags = [
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-auto shrink-0">
-            <User className="size-3.5" />
+            {authorIgn ? (
+              <img src={`https://mc-heads.net/avatar/${authorIgn}`} alt={authorIgn} className="size-3.5 rounded-sm bg-black/20 shrink-0" />
+            ) : (
+              <User className="size-3.5 shrink-0" />
+            )}
             <span className="truncate max-w-[150px]">{author}</span>
           </div>
         </div>
