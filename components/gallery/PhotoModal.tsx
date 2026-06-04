@@ -1,18 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X, Share2, Check, User, Download, ChevronLeft, ChevronRight } from "lucide-react";
-import { Photo } from "@/app/actions/gallery";
+import { useEffect, useState, useTransition } from "react";
+import { X, Share2, Check, User, Download, ChevronLeft, ChevronRight, Edit3, EyeOff } from "lucide-react";
+import { Photo, updatePhoto } from "@/app/actions/gallery";
 import { CATEGORIES } from "@/lib/constants";
+
+import { EditableText } from "./edit/EditableText";
+import { EditableDate } from "./edit/EditableDate";
+import { EditableAuthor } from "./edit/EditableAuthor";
+import { EditableTags } from "./edit/EditableTags";
+import { EditableEdition } from "./edit/EditableEdition";
 
 interface PhotoModalProps {
   photo: Photo;
   onClose: () => void;
   onNext?: () => void;
   onPrev?: () => void;
+  canEdit?: boolean;
+  onUpdate?: (photo: Photo) => void;
 }
 
-export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) {
+export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, onUpdate }: PhotoModalProps) {
   const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [scale, setScale] = useState(1);
@@ -21,16 +29,27 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [slideDir, setSlideDir] = useState<'next' | 'prev' | null>(null);
 
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [localPhoto, setLocalPhoto] = useState(photo);
+  const [isPending, startTransition] = useTransition();
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Reset local photo when photo prop changes
+  useEffect(() => {
+    setLocalPhoto(photo);
+    setImageLoaded(false);
+  }, [photo]);
+
   // Close on Escape key and navigate with arrows
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight" && onNext && scale === 1) {
+      if (e.key === "ArrowRight" && onNext && scale === 1 && !isEditMode) {
         e.preventDefault();
         setSlideDir('next');
         onNext();
       }
-      if (e.key === "ArrowLeft" && onPrev && scale === 1) {
+      if (e.key === "ArrowLeft" && onPrev && scale === 1 && !isEditMode) {
         e.preventDefault();
         setSlideDir('prev');
         onPrev();
@@ -38,7 +57,7 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose, onNext, onPrev, scale]);
+  }, [onClose, onNext, onPrev, scale, isEditMode]);
 
   // Lock body scroll
   useEffect(() => {
@@ -57,8 +76,6 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
     }
   }, [showDetails]);
 
-
-
   const handleShare = async () => {
     const shareUrl = window.location.href;
     try {
@@ -72,21 +89,20 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
 
   const handleDownload = async () => {
     try {
-      const response = await fetch(photo.imageUrl);
+      const response = await fetch(localPhoto.imageUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      // Get extension from url or fallback to jpg
-      const ext = photo.imageUrl.split('.').pop()?.split('?')[0] || 'jpg';
-      a.download = `${photo.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${ext}`;
+      const ext = localPhoto.imageUrl.split('.').pop()?.split('?')[0] || 'jpg';
+      a.download = `${localPhoto.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${ext}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
       console.error("Error downloading image:", err);
-      window.open(photo.imageUrl, '_blank');
+      window.open(localPhoto.imageUrl, '_blank');
     }
   };
 
@@ -100,11 +116,8 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
 
   const handleWheel = (e: React.WheelEvent) => {
     if (showDetails) return;
-    if (e.deltaY < 0) {
-      handleZoom(0.25);
-    } else {
-      handleZoom(-0.25);
-    }
+    if (e.deltaY < 0) handleZoom(0.25);
+    else handleZoom(-0.25);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -124,9 +137,7 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
     });
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+  const handleMouseUp = () => setIsDragging(false);
 
   const [touchStart, setTouchStart] = useState(0);
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -148,11 +159,11 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
     setTouchStart(0);
   };
 
-  const resolvedTags = photo.tagIds.map(id => CATEGORIES.find(c => c.id === id)).filter(Boolean) as typeof CATEGORIES;
+  const resolvedTags = localPhoto.tagIds.map(id => CATEGORIES.find(c => c.id === id)).filter(Boolean) as typeof CATEGORIES;
 
   let formattedDate = null;
-  if (photo.date_taken) {
-    const d = new Date(photo.date_taken);
+  if (localPhoto.date_taken) {
+    const d = new Date(localPhoto.date_taken);
     const month = d.toLocaleDateString("es-ES", { month: "short" });
     const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
     const day = d.getDate();
@@ -160,29 +171,118 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
     formattedDate = `${capitalizedMonth} ${day}, ${year}`;
   }
 
-  const hasDescription = Boolean(photo.description && photo.description.trim() !== "");
+  const hasDescription = Boolean(localPhoto.description && localPhoto.description.trim() !== "");
+
+  let optimizedUrl = localPhoto.imageUrl;
+  let thumbnailUrl = localPhoto.imageUrl;
+  if (optimizedUrl.includes('res.cloudinary.com') && optimizedUrl.includes('/upload/')) {
+    optimizedUrl = optimizedUrl.replace('/upload/', '/upload/c_limit,w_1920,q_auto,f_auto/');
+    thumbnailUrl = thumbnailUrl.replace('/upload/', '/upload/c_limit,w_800,q_auto,f_auto/');
+  }
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col justify-start bg-black/40 backdrop-blur-lg lg:backdrop-blur-xs animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[100] flex flex-col justify-start bg-black/40 backdrop-blur-lg lg:backdrop-blur-xs animate-in fade-in zoom-in-95 duration-500 ease-out">
       {/* Top Header */}
       <div 
         className="absolute top-0 left-0 right-0 px-6 py-6 md:px-12 md:py-8 flex justify-between items-start z-10 pointer-events-none transition-all duration-500 ease-in-out opacity-100 bg-gradient-to-b from-black/95 via-black/50 to-transparent min-h-[150px]"
       >
         {/* Left side info */}
-        <div className="flex flex-col gap-1 pointer-events-auto">
-          <div className="flex items-center gap-2 text-white/90 font-medium">
-            <User className="size-4" />
-            <span>{photo.author}</span>
-          </div>
-          <div className="flex items-center gap-2 text-white/60 text-sm">
-            {photo.edition_name && <span>{photo.edition_name}</span>}
-            {photo.edition_name && formattedDate && <span>•</span>}
-            {formattedDate && <span>{formattedDate}</span>}
+        <div className="flex flex-col gap-2 pointer-events-auto mt-1">
+          {isEditMode ? (
+            <EditableAuthor 
+              authorId={localPhoto.authorId}
+              authorName={localPhoto.author}
+              authorIgn={localPhoto.authorIgn}
+              onSave={async (id, name, ign) => {
+                await updatePhoto(localPhoto.id, { user_id: id });
+                const newPhoto = { ...localPhoto, authorId: id, author: name, authorIgn: ign };
+                setLocalPhoto(newPhoto);
+                onUpdate?.(newPhoto);
+              }}
+            />
+          ) : (
+            <div className="flex items-center gap-2 text-white/90 font-medium">
+              {localPhoto.authorIgn ? (
+                <img src={`https://mc-heads.net/avatar/${localPhoto.authorIgn}`} alt={localPhoto.authorIgn} className="size-4 rounded-sm bg-black/20" />
+              ) : (
+                <User className="size-4" />
+              )}
+              <span>{localPhoto.author}</span>
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-2 text-white/60 text-sm">
+            {isEditMode ? (
+              <EditableEdition 
+                editionId={localPhoto.edition_id}
+                editionName={localPhoto.edition_name}
+                onSave={async (id, name) => {
+                  await updatePhoto(localPhoto.id, { edition_id: id });
+                  const newPhoto = { ...localPhoto, edition_id: id, edition_name: name };
+                  setLocalPhoto(newPhoto);
+                  onUpdate?.(newPhoto);
+                }}
+              />
+            ) : (
+              localPhoto.edition_name && <span>{localPhoto.edition_name}</span>
+            )}
+            
+            {(localPhoto.edition_name || isEditMode) && (formattedDate || isEditMode) && <span>•</span>}
+            
+            {isEditMode ? (
+              <EditableDate 
+                value={localPhoto.date_taken ? new Date(localPhoto.date_taken).toISOString().split('T')[0] : ""}
+                formattedDate={formattedDate}
+                onSave={async (val) => {
+                  const date = val ? new Date(val) : null;
+                  await updatePhoto(localPhoto.id, { date_taken: date });
+                  const newPhoto = { ...localPhoto, date_taken: date };
+                  setLocalPhoto(newPhoto);
+                  onUpdate?.(newPhoto);
+                }}
+              />
+            ) : (
+              formattedDate && <span>{formattedDate}</span>
+            )}
+
+            {isEditMode && (
+              <div className="flex items-center gap-2 ml-4">
+                <span className="text-white/40">•</span>
+                <span className="text-white/60 text-sm ml-2">Visible:</span>
+                <button 
+                  disabled={isPending}
+                  onClick={() => {
+                    startTransition(async () => {
+                      await updatePhoto(localPhoto.id, { enabled: !localPhoto.enabled });
+                      const newPhoto = { ...localPhoto, enabled: !localPhoto.enabled };
+                      setLocalPhoto(newPhoto);
+                      onUpdate?.(newPhoto);
+                    });
+                  }}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50 ${localPhoto.enabled ? 'bg-primary' : 'bg-white/20'}`}
+                >
+                  <span className={`pointer-events-none inline-block size-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${localPhoto.enabled ? 'translate-x-2' : '-translate-x-2'}`} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-3 pointer-events-auto">
+        <div className="flex flex-wrap items-center justify-end gap-3 pointer-events-auto">
+          {canEdit && (
+            <button 
+              onClick={() => {
+                setIsEditMode(!isEditMode);
+                if (!isEditMode && !showDetails) setShowDetails(true);
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm transition-all duration-200 text-sm font-medium cursor-pointer ${isEditMode ? 'bg-primary/80 text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+            >
+              <Edit3 className="size-4" />
+              <span className="hidden sm:inline">{isEditMode ? "Modo Vista" : "Editar"}</span>
+            </button>
+          )}
+
           <button 
             onClick={handleDownload}
             className="flex items-center gap-2 bg-white/10 hover:bg-white/20 hover:scale-105 active:scale-95 text-white px-4 py-2 rounded-full backdrop-blur-sm transition-all duration-200 text-sm font-medium cursor-pointer"
@@ -226,22 +326,48 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Placeholder from cache */}
+        {!imageLoaded && (
+          <img 
+            key={`${localPhoto.id}-thumb`}
+            src={thumbnailUrl}
+            alt="Cargando..."
+            draggable={false}
+            className={`absolute max-w-full max-h-full object-contain blur-md animate-pulse ${scale > 1 ? 'cursor-grab' : 'cursor-default'}`}
+            style={{ 
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+              filter: (!localPhoto.enabled && canEdit) ? 'grayscale(100%) opacity(50%) blur(8px)' : 'blur(8px)'
+            }}
+          />
+        )}
+        
+        {/* High-res Image */}
         <img 
-          key={photo.id}
-          src={photo.imageUrl}
-          alt={photo.title}
+          key={localPhoto.id}
+          src={optimizedUrl}
+          alt={localPhoto.title}
           draggable={false}
-          className={`max-w-full max-h-full object-contain drop-shadow-2xl animate-in fade-in duration-300 ${slideDir === 'next' ? 'slide-in-from-right-12' : slideDir === 'prev' ? 'slide-in-from-left-12' : 'zoom-in-95'} ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+          onLoad={() => setImageLoaded(true)}
+          className={`max-w-full max-h-full object-contain drop-shadow-2xl animate-in fade-in duration-300 ${slideDir === 'next' ? 'slide-in-from-right-12' : slideDir === 'prev' ? 'slide-in-from-left-12' : 'zoom-in-95'} ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'} ${!imageLoaded ? 'opacity-0' : 'opacity-100'}`}
           style={{ 
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            transition: isDragging ? 'none' : 'transform 0.15s ease-out'
+            transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+            filter: (!localPhoto.enabled && canEdit) ? 'grayscale(100%) opacity(50%)' : 'none'
           }}
           onMouseDown={handleMouseDown}
           onClick={(e) => e.stopPropagation()}
         />
 
+        {(!localPhoto.enabled && canEdit) && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 backdrop-blur-md px-6 py-3 rounded-full text-white font-medium text-lg pointer-events-none flex items-center gap-2">
+            <EyeOff className="size-5 text-red-400" />
+            <span>Foto Oculta</span>
+          </div>
+        )}
+
         {/* Navigation Arrows */}
-        {scale === 1 && !showDetails && (
+        {scale === 1 && !showDetails && !isEditMode && (
           <>
             {onPrev && (
               <button 
@@ -303,40 +429,67 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
       <div 
         className={`absolute bottom-0 left-0 right-0 flex flex-col z-10 transition-all duration-500 ease-in-out px-6 md:px-12 py-6 md:py-8 min-h-[200px] ${showDetails ? 'max-h-[50dvh] overflow-y-auto bg-black/85 shadow-[0_-60px_100px_40px_rgba(0,0,0,0.95)] pointer-events-auto' : 'pointer-events-none overflow-hidden bg-gradient-to-t from-black/95 via-black/70 to-transparent'}`}
       >
-        <div key={photo.id} className="flex flex-col gap-3 w-full mt-auto animate-in fade-in duration-300">
+        <div className="flex flex-col gap-3 w-full mt-auto animate-in fade-in duration-300">
           {/* Tags */}
-          {resolvedTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-1 pointer-events-auto">
-              {resolvedTags.map((tag, i) => {
-                const Icon = tag.iconComponent;
-                return (
-                  <span 
-                    key={i} 
-                    style={{ 
-                      backgroundColor: `${tag.color}33`, 
-                      borderColor: `${tag.color}66`, 
-                      color: tag.color 
-                    }}
-                    className="border rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1.5 backdrop-blur-sm transition-all duration-300"
-                  >
-                    <Icon className="size-3.5" />
-                    <span>{tag.label}</span>
-                  </span>
-                );
-              })}
-            </div>
+          {isEditMode ? (
+            <EditableTags 
+              categoryIds={localPhoto.tagIds}
+              onSave={async (tags) => {
+                await updatePhoto(localPhoto.id, { categoryIds: tags });
+                const newPhoto = { ...localPhoto, tagIds: tags };
+                setLocalPhoto(newPhoto);
+                onUpdate?.(newPhoto);
+              }}
+            />
+          ) : (
+            resolvedTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-1 pointer-events-auto">
+                {resolvedTags.map((tag, i) => {
+                  const Icon = tag.iconComponent;
+                  return (
+                    <span 
+                      key={i} 
+                      style={{ 
+                        backgroundColor: `${tag.color}33`, 
+                        borderColor: `${tag.color}66`, 
+                        color: tag.color 
+                      }}
+                      className="border rounded-full px-3 py-1 text-xs font-medium flex items-center gap-1.5 backdrop-blur-sm transition-all duration-300"
+                    >
+                      <Icon className="size-3.5" />
+                      <span>{tag.label}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            )
           )}
           
           {/* Title and Expand Button */}
-          <div className="flex items-start gap-3 md:gap-4 pointer-events-auto shrink-0">
-            <h2 className={`font-bold text-white leading-tight drop-shadow-md transition-all duration-500 ${showDetails ? 'text-xl md:text-5xl mb-4' : 'text-xl md:text-3xl'}`}>
-              {photo.title}
-            </h2>
+          <div className="flex items-center gap-3 md:gap-4 pointer-events-auto shrink-0">
+            {isEditMode ? (
+                <EditableText 
+                  value={localPhoto.title}
+                  placeholder="Añadir título"
+                  className="font-bold text-lg md:text-xl text-white flex items-center"
+                  textClassName={`font-bold text-white leading-tight drop-shadow-md transition-all duration-500 ${showDetails ? 'text-xl md:text-5xl mb-4' : 'text-xl md:text-3xl'}`}
+                  onSave={async (val) => {
+                    await updatePhoto(localPhoto.id, { title: val });
+                    const newPhoto = { ...localPhoto, title: val };
+                    setLocalPhoto(newPhoto);
+                    onUpdate?.(newPhoto);
+                  }}
+                />
+            ) : (
+              <h2 className={`font-bold text-white leading-tight drop-shadow-md transition-all duration-500 ${showDetails ? 'text-xl md:text-5xl mb-4' : 'text-xl md:text-3xl'}`}>
+                {localPhoto.title}
+              </h2>
+            )}
             
-            {hasDescription && (
+            {(hasDescription || isEditMode) && (
               <button 
                 onClick={() => setShowDetails(!showDetails)}
-                className="flex items-center justify-center size-7 md:size-10 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-sm transition-all duration-300 cursor-pointer shrink-0 mt-0.5 md:mt-1.5"
+                className={`flex items-center justify-center size-7 md:size-10 text-white rounded-full backdrop-blur-sm transition-all duration-300 cursor-pointer shrink-0 mt-0.5 md:mt-1.5 ${showDetails ? 'bg-white/20 hover:bg-white/30' : 'bg-white/10 hover:bg-white/20'}`}
                 title={showDetails ? "Ocultar Detalles" : "Ver Detalles"}
               >
                 <svg className={`size-3.5 md:size-5 transition-transform duration-300 ${showDetails ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -350,12 +503,29 @@ export function PhotoModal({ photo, onClose, onNext, onPrev }: PhotoModalProps) 
           <div 
             className={`transition-all duration-500 ease-in-out overflow-hidden pointer-events-auto ${showDetails ? 'opacity-100 max-h-[1000px] mt-2 md:mt-4' : 'opacity-0 max-h-0'}`}
           >
-            {hasDescription && (
-              <div className="prose prose-invert max-w-4xl">
-                <p className="text-white/80 text-sm md:text-lg leading-relaxed whitespace-pre-wrap font-normal">
-                  {photo.description}
-                </p>
+            {isEditMode ? (
+              <div className="max-w-4xl pb-4">
+                <EditableText 
+                  value={localPhoto.description || ""}
+                  placeholder="Añadir descripción"
+                  isTextArea={true}
+                  textClassName="text-white/80 text-sm md:text-lg leading-relaxed whitespace-pre-wrap font-normal"
+                  onSave={async (val) => {
+                    await updatePhoto(localPhoto.id, { description: val });
+                    const newPhoto = { ...localPhoto, description: val };
+                    setLocalPhoto(newPhoto);
+                    onUpdate?.(newPhoto);
+                  }}
+                />
               </div>
+            ) : (
+              hasDescription && (
+                <div className="prose prose-invert max-w-4xl">
+                  <p className="text-white/80 text-sm md:text-lg leading-relaxed whitespace-pre-wrap font-normal">
+                    {localPhoto.description}
+                  </p>
+                </div>
+              )
             )}
           </div>
         </div>
