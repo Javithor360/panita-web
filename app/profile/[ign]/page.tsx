@@ -19,6 +19,7 @@ import { Award } from "lucide-react";
 import { Fragment } from "react";
 import type { Metadata } from "next";
 import { ProfileGallery } from "@/components/profile/ProfileGallery";
+import { ProfileTrajectory } from "@/components/profile/ProfileTrajectory";
 import { getUserPhotos } from "@/app/actions/gallery";
 
 export async function generateMetadata(
@@ -54,6 +55,10 @@ export default async function PublicProfilePage(props: { params: Promise<{ ign: 
             select: { users: true }
           }
         }
+      },
+      editions: {
+        include: { edition: true },
+        orderBy: { edition: { started_at: 'asc' } }
       }
     }
   });
@@ -252,11 +257,14 @@ export default async function PublicProfilePage(props: { params: Promise<{ ign: 
             )}
           </div>
 
+          <ProfileTrajectory userEditions={user.editions} />
+
           <ProfileGallery 
             photos={photos} 
             canUpload={false} 
             editions={editions} 
             userId={user.id} 
+            userIgn={ign}
           />
 
         </div>

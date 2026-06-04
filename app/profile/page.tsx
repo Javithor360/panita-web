@@ -20,6 +20,7 @@ import { Award } from "lucide-react";
 import { Fragment } from "react";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { ProfileGallery } from "@/components/profile/ProfileGallery";
+import { ProfileTrajectory } from "@/components/profile/ProfileTrajectory";
 import { getUserPhotos } from "@/app/actions/gallery";
 
 export default async function ProfilePage() {
@@ -41,6 +42,10 @@ export default async function ProfilePage() {
             select: { users: true }
           }
         }
+      },
+      editions: {
+        include: { edition: true },
+        orderBy: { edition: { started_at: 'asc' } }
       }
     }
   });
@@ -238,6 +243,8 @@ export default async function ProfilePage() {
               </div>
             )}
           </div>
+
+          <ProfileTrajectory userEditions={user.editions} />
 
           <ProfileGallery 
             photos={photos} 

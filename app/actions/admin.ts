@@ -3,7 +3,7 @@
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import type { User as PrismaUser, Role, Emblem, Edition } from "@/lib/generated/prisma/client"
+import type { User as PrismaUser, Role, Emblem, Edition, UserEdition } from "@/lib/generated/prisma/client"
 import { v2 as cloudinary } from 'cloudinary';
 
 cloudinary.config({
@@ -28,7 +28,7 @@ async function checkAdmin() {
 
 // --- USERS ---
 
-export async function getUsers(search?: string, take: number = 5, skip: number = 0): Promise<{ users: (PrismaUser & { roles: Role[], emblems: Emblem[] })[], total: number }> {
+export async function getUsers(search?: string, take: number = 5, skip: number = 0): Promise<{ users: (PrismaUser & { roles: Role[], emblems: Emblem[], editions: UserEdition[] })[], total: number }> {
   await checkAdmin()
   
   const where = search ? {
@@ -43,7 +43,8 @@ export async function getUsers(search?: string, take: number = 5, skip: number =
       where,
       include: {
         roles: { orderBy: { position: 'asc' } },
-        emblems: true
+        emblems: true,
+        editions: true
       },
       orderBy: [
         { joined_at: 'desc' },
@@ -65,7 +66,8 @@ export async function updateUser(userId: number, data: {
   trusted_author?: boolean,
   joined_at?: Date,
   roles?: string[],
-  emblems?: string[]
+  emblems?: string[],
+  editions?: string[]
 }) {
   await checkAdmin()
 
@@ -93,6 +95,20 @@ export async function updateUser(userId: number, data: {
     where: { id: userId },
     data: updateData
   })
+
+  if (data.editions) {
+    await prisma.userEdition.deleteMany({
+      where: { user_id: userId, edition_id: { notIn: data.editions } }
+    });
+
+    for (const edId of data.editions) {
+      await prisma.userEdition.upsert({
+        where: { user_id_edition_id: { user_id: userId, edition_id: edId } },
+        update: {},
+        create: { user_id: userId, edition_id: edId }
+      })
+    }
+  }
 
   revalidatePath('/profile')
   return { success: true }
@@ -287,4 +303,46 @@ export async function deleteHiddenPhotosBulk(ids: string[]) {
   revalidatePath('/profile');
   revalidatePath('/gallery');
   return { success: true };
+}
+
+// --- USER EDITIONS (TRAJECTORY) ---
+
+export async function assignUserToEdition(userId: number, editionId: string, joinedAt?: Date | null) {
+  await checkAdmin()
+  
+  await prisma.userEdition.upsert({
+    where: {
+      user_id_edition_id: {
+        user_id: userId,
+        edition_id: editionId
+      }
+    },
+    update: {
+      joined_at: joinedAt
+    },
+    create: {
+      user_id: userId,
+      edition_id: editionId,
+      joined_at: joinedAt
+    }
+  })
+  
+  revalidatePath('/profile')
+  return { success: true }
+}
+
+export async function removeUserFromEdition(userId: number, editionId: string) {
+  await checkAdmin()
+  
+  await prisma.userEdition.delete({
+    where: {
+      user_id_edition_id: {
+        user_id: userId,
+        edition_id: editionId
+      }
+    }
+  }).catch(() => {}) // Ignore if not exists
+  
+  revalidatePath('/profile')
+  return { success: true }
 }

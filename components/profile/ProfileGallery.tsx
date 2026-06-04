@@ -147,7 +147,6 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn }:
       {selectedPhoto && (
         <PhotoModal 
           photo={selectedPhoto} 
-          isOpen={true} 
           onClose={() => setSelectedPhoto(null)} 
           canEdit={false} // Author can't edit from here unless we allow it. We'll disable it for now.
           onNext={() => {

@@ -41,13 +41,16 @@ model User {
   photos Photo[]
   roles  Role[]
   emblems Emblem[]
+  editions UserEdition[]
 }
 
 model Edition {
-  id      String   @id
-  name    String
-  photos  Photo[]
-  emblems Emblem[]
+  id         String   @id
+  name       String
+  started_at DateTime?
+  photos     Photo[]
+  emblems    Emblem[]
+  users      UserEdition[]
 }
 
 model Category {
@@ -74,4 +77,16 @@ model Emblem {
   edition_id  String?
   edition     Edition? @relation(fields: [edition_id], references: [id])
   users       User[]
+}
+
+model UserEdition {
+  id          String    @id @default(uuid())
+  user_id     Int
+  edition_id  String
+  joined_at   DateTime?
+
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  edition     Edition   @relation(fields: [edition_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, edition_id])
 }

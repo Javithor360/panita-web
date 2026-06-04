@@ -13,7 +13,6 @@ async function main() {
         data: {
           id: edition.id,
           name: edition.label,
-          icon: edition.iconName,
         },
       })
       console.log(`Created edition: ${result.name}`)
@@ -22,7 +21,6 @@ async function main() {
         where: { id: edition.id },
         data: { 
           name: edition.label,
-          icon: edition.iconName 
         }
       })
       console.log(`Updated edition: ${existing.name}`)

@@ -5,10 +5,11 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Card } from "@/components/ui/card"
 import { Users, Search, Check, Loader2, Plus, ArrowLeft } from "lucide-react"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { getUsers, updateUser, getRoles, getEmblems } from "@/app/actions/admin"
-import type { User as PrismaUser, Role, Emblem } from "@/lib/generated/prisma/client"
+import { getUsers, updateUser, getRoles, getEmblems, getEditions } from "@/app/actions/admin"
+import { EditionIcon } from "@/components/ui/EditionIcon"
+import type { User as PrismaUser, Role, Emblem, Edition, UserEdition } from "@/lib/generated/prisma/client"
 
-type UserWithRelations = PrismaUser & { roles: Role[], emblems: Emblem[] }
+type UserWithRelations = PrismaUser & { roles: Role[], emblems: Emblem[], editions: UserEdition[] }
 
 export function UsersManager() {
   const [isOpen, setIsOpen] = useState(false)
@@ -21,6 +22,7 @@ export function UsersManager() {
 
   const [allRoles, setAllRoles] = useState<Role[]>([])
   const [allEmblems, setAllEmblems] = useState<Emblem[]>([])
+  const [allEditions, setAllEditions] = useState<Edition[]>([])
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserWithRelations | null>(null)
@@ -42,19 +44,32 @@ export function UsersManager() {
   const [joinedAt, setJoinedAt] = useState('')
   const [roles, setRoles] = useState<string[]>([])
   const [emblems, setEmblems] = useState<string[]>([])
+  const [editions, setEditions] = useState<string[]>([])
 
   const loadInitialData = async () => {
     setLoading(true)
     try {
-      const [uData, rData, eData] = await Promise.all([
+      const [uData, rData, eData, edData] = await Promise.all([
         getUsers(searchQuery, INITIAL_TAKE, 0),
         getRoles(),
-        getEmblems()
+        getEmblems(),
+        getEditions()
       ])
-      setUsers(uData.users)
+      setUsers(uData.users as UserWithRelations[])
       setTotalUsers(uData.total)
       setAllRoles(rData)
       setAllEmblems(eData)
+      
+      const sortedEditions = [...edData].sort((a, b) => {
+        if (a.started_at && b.started_at) {
+          return new Date(a.started_at).getTime() - new Date(b.started_at).getTime();
+        }
+        if (a.started_at && !b.started_at) return -1;
+        if (!a.started_at && b.started_at) return 1;
+        return a.name.localeCompare(b.name);
+      });
+      setAllEditions(sortedEditions)
+      
       setSkip(INITIAL_TAKE)
     } finally {
       setLoading(false)
@@ -113,6 +128,7 @@ export function UsersManager() {
     setJoinedAt(u.joined_at ? new Date(u.joined_at).toISOString().split('T')[0] : '')
     setRoles(u.roles?.map((r: Role) => r.id) || [])
     setEmblems(u.emblems?.map((e: Emblem) => e.id) || [])
+    setEditions(u.editions?.map((e: UserEdition) => e.edition_id) || [])
   }
 
   const handleSave = async () => {
@@ -126,7 +142,8 @@ export function UsersManager() {
       trusted_author: trustedAuthor,
       joined_at: joinedAtDate,
       roles,
-      emblems
+      emblems,
+      editions
     })
     
     // Refresh current user list without resetting pagination completely if possible, 
@@ -386,6 +403,58 @@ export function UsersManager() {
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={e.icon_url} alt="" className="w-4 h-4 object-contain" />
                             {e.name}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+              </div>
+
+              {/* Historial de Participación */}
+              <div className="flex flex-col gap-2 mt-2">
+                <label className="text-sm font-medium">Historial de Participación</label>
+                <div className="flex flex-wrap gap-2">
+                  {editions.map(edId => {
+                    const ed = allEditions.find(x => x.id === edId);
+                    if (!ed) return null;
+                    return (
+                      <button
+                        key={ed.id}
+                        onClick={() => setEditions(editions.filter(id => id !== ed.id))}
+                        className="px-2.5 py-1 text-xs rounded-full border transition-all select-none cursor-pointer flex items-center gap-1.5 group"
+                        style={{ 
+                          color: 'var(--profile-glow)', 
+                          borderColor: 'color-mix(in srgb, var(--profile-glow) 30%, transparent)', 
+                          backgroundColor: 'color-mix(in srgb, var(--profile-glow) 15%, transparent)' 
+                        }}
+                        title="Click para remover"
+                      >
+                        <div className="w-3.5 h-3.5 shrink-0">
+                          <EditionIcon editionId={ed.id} className="w-full h-full object-contain drop-shadow-md" />
+                        </div>
+                        {ed.name}
+                        <span className="text-[12px] ml-1 opacity-70 group-hover:opacity-100">&times;</span>
+                      </button>
+                    )
+                  })}
+                  
+                  {allEditions.filter(ed => !editions.includes(ed.id)).length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="h-7 w-7 rounded-full border border-dashed border-border bg-secondary/10 hover:bg-secondary/30 transition-colors select-none cursor-pointer flex items-center justify-center text-muted-foreground hover:text-foreground">
+                        <Plus className="w-4 h-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-56">
+                        {allEditions.filter(ed => !editions.includes(ed.id)).map(ed => (
+                          <DropdownMenuItem
+                            key={ed.id}
+                            onClick={() => setEditions([...editions, ed.id])}
+                            className="flex items-center gap-2"
+                          >
+                            <div className="w-4 h-4 shrink-0">
+                              <EditionIcon editionId={ed.id} className="w-full h-full object-contain" />
+                            </div>
+                            {ed.name}
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
