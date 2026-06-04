@@ -53,7 +53,8 @@ export async function POST(request: Request) {
       _count: { id: true }
     });
     const editionCounters: Record<string, number> = {};
-    counts.forEach(c => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    counts.forEach((c: any) => {
       if (c.edition_id) editionCounters[c.edition_id] = c._count.id;
     });
 
