@@ -4,12 +4,13 @@ import { Users, Shield, Award } from "lucide-react"
 import { UsersManager } from "./UsersManager"
 import { RolesManager } from "./RolesManager"
 import { EmblemsManager } from "./EmblemsManager"
+import { PhotosManager } from "./PhotosManager"
 
 export function AdminPanel({ glowColor }: { glowColor?: string }) {
   const color = glowColor || 'var(--primary)';
   
   return (
-    <div className="mt-16 w-full pt-12 pb-8">
+    <div className="mt-12 w-full">
       <div className="flex items-center justify-center gap-4 mb-8">
         <div 
           className="h-[1px] flex-1" 
@@ -26,10 +27,11 @@ export function AdminPanel({ glowColor }: { glowColor?: string }) {
         />
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <UsersManager />
         <RolesManager />
         <EmblemsManager />
+        <PhotosManager />
       </div>
     </div>
   )

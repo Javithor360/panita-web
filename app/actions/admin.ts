@@ -4,6 +4,13 @@ import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import type { User as PrismaUser, Role, Emblem, Edition } from "@/lib/generated/prisma/client"
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 async function checkAdmin() {
   const session = await getSession()
@@ -233,4 +240,51 @@ export async function toggleUserEmblem(userId: number, emblemId: string, assign:
   })
   revalidatePath('/profile')
   return { success: true }
+}
+
+// --- PHOTOS ---
+
+export async function getHiddenPhotos() {
+  await checkAdmin()
+  return await prisma.photo.findMany({
+    where: { enabled: false },
+    orderBy: { created_at: 'desc' }
+  })
+}
+
+export async function deleteHiddenPhotosBulk(ids: string[]) {
+  await checkAdmin()
+  
+  // First get the photos to extract their Cloudinary public IDs
+  const photos = await prisma.photo.findMany({
+    where: { id: { in: ids } }
+  })
+  
+  // Delete from Cloudinary
+  const deletePromises = photos.map(async (photo) => {
+    try {
+      if (photo.url.includes('res.cloudinary.com')) {
+        const urlParts = photo.url.split('/upload/');
+        if (urlParts.length > 1) {
+          // Remove version if present and extension
+          const pathWithExt = urlParts[1].replace(/^v\d+\//, '');
+          const publicId = pathWithExt.replace(/\.[^/.]+$/, '');
+          await cloudinary.uploader.destroy(publicId);
+        }
+      }
+    } catch (e) {
+      console.error(`Error eliminando foto de Cloudinary: ${photo.url}`, e);
+    }
+  });
+  
+  await Promise.all(deletePromises);
+  
+  // Delete from database
+  await prisma.photo.deleteMany({
+    where: { id: { in: ids } }
+  });
+  
+  revalidatePath('/profile');
+  revalidatePath('/gallery');
+  return { success: true };
 }

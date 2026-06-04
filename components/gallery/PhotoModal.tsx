@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X, Share2, Check, User, Download, ChevronLeft, ChevronRight, Edit3, EyeOff } from "lucide-react";
 import { Photo, updatePhoto } from "@/app/actions/gallery";
 import { CATEGORIES } from "@/lib/constants";
@@ -29,6 +30,11 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [slideDir, setSlideDir] = useState<'next' | 'prev' | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [localPhoto, setLocalPhoto] = useState(photo);
@@ -186,7 +192,9 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
     thumbnailUrl = thumbnailUrl.replace('/upload/', '/upload/c_limit,w_800,q_auto,f_auto/');
   }
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col justify-start bg-black/40 backdrop-blur-lg lg:backdrop-blur-xs animate-in fade-in zoom-in-95 duration-500 ease-out">
       {/* Top Header */}
       <div 
@@ -552,6 +560,7 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

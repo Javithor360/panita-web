@@ -18,6 +18,8 @@ import {
 import { Award } from "lucide-react";
 import { Fragment } from "react";
 import type { Metadata } from "next";
+import { ProfileGallery } from "@/components/profile/ProfileGallery";
+import { getUserPhotos } from "@/app/actions/gallery";
 
 export async function generateMetadata(
   props: { params: Promise<{ ign: string }> }
@@ -59,6 +61,11 @@ export default async function PublicProfilePage(props: { params: Promise<{ ign: 
   if (!user) {
     notFound();
   }
+
+  const [photos, editions] = await Promise.all([
+    getUserPhotos(user.id),
+    prisma.edition.findMany({ orderBy: { id: 'desc' } })
+  ]);
 
   const ign = user.ign || user.discord_name;
   
@@ -244,6 +251,14 @@ export default async function PublicProfilePage(props: { params: Promise<{ ign: 
               </div>
             )}
           </div>
+
+          <ProfileGallery 
+            photos={photos} 
+            canUpload={false} 
+            editions={editions} 
+            userId={user.id} 
+          />
+
         </div>
       </div>
       </div>

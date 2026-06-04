@@ -228,3 +228,130 @@ export async function updatePhoto(id: string, data: {
   revalidatePath('/gallery');
   return { success: true };
 }
+export async function getUserPhotos(userId: number) {
+  try {
+    const dbPhotos = await prisma.photo.findMany({
+      where: { 
+        user_id: userId,
+        enabled: true,
+        NOT: [
+          { url: { endsWith: '.mp4', mode: 'insensitive' } },
+          { url: { endsWith: '.webm', mode: 'insensitive' } }
+        ]
+      },
+      orderBy: { created_at: 'desc' },
+      take: 50,
+      include: {
+        user: true,
+        edition: true,
+        categories: true,
+      }
+    });
+
+    return dbPhotos.map(p => ({
+      id: p.id,
+      title: p.title || 'Sin título',
+      description: p.description,
+      author: p.user?.discord_name || 'Desconocido',
+      authorIgn: p.user?.ign,
+      authorId: p.user_id,
+      tagIds: p.categories.map(c => c.id),
+      imageUrl: p.url,
+        date_taken: p.date_taken,
+      edition_id: p.edition_id,
+      edition_name: p.edition?.name || 'Desconocida',
+      enabled: p.enabled
+    }));
+  } catch (error) {
+    console.error("Error fetching user photos:", error);
+    return [];
+  }
+}
+
+import { v2 as cloudinary } from 'cloudinary';
+
+// Ensure cloudinary is configured
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export async function uploadPhoto(formData: FormData) {
+  const session = await getSession();
+  if (!session?.userId) throw new Error("Unauthorized");
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    include: { roles: true }
+  });
+
+  const isAdminOrMod = user?.roles.some((r: any) => r.id === 'admin' || r.id === 'mod');
+
+  if (!user || (!user.trusted_author && !isAdminOrMod)) {
+    throw new Error("Unauthorized: Only trusted authors can upload photos");
+  }
+
+  const file = formData.get('file') as File;
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const edition_id = formData.get('edition_id') as string;
+  const tagIdsString = formData.get('tagIds') as string;
+
+  if (!file || !title || !edition_id || !tagIdsString) {
+    throw new Error("Missing required fields");
+  }
+
+  const tagIds = JSON.parse(tagIdsString);
+  if (!Array.isArray(tagIds) || tagIds.length === 0) {
+    throw new Error("At least one tag is required");
+  }
+
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  // According to structure: panita-web/gallery/[edition]/[user]
+  const folder = `panita-web/gallery/${edition_id}/${user.discord_name}`;
+
+  try {
+    // Ensure the user's folder exists (Cloudinary creates it if it doesn't)
+    await cloudinary.api.create_folder(folder).catch(() => {
+      // If the folder already exists, Cloudinary might throw an error, we ignore it
+    });
+
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(buffer);
+    });
+
+    const cloudinaryResult = uploadResult as any;
+
+    const newPhoto = await prisma.photo.create({
+      data: {
+        url: cloudinaryResult.secure_url,
+        title,
+        description: description || null,
+        enabled: true,
+        date_taken: new Date(),
+        user_id: user.id,
+        edition_id: edition_id,
+        categories: {
+          connect: tagIds.map((id: string) => ({ id }))
+        }
+      }
+    });
+
+    revalidatePath('/gallery');
+    revalidatePath(`/profile/${user.ign || user.discord_name}`);
+    return { success: true, photoId: newPhoto.id };
+  } catch (error) {
+    console.error("Upload error:", error);
+    throw new Error("Failed to upload photo to Cloudinary or DB");
+  }
+}
