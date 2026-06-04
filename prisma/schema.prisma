@@ -35,6 +35,7 @@ model User {
   discord_id   String  @unique
   password     String?
   enabled      Boolean @default(false)
+  trusted_author Boolean @default(false)
   joined_at    DateTime @default(now())
 
   photos Photo[]
@@ -45,7 +46,6 @@ model User {
 model Edition {
   id      String   @id
   name    String
-  icon    String?
   photos  Photo[]
   emblems Emblem[]
 }
@@ -69,7 +69,7 @@ model Role {
 model Emblem {
   id          String   @id
   name        String
-  description String
+  description String?
   icon_url    String
   edition_id  String?
   edition     Edition? @relation(fields: [edition_id], references: [id])

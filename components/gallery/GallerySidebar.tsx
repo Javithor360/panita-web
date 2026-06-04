@@ -3,6 +3,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { EDITIONS, CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { EditionIcon } from "@/components/ui/EditionIcon";
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => (currentYear - i).toString());
@@ -50,7 +51,11 @@ export function GallerySidebar({
                       : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
                   )}
                 >
-                  <Icon className={cn("size-3.5 xl:size-4 transition-opacity ", isSelected ? "opacity-100" : "opacity-70")} />
+                  <EditionIcon 
+                    editionId={edition.id} 
+                    alt={edition.label}
+                    className={cn("size-4 xl:size-5 transition-opacity", isSelected ? "opacity-100" : "opacity-70")} 
+                  />
                   <span>{edition.label}</span>
                 </button>
               )

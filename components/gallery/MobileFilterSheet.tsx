@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { EDITIONS, CATEGORIES } from "@/lib/constants";
+import { EditionIcon } from "@/components/ui/EditionIcon";
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: currentYear - 2019 + 1 }, (_, i) => (currentYear - i).toString());
@@ -64,7 +65,11 @@ export function MobileFilterSheet({
                         : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
                     )}
                   >
-                    <Icon className={cn("size-4 transition-opacity", isSelected ? "opacity-100" : "opacity-70")} />
+                    <EditionIcon 
+                      editionId={edition.id} 
+                      alt={edition.label}
+                      className={cn("size-4 transition-opacity", isSelected ? "opacity-100" : "opacity-70")} 
+                    />
                     <span>{edition.label}</span>
                   </button>
                 )

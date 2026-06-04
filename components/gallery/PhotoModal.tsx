@@ -10,6 +10,7 @@ import { EditableDate } from "./edit/EditableDate";
 import { EditableAuthor } from "./edit/EditableAuthor";
 import { EditableTags } from "./edit/EditableTags";
 import { EditableEdition } from "./edit/EditableEdition";
+import { EditionIcon } from "@/components/ui/EditionIcon";
 
 interface PhotoModalProps {
   photo: Photo;
@@ -192,31 +193,34 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
         className="absolute top-0 left-0 right-0 px-6 py-6 md:px-12 md:py-8 flex flex-col-reverse lg:flex-row justify-between lg:items-start gap-4 lg:gap-0 z-10 pointer-events-none transition-all duration-500 ease-in-out opacity-100 bg-gradient-to-b from-black/95 via-black/50 to-transparent min-h-[150px]"
       >
         {/* Left side info */}
-        <div className="flex flex-col gap-2 pointer-events-auto mt-1 w-full lg:w-auto">
-          {isEditMode ? (
-            <EditableAuthor 
-              authorId={localPhoto.authorId}
-              authorName={localPhoto.author}
-              authorIgn={localPhoto.authorIgn}
-              onSave={async (id, name, ign) => {
-                await updatePhoto(localPhoto.id, { user_id: id });
-                const newPhoto = { ...localPhoto, authorId: id, author: name, authorIgn: ign };
-                setLocalPhoto(newPhoto);
-                onUpdate?.(newPhoto);
-              }}
-            />
-          ) : (
-            <div className="flex items-center gap-2 text-white/90 font-medium">
-              {localPhoto.authorIgn ? (
-                <img src={`https://mc-heads.net/avatar/${localPhoto.authorIgn}`} alt={localPhoto.authorIgn} className="size-4 rounded-sm bg-black/20" />
-              ) : (
-                <User className="size-4" />
-              )}
-              <span>{localPhoto.author}</span>
-            </div>
-          )}
+        <div className="flex flex-col gap-1.5 pointer-events-auto mt-1 w-full lg:w-auto">
+          {/* Primera Fila: Autor y Edición */}
+          <div className="flex flex-wrap items-center gap-3 text-white/90 font-medium">
+            {isEditMode ? (
+              <EditableAuthor 
+                authorId={localPhoto.authorId}
+                authorName={localPhoto.author}
+                authorIgn={localPhoto.authorIgn}
+                onSave={async (id, name, ign) => {
+                  await updatePhoto(localPhoto.id, { user_id: id });
+                  const newPhoto = { ...localPhoto, authorId: id, author: name, authorIgn: ign };
+                  setLocalPhoto(newPhoto);
+                  onUpdate?.(newPhoto);
+                }}
+              />
+            ) : (
+              <div className="flex items-center gap-2">
+                {localPhoto.authorIgn ? (
+                  <img src={`https://mc-heads.net/avatar/${localPhoto.authorIgn}`} alt={localPhoto.authorIgn} className="size-4 rounded-sm bg-black/20" />
+                ) : (
+                  <User className="size-4" />
+                )}
+                <span>{localPhoto.author}</span>
+              </div>
+            )}
 
-          <div className="flex flex-wrap items-center gap-2 text-white/60 text-sm">
+            {(localPhoto.edition_name || isEditMode) && <span className="text-white/40">•</span>}
+
             {isEditMode ? (
               <EditableEdition 
                 editionId={localPhoto.edition_id}
@@ -229,11 +233,17 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
                 }}
               />
             ) : (
-              localPhoto.edition_name && <span>{localPhoto.edition_name}</span>
+              localPhoto.edition_name && (
+                <div className="flex items-center gap-1.5 text-white/70">
+                  {localPhoto.edition_id && <EditionIcon editionId={localPhoto.edition_id} className="size-4 opacity-80" />}
+                  <span>{localPhoto.edition_name}</span>
+                </div>
+              )
             )}
-            
-            {(localPhoto.edition_name || isEditMode) && (formattedDate || isEditMode) && <span>•</span>}
-            
+          </div>
+
+          {/* Segunda Fila: Fecha y Visibilidad */}
+          <div className="flex flex-wrap items-center gap-3 text-white/60 text-sm">
             {isEditMode ? (
               <EditableDate 
                 value={localPhoto.date_taken ? new Date(localPhoto.date_taken).toISOString().split('T')[0] : ""}

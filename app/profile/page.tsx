@@ -194,7 +194,7 @@ export default async function ProfilePage() {
                         />
                         <div className="flex flex-col gap-3 w-full">
                           <p className="text-muted-foreground text-sm leading-relaxed text-center sm:text-left">
-                            {emblem.description}
+                            {emblem.description || "Este emblema es símbolo de la participación en un evento de alto renombre, otorgado a los participantes más honorables."}
                           </p>
                         </div>
                       </div>

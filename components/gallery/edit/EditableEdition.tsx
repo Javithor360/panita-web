@@ -1,6 +1,7 @@
 import { useState, useTransition, useRef, useEffect } from "react";
 import { Edit3, Loader2 } from "lucide-react";
 import { EDITIONS } from "@/lib/constants";
+import { EditionIcon } from "@/components/ui/EditionIcon";
 
 export function EditableEdition({ 
   editionId,
@@ -40,7 +41,14 @@ export function EditableEdition({
         onClick={() => setOpen(!open)}
         className="group flex items-center gap-1.5 text-white/60 hover:text-white/90 text-sm transition-all disabled:opacity-50 cursor-pointer"
       >
-        {isPending ? <Loader2 className="size-3 animate-spin" /> : <span>{editionName || "Sin edición"}</span>}
+        {isPending ? (
+          <Loader2 className="size-3 animate-spin" />
+        ) : (
+          <div className="flex items-center gap-1.5">
+            {editionId && <EditionIcon editionId={editionId} className="size-3.5 opacity-80" />}
+            <span>{editionName || "Sin edición"}</span>
+          </div>
+        )}
         <Edit3 className="size-3 opacity-40 group-hover:opacity-100 transition-opacity" />
       </button>
 
@@ -56,9 +64,10 @@ export function EditableEdition({
             <button 
               key={ed.id}
               onClick={() => handleSelect(ed.id, ed.label)}
-              className={`text-left px-3 py-2 text-sm rounded-md transition-colors cursor-pointer ${editionId === ed.id ? 'bg-primary/20 text-primary' : 'hover:bg-white/10'}`}
+              className={`flex items-center gap-2 text-left px-3 py-2 text-sm rounded-md transition-colors cursor-pointer ${editionId === ed.id ? 'bg-primary/20 text-primary' : 'hover:bg-white/10'}`}
             >
-              {ed.label}
+              <EditionIcon editionId={ed.id} alt={ed.label} className="size-4" />
+              <span>{ed.label}</span>
             </button>
           ))}
         </div>

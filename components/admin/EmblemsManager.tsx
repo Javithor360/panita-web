@@ -77,7 +77,7 @@ export function EmblemsManager() {
     setActiveTab('edit')
     setEmblemId(e.id)
     setName(e.name)
-    setDescription(e.description)
+    setDescription(e.description || '')
     setIconUrl(e.icon_url)
     setEditionId(e.edition_id || '')
     
@@ -89,7 +89,7 @@ export function EmblemsManager() {
   const handleSave = async () => {
     await saveEmblem(emblemId, {
       name,
-      description,
+      description: description || null,
       icon_url: iconUrl,
       edition_id: editionId || null
     }, isNew)
@@ -297,7 +297,7 @@ export function EmblemsManager() {
                   <div className="flex items-center gap-3 mt-6">
                     <button 
                       onClick={handleSave}
-                      disabled={!emblemId || !name || !iconUrl || !description}
+                      disabled={!emblemId || !name || !iconUrl}
                       className={`${isNew ? 'w-full' : 'w-3/4'} flex items-center justify-center gap-2 bg-primary text-primary-foreground h-11 rounded-md hover:opacity-90 transition-colors font-medium select-none disabled:opacity-50 cursor-pointer`}
                     >
                       <Save className="w-4 h-4" />

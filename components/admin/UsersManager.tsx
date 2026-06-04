@@ -38,6 +38,7 @@ export function UsersManager() {
   const [ign, setIgn] = useState('')
   const [discordName, setDiscordName] = useState('')
   const [enabled, setEnabled] = useState(false)
+  const [trustedAuthor, setTrustedAuthor] = useState(false)
   const [joinedAt, setJoinedAt] = useState('')
   const [roles, setRoles] = useState<string[]>([])
   const [emblems, setEmblems] = useState<string[]>([])
@@ -107,6 +108,8 @@ export function UsersManager() {
     setIgn(u.ign || '')
     setDiscordName(u.discord_name || '')
     setEnabled(u.enabled || false)
+    // @ts-ignore - Prisma generated client might not be fully synced in IDE yet
+    setTrustedAuthor(u.trusted_author || false)
     setJoinedAt(u.joined_at ? new Date(u.joined_at).toISOString().split('T')[0] : '')
     setRoles(u.roles?.map((r: Role) => r.id) || [])
     setEmblems(u.emblems?.map((e: Emblem) => e.id) || [])
@@ -120,6 +123,7 @@ export function UsersManager() {
       ign: ign || null,
       discord_name: discordName,
       enabled,
+      trusted_author: trustedAuthor,
       joined_at: joinedAtDate,
       roles,
       emblems
@@ -237,15 +241,30 @@ export function UsersManager() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 px-1 sm:py-2">
-                  <input 
-                    type="checkbox" 
-                    checked={enabled} 
-                    onChange={e => setEnabled(e.target.checked)} 
-                    id="enabled-check"
-                    className="w-4 h-4 cursor-pointer accent-primary"
-                  />
-                  <label htmlFor="enabled-check" className="text-sm font-medium select-none cursor-pointer">Activo</label>
+                <div className="flex flex-row sm:flex-col items-center sm:items-start sm:justify-center gap-2 px-1 sm:py-2">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      checked={enabled} 
+                      onChange={e => setEnabled(e.target.checked)} 
+                      id="enabled-check"
+                      className="w-4 h-4 cursor-pointer accent-primary"
+                    />
+                    <label htmlFor="enabled-check" className="text-sm font-medium select-none cursor-pointer">Activo</label>
+                  </div>
+
+                  <div className="w-px h-4 bg-border sm:hidden"></div>
+                  
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      checked={trustedAuthor} 
+                      onChange={e => setTrustedAuthor(e.target.checked)} 
+                      id="trusted-author-check"
+                      className="w-4 h-4 cursor-pointer accent-primary"
+                    />
+                    <label htmlFor="trusted-author-check" className="text-sm font-medium select-none cursor-pointer whitespace-nowrap">Autorizado</label>
+                  </div>
                 </div>
               </div>
 

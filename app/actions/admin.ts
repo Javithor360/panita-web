@@ -55,17 +55,18 @@ export async function updateUser(userId: number, data: {
   ign?: string | null,
   discord_name?: string,
   enabled?: boolean,
+  trusted_author?: boolean,
   joined_at?: Date,
   roles?: string[],
   emblems?: string[]
 }) {
   await checkAdmin()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updateData: Record<string, unknown> = {
     ign: data.ign,
     discord_name: data.discord_name,
     enabled: data.enabled,
+    trusted_author: data.trusted_author,
     joined_at: data.joined_at,
   };
 
@@ -166,7 +167,7 @@ export async function getEditions() {
 
 export async function saveEmblem(id: string, data: {
   name: string,
-  description: string,
+  description: string | null,
   icon_url: string,
   edition_id: string | null
 }, isNew: boolean) {
