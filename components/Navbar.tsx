@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react"
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -25,6 +26,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ user }: NavbarProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
   return (
@@ -32,15 +34,15 @@ export function Navbar({ user }: NavbarProps) {
       <div className="container mx-auto flex h-16 max-w-6xl items-center md:px-8">
         
         {/* Mobile: Hamburger Menu - Left */}
-        <div className="flex flex-1 items-center justify-start md:hidden">
-          <Sheet>
+        <div className="flex items-center justify-start md:hidden">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger render={<Button variant="ghost" className="h-12 w-12 p-0" aria-label="Abrir menú" />}>
               <Menu className="size-8" />
             </SheetTrigger>
             <SheetContent side="left" className="!w-full 2xs:!w-[85vw] sm:!w-[320px] flex flex-col p-6">
               <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
               <div className="mb-8 mt-2 flex items-center gap-3 px-2 pr-14">
-                <ImageIcon className="h-8 w-8 text-primary shrink-0" />
+                <img src="/assets/logo_white.svg" alt="Panitacraft" className="h-10 w-10 shrink-0" />
                 <span className="text-xl font-bold tracking-tight truncate">Panitacraft</span>
               </div>
               
@@ -48,6 +50,7 @@ export function Navbar({ user }: NavbarProps) {
               <nav className="flex flex-col gap-3 text-lg font-medium">
                 <Link 
                   href="/about" 
+                  onClick={() => setIsOpen(false)}
                   className={cn(
                     "flex items-center gap-4 rounded-md px-4 py-4 transition-colors",
                     pathname === "/about" 
@@ -60,6 +63,7 @@ export function Navbar({ user }: NavbarProps) {
                 </Link>
                 <Link 
                   href="/gallery" 
+                  onClick={() => setIsOpen(false)}
                   className={cn(
                     "flex items-center gap-4 rounded-md px-4 py-4 transition-colors",
                     pathname.startsWith("/gallery") 
@@ -72,6 +76,7 @@ export function Navbar({ user }: NavbarProps) {
                 </Link>
                 <Link 
                   href="/credits" 
+                  onClick={() => setIsOpen(false)}
                   className={cn(
                     "flex items-center gap-4 rounded-md px-4 py-4 transition-colors",
                     pathname.startsWith("/credits") 
@@ -88,7 +93,7 @@ export function Navbar({ user }: NavbarProps) {
               <div className="mt-auto pb-6 flex flex-col gap-3">
                 {user ? (
                   <div className="flex flex-col gap-2">
-                    <Link href="/profile" className="flex h-14 w-full items-center justify-start gap-4 rounded-md bg-secondary/10 px-6 text-lg font-medium transition-colors hover:bg-secondary/20">
+                    <Link href="/profile" onClick={() => setIsOpen(false)} className="flex h-14 w-full items-center justify-start gap-4 rounded-md bg-secondary/10 px-6 text-lg font-medium transition-colors hover:bg-secondary/20">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={`https://mc-heads.net/avatar/${user.ign}/128`} 
@@ -105,7 +110,7 @@ export function Navbar({ user }: NavbarProps) {
                     </form>
                   </div>
                 ) : (
-                  <Link href="/login" className="w-full">
+                  <Link href="/login" onClick={() => setIsOpen(false)} className="w-full">
                     <Button variant="default" className="flex h-14 w-full items-center justify-start gap-4 px-6 text-lg font-medium">
                       <LogIn className="h-6 w-6 shrink-0" />
                       <span>Iniciar Sesión</span>
@@ -118,9 +123,9 @@ export function Navbar({ user }: NavbarProps) {
         </div>
 
         {/* Logo - Center on Mobile, Left on Desktop */}
-        <div className="flex flex-1 items-center justify-center md:justify-start">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:static md:translate-x-0 md:translate-y-0 flex md:flex-1 items-center z-10">
           <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-            <ImageIcon className="h-6 w-6 text-primary" />
+            <img src="/assets/logo_white.svg" alt="Panitacraft" className="h-10 w-10" />
             <span className="text-lg font-bold tracking-tight">Panitacraft</span>
           </Link>
         </div>
@@ -205,8 +210,6 @@ export function Navbar({ user }: NavbarProps) {
           )}
         </div>
 
-        {/* Dummy div to balance flex on mobile so logo is exactly centered */}
-        <div className="flex flex-1 md:hidden" />
       </div>
     </header>
   )

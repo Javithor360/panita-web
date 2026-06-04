@@ -19,8 +19,8 @@ export default function Home() {
           
           {/* Big Imagotype */}
           <div className="flex flex-col items-center justify-center">
-            <div className="rounded-full bg-primary/10 p-6 ring-1 ring-primary/20">
-              <ImageIcon className="h-20 w-20 text-primary md:h-24 md:w-24" />
+            <div className="rounded-full bg-black p-6 ring-1 ring-primary/20 shadow-[0_0_50px_-12px_var(--primary)]">
+              <img src="/assets/logo_white.svg" alt="Panitacraft Logo" className="h-24 w-24 md:h-32 md:w-32 drop-shadow-md transition-transform hover:scale-105 duration-500" />
             </div>
           </div>
 

@@ -16,7 +16,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Panitacraft",
-  description: "Galería y museo digital de las ediciones de Panitacraft",
+  description: "Sitio web oficial del servidor de Panitacraft",
+  icons: {
+    icon: "/assets/logo_white.svg"
+  }
 };
 
 import { getSession } from "@/lib/auth";
