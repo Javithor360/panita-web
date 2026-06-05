@@ -109,7 +109,6 @@ export default async function ProfilePage() {
               style={{ imageRendering: 'pixelated' }}
             />
           </div>
-          
           <h1 className="mt-4 text-3xl font-bold tracking-tight">{ign}</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Miembro desde {joinedDate}

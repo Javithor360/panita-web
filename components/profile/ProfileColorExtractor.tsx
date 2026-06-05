@@ -67,12 +67,11 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
 
         if (topColor && bottomColor && avgColor) {
           const luminance = 0.299 * avgColor.r + 0.587 * avgColor.g + 0.114 * avgColor.b;
-          const textColor = luminance < 90 ? '#ffffff' : `rgb(${avgColor.r}, ${avgColor.g}, ${avgColor.b})`;
+          const isDark = luminance < 90;
 
           setStyles({
-            '--profile-glow': `rgb(${avgColor.r}, ${avgColor.g}, ${avgColor.b})`,
+            '--profile-glow': isDark ? '#ffffff' : `rgb(${avgColor.r}, ${avgColor.g}, ${avgColor.b})`,
             '--profile-gradient': `linear-gradient(to bottom right, rgb(${topColor.r}, ${topColor.g}, ${topColor.b}), rgb(${bottomColor.r}, ${bottomColor.g}, ${bottomColor.b}))`,
-            '--profile-text': textColor,
           } as React.CSSProperties)
         }
       } catch (e) {
