@@ -17,10 +17,9 @@ export default function Home() {
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center space-y-3 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
           
-          {/* Big Imagotype */}
           <div className="flex flex-col items-center justify-center">
-            <div className="rounded-full bg-black p-6 ring-1 ring-primary/20 shadow-[0_0_50px_-12px_var(--primary)]">
-              <img src="/assets/logo_white.svg" alt="Panitacraft Logo" className="h-24 w-24 md:h-32 md:w-32 drop-shadow-md transition-transform hover:scale-105 duration-500" />
+            <div className="rounded-full bg-[#1c1c1c] p-6 ring-1 ring-primary/20 shadow-[0_0_50px_-12px_var(--primary)]">
+              <img src="/assets/logo_white.svg" alt="Panitacraft Logo" className="h-24 w-24 md:h-32 md:w-32 drop-shadow-md transition-transform hover:scale-105 duration-500 select-none pointer-events-none" />
             </div>
           </div>
 
