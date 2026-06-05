@@ -257,7 +257,7 @@ export default async function ProfilePage() {
           />
 
           {/* Panel de Administrador */}
-          {userRoles.some((r: any) => r.id === 'admin') && (
+          {userRoles.some((r: any) => r.id === 'admin' || r.id === 'mod') && (
             <AdminPanel glowColor="var(--profile-glow)" />
           )}
 
