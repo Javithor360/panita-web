@@ -40,7 +40,7 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
 
         ctx.drawImage(img, 0, 0)
 
-        const getAverageColor = (data: Uint8ClampedArray) => {
+        const getAverageRgb = (data: Uint8ClampedArray) => {
           let r = 0, g = 0, b = 0, count = 0
           for (let i = 0; i < data.length; i += 4) {
             if (data[i + 3] > 0) { // ignore transparent
@@ -51,7 +51,7 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
             }
           }
           if (count === 0) return null
-          return `rgb(${Math.round(r / count)}, ${Math.round(g / count)}, ${Math.round(b / count)})`
+          return { r: Math.round(r / count), g: Math.round(g / count), b: Math.round(b / count) }
         }
 
         // Top half (hair/hat)
@@ -61,14 +61,18 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
         // Full image for average glow
         const fullData = ctx.getImageData(0, 0, img.width, img.height).data
 
-        const topColor = getAverageColor(topData)
-        const bottomColor = getAverageColor(bottomData)
-        const avgColor = getAverageColor(fullData)
+        const topColor = getAverageRgb(topData)
+        const bottomColor = getAverageRgb(bottomData)
+        const avgColor = getAverageRgb(fullData)
 
         if (topColor && bottomColor && avgColor) {
+          const luminance = 0.299 * avgColor.r + 0.587 * avgColor.g + 0.114 * avgColor.b;
+          const textColor = luminance < 90 ? '#ffffff' : `rgb(${avgColor.r}, ${avgColor.g}, ${avgColor.b})`;
+
           setStyles({
-            '--profile-glow': avgColor,
-            '--profile-gradient': `linear-gradient(to bottom right, ${topColor}, ${bottomColor})`,
+            '--profile-glow': `rgb(${avgColor.r}, ${avgColor.g}, ${avgColor.b})`,
+            '--profile-gradient': `linear-gradient(to bottom right, rgb(${topColor.r}, ${topColor.g}, ${topColor.b}), rgb(${bottomColor.r}, ${bottomColor.g}, ${bottomColor.b}))`,
+            '--profile-text': textColor,
           } as React.CSSProperties)
         }
       } catch (e) {

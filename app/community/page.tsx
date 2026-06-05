@@ -20,6 +20,33 @@ export const metadata = {
   description: "Agradecimientos especiales a todos los que hicieron esto posible",
 }
 
+// ! -------------------------------------------------------------
+// ! Hardcoded Local User Descriptions
+// ! -------------------------------------------------------------
+// ! Using numeric id as key (which is unmutable in the database).
+
+const STAFF_DESCRIPTIONS: Record<string, string> = {
+  1: "<p class='text-center'>Asistente consultor de programación y tester.</p><br><ul><li>Programador web y de plugins</li><li>Consultor de diseño y desarrollo</li></ul>",
+  2: "<p class='text-center'>Administrador asistente. Mano derecha del administrador principal. Organizador de ideas y colaborador en testeos multi-tareas.</p><br><ul><li>Encargado creativo</li><li>Constructor</li><li>Diseñador gráfico</li><li>Moderador del servidor de Minecraft</li><li>Soporte y atención de tickets</li><li>Supervisor del host</li></ul>",
+  4: "<p class='text-center'>Administrador principal de todo el servidor. Encargado de múltiples funciones de organización, planificación y desarrollo de los proyectos.</p><br><ul><li>Moderador del servidor de Minecraft</li><li>Encargado del servidor de Discord</li><li>Soporte y atención de tickets</li><li>Programador fullstack web y plugins</li><li>Organizador de eventos</li><li>Supervisor del host</li></ul>",
+  6: "<p class='text-center'>Moderador activo con la comunidad</p><br><ul><li>Asistente creativo</li><li>Constructor</li><li>Diseñador gráfico</li><li>Moderador del servidor de Minecraft</li><li>Soporte y atención de tickets</li></ul>",
+};
+
+const DONATOR_DESCRIPTIONS: Record<string, string> = {
+  2: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li></ul>",
+  3: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li></ul>",
+  10: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>AllThePanitas</li><li>Panitacraft 2.75</li></ul>",
+  15: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>AllThePanitas</li></ul>",
+  16: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Tezzlar</li><li>Panitacraft 2.75</li></ul>",
+  17: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li><li>Panitamon</li></ul>",
+  19: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li></ul>",
+  39: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li></ul>",
+};
+
+// Default descriptions
+const DEFAULT_STAFF_DESCRIPTION = "<p class='text-center'>Contribuidor esencial para la planificación y desarrollo de Panitacraft.</p>";
+const DEFAULT_DONATOR_DESCRIPTION = "<p class='text-center'>Contrubución de gran valor para el seguidimiento de Panitacraft.</p>";
+
 export default async function AgradecimientosPage() {
   const users = await prisma.user.findMany({
     where: {
@@ -68,7 +95,7 @@ export default async function AgradecimientosPage() {
         role: activeRole?.id,
         roleName: activeRole?.name,
         roleColor: activeRole?.color,
-        description: '...' // Próximamente
+        description: DONATOR_DESCRIPTIONS[String(u.id)] || DEFAULT_DONATOR_DESCRIPTION
       };
     });
 
@@ -86,7 +113,7 @@ export default async function AgradecimientosPage() {
         role: activeRole?.id,
         roleName: activeRole?.name,
         roleColor: activeRole?.color,
-        description: '...' // Próximamente
+        description: STAFF_DESCRIPTIONS[String(u.id)] || DEFAULT_STAFF_DESCRIPTION
       };
     });
 

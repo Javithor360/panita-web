@@ -79,7 +79,7 @@ export function UserCard({ user, onOpenChange, disableModal, isPanita }: UserCar
                     <div className={cn("text-center flex flex-col items-center w-full", isPanita ? "mt-5 gap-2" : "mt-4 gap-1")}>
                       <h3 
                         className="font-bold text-lg tracking-tight truncate w-full transition-colors duration-300"
-                        style={{ color: isPanita ? '#ffffff' : 'var(--profile-glow)' }}
+                        style={{ color: isPanita ? '#ffffff' : 'var(--profile-text, var(--profile-glow))' }}
                       >
                         {user.ign}
                       </h3>
@@ -195,10 +195,11 @@ export function UserCard({ user, onOpenChange, disableModal, isPanita }: UserCar
             </span>
           )}
         </DialogHeader>
-        <div className="mt-4 text-center">
-          <p className="text-base text-foreground/90 leading-relaxed bg-muted/30 p-4 rounded-xl border border-border/50">
-            "{user.description}"
-          </p>
+        <div className="mt-4 text-left">
+          <div 
+            className="text-sm sm:text-base text-foreground/90 leading-relaxed bg-muted/30 p-4 rounded-xl border border-border/50 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-3 [&>p]:mb-3 last:[&>p]:mb-0 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:mb-3"
+            dangerouslySetInnerHTML={{ __html: user.description || "<i>Sin información adicional.</i>" }}
+          />
         </div>
       </DialogContent>
     </Dialog>
