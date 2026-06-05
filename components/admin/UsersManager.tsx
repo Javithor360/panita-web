@@ -5,6 +5,16 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Card } from "@/components/ui/card"
 import { Users, Search, Check, Loader2, Plus, ArrowLeft } from "lucide-react"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { getUsers, updateUser, getRoles, getEmblems, getEditions } from "@/app/actions/admin"
 import { EditionIcon } from "@/components/ui/EditionIcon"
 import type { User as PrismaUser, Role, Emblem, Edition, UserEdition } from "@/lib/generated/prisma/client"
@@ -131,6 +141,72 @@ export function UsersManager() {
     setEditions(u.editions?.map((e: UserEdition) => e.edition_id) || [])
   }
 
+  const [isDirty, setIsDirty] = useState(false)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'close' | 'back' | null>(null)
+
+  const executeExit = (action: 'close' | 'back') => {
+    if (action === 'back') {
+      setSelectedUser(null)
+    } else {
+      setIsOpen(false)
+    }
+  }
+
+  const requestExit = (action: 'close' | 'back') => {
+    if (isDirty) {
+      setPendingAction(action)
+      setShowExitConfirm(true)
+    } else {
+      executeExit(action)
+    }
+  }
+
+  // Track dirty state
+  useEffect(() => {
+    if (!selectedUser) {
+      setIsDirty(false)
+      return
+    }
+    const currentJoinedAt = joinedAt ? new Date(joinedAt).toISOString().split('T')[0] : '';
+    const originalJoinedAt = selectedUser.joined_at ? new Date(selectedUser.joined_at).toISOString().split('T')[0] : '';
+    
+    const isChanged = 
+      ign !== (selectedUser.ign || '') ||
+      discordName !== (selectedUser.discord_name || '') ||
+      enabled !== (selectedUser.enabled || false) ||
+      trustedAuthor !== (selectedUser.trusted_author || false) ||
+      currentJoinedAt !== originalJoinedAt ||
+      JSON.stringify([...roles].sort()) !== JSON.stringify([...(selectedUser.roles?.map(r => r.id) || [])].sort()) ||
+      JSON.stringify([...emblems].sort()) !== JSON.stringify([...(selectedUser.emblems?.map(e => e.id) || [])].sort()) ||
+      JSON.stringify([...editions].sort()) !== JSON.stringify([...(selectedUser.editions?.map(e => e.edition_id) || [])].sort());
+      
+    setIsDirty(isChanged)
+  }, [ign, discordName, enabled, trustedAuthor, joinedAt, roles, emblems, editions, selectedUser])
+
+  // Prevent accidental navigation
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      requestExit('close')
+    } else {
+      setIsOpen(newOpen)
+    }
+  }
+
+  const handleBack = () => {
+    requestExit('back')
+  }
+
   const handleSave = async () => {
     if (!selectedUser) return
     const joinedAtDate = joinedAt ? new Date(joinedAt) : new Date()
@@ -154,7 +230,8 @@ export function UsersManager() {
   }
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger 
         nativeButton={false}
         render={
@@ -232,7 +309,7 @@ export function UsersManager() {
           ) : (
             <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4">
               <button 
-                onClick={() => setSelectedUser(null)}
+                onClick={handleBack}
                 className="flex items-center gap-2 px-1 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors select-none cursor-pointer w-fit group"
               >
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -475,6 +552,30 @@ export function UsersManager() {
         </div>
       </SheetContent>
     </Sheet>
+    
+    <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Tienes cambios sin guardar</AlertDialogTitle>
+          <AlertDialogDescription>
+            Si sales ahora, perderás todas las modificaciones que no hayas guardado. ¿Estás seguro de que quieres salir?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => { setShowExitConfirm(false); setPendingAction(null); }}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={() => {
+              setShowExitConfirm(false);
+              if (pendingAction) executeExit(pendingAction);
+            }} 
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Sí, salir sin guardar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }
 
