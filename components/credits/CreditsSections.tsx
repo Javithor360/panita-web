@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils"
 import { Crown } from "lucide-react"
 import { getDiscordAvatar } from "@/app/actions/discord"
 
-function DiscordAvatar({ discordId, discordName }: { discordId: string, discordName: string }) {
+function DiscordAvatar({ discordId, discordName, className }: { discordId: string, discordName: string, className?: string }) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -24,12 +24,12 @@ function DiscordAvatar({ discordId, discordName }: { discordId: string, discordN
   }, [discordId]);
 
   return (
-    <div className="h-full w-full rounded-full overflow-hidden flex-shrink-0 bg-black/20">
+    <div className={cn("transition-opacity duration-500", avatarUrl ? "opacity-100" : "opacity-0", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img 
         src={avatarUrl || `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(discordId) >> BigInt(22)) % 6}.png`} 
         alt={discordName}
-        className={cn("h-full w-full object-cover transition-opacity duration-500", avatarUrl ? "opacity-100" : "opacity-0")}
+        className="h-full w-full object-cover"
       />
     </div>
   );
@@ -88,9 +88,11 @@ export function UserCard({ user, onOpenChange, disableModal, isPanita }: UserCar
                         className="h-20 w-20 rounded-md shadow-md"
                         style={{ imageRendering: 'pixelated' }}
                       />
-                      <div className="absolute -bottom-2 -right-2 rounded-full border-2 border-card bg-muted h-8 w-8 overflow-hidden">
-                        <DiscordAvatar discordId={user.discordId} discordName={user.discordName} />
-                      </div>
+                      <DiscordAvatar 
+                        discordId={user.discordId} 
+                        discordName={user.discordName} 
+                        className="absolute -bottom-2 -right-2 rounded-full border-2 border-card bg-muted h-8 w-8 overflow-hidden" 
+                      />
                     </div>
                     <div className={cn("text-center flex flex-col items-center w-full", isPanita ? "mt-5 gap-2" : "mt-4 gap-1")}>
                       <h3 
@@ -191,9 +193,11 @@ export function UserCard({ user, onOpenChange, disableModal, isPanita }: UserCar
           </div>
           <DialogTitle className="text-2xl">{user.ign}</DialogTitle>
           <div className="flex items-center gap-2 mt-1 justify-center bg-secondary/10 px-3 py-1 rounded-full w-fit">
-            <div className="h-4 w-4 flex-shrink-0">
-              <DiscordAvatar discordId={user.discordId} discordName={user.discordName} />
-            </div>
+            <DiscordAvatar 
+              discordId={user.discordId} 
+              discordName={user.discordName} 
+              className="h-4 w-4 flex-shrink-0 rounded-full overflow-hidden"
+            />
             <span className="text-sm text-muted-foreground font-medium">{user.discordName}</span>
           </div>
           {user.role && (
