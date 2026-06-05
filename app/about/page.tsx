@@ -15,17 +15,17 @@ export default function AboutPage() {
         <div className="rounded-full bg-primary/10 p-4 ring-1 ring-primary/20">
           <ImageIcon className="h-12 w-12 text-primary" />
         </div>
-        <div className="space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+        <div className="flex flex-col items-center space-y-4 w-full">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl text-center">
             Historia de Panitacraft
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-muted-foreground text-center">
             Desde un grupo de jóvenes amigos a una comunidad llena de recuerdos.
           </p>
         </div>
       </div>
 
-      <div className="mt-16 prose prose-lg prose-invert mx-auto">
+      <div className="mt-16 max-w-3xl mx-auto text-center space-y-6 text-lg text-muted-foreground leading-relaxed">
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam augue mi, euismod ac sagittis non, posuere sed turpis. Ut eu lacinia ipsum. Integer ac dolor vitae eros mollis hendrerit non ut elit. Nam fringilla, nulla non euismod porttitor, sem urna varius quam, et eleifend odio mi ac augue. Proin ornare felis non sapien dignissim accumsan. Donec vitae dapibus velit, imperdiet interdum tortor. Suspendisse id lectus egestas, dignissim lacus nec, commodo lectus. Nulla facilisi. Suspendisse rhoncus leo vel commodo varius. In quis consequat eros. Aenean sollicitudin tristique hendrerit. Proin consectetur enim sapien, vel fringilla augue vulputate in.
         </p>

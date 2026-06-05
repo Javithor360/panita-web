@@ -42,8 +42,8 @@ export function Navbar({ user }: NavbarProps) {
             <SheetContent side="left" className="!w-full 2xs:!w-[85vw] sm:!w-[320px] flex flex-col p-6">
               <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
               <div className="mb-8 mt-2 flex items-center gap-3 px-2 pr-14">
-                <img src="/assets/logo_white.svg" alt="Panitacraft" className="h-10 w-10 shrink-0" />
-                <span className="text-xl font-bold tracking-tight truncate">Panitacraft</span>
+                <img src="/assets/logo_white.svg" alt="Panitacraft" className="h-10 w-10 shrink-0 select-none pointer-events-none" />
+                <span className="text-xl font-bold tracking-tight truncate select-none">Panitacraft</span>
               </div>
               
               {/* Mobile Navigation Links - Top */}
@@ -75,17 +75,17 @@ export function Navbar({ user }: NavbarProps) {
                   Galería
                 </Link>
                 <Link 
-                  href="/credits" 
+                  href="/community" 
                   onClick={() => setIsOpen(false)}
                   className={cn(
                     "flex items-center gap-4 rounded-md px-4 py-4 transition-colors",
-                    pathname.startsWith("/credits") 
+                    pathname.startsWith("/community") 
                       ? "bg-primary/20 text-primary font-semibold" 
                       : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                   )}
                 >
                   <Heart className="h-6 w-6" />
-                  Agradecimientos
+                  Comunidad
                 </Link>
               </nav>
 
@@ -124,8 +124,8 @@ export function Navbar({ user }: NavbarProps) {
 
         {/* Logo - Center on Mobile, Left on Desktop */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:static md:translate-x-0 md:translate-y-0 flex md:flex-1 items-center z-10">
-          <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-            <img src="/assets/logo_white.svg" alt="Panitacraft" className="h-10 w-10" />
+          <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80 select-none">
+            <img src="/assets/logo_white.svg" alt="Panitacraft" className="h-10 w-10 pointer-events-none" />
             <span className="text-lg font-bold tracking-tight">Panitacraft</span>
           </Link>
         </div>
@@ -157,16 +157,16 @@ export function Navbar({ user }: NavbarProps) {
             Galería
           </Link>
           <Link 
-            href="/credits" 
+            href="/community" 
             className={cn(
               "flex items-center gap-2 rounded-md px-3 py-2 transition-colors",
-              pathname.startsWith("/credits") 
+              pathname.startsWith("/community") 
                 ? "bg-primary/20 text-primary font-semibold" 
                 : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
             )}
           >
             <Heart className="h-4 w-4" />
-            Agradecimientos
+            Comunidad
           </Link>
         </nav>
 

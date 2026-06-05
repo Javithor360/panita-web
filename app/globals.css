@@ -31,6 +31,14 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --breakpoint-2xs: 375px;
+
+  --animate-marquee: marquee 35s linear infinite;
+  
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 @layer base {
