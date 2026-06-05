@@ -239,7 +239,6 @@ export function Navbar({ user }: NavbarProps) {
                   <DropdownMenuItem 
                     className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center gap-2"
                     render={<button type="submit" className="w-full" />}
-                    // @ts-expect-error nativeButton is required by Base UI when rendering a button
                     nativeButton={true}
                   >
                     <LogIn className="h-4 w-4 rotate-180" />
