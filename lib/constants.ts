@@ -19,7 +19,8 @@ import {
   Paintbrush,
   Hexagon,
   MessageSquare,
-  Book
+  Book,
+  BicepsFlexed
 } from 'lucide-react'
 
 export type FilterOption = {
@@ -69,6 +70,6 @@ export const CATEGORIES: FilterOption[] = [
   { id: "memes", label: "Memes", iconName: "lucide-Smile", iconComponent: Smile, color: "#fcd34d" },
   { id: "messages", label: "Mensajes iconicos", iconName: "lucide-MessageSquare", iconComponent: MessageSquare, color: "#34d399" },
   { id: "recipes", label: "Recetas", iconName: "lucide-Book", iconComponent: Book, color: "#fb923c" },
-  { id: "flexing", label: "Flexing", iconName: "lucide-Zap", iconComponent: Zap, color: "#eab308" },
+  { id: "flexing", label: "Flexing", iconName: "lucide-BicepsFlexed", iconComponent: BicepsFlexed, color: "#75f0aa" },
   { id: "others", label: "Otros", iconName: "lucide-Star", iconComponent: Star, color: "#9ca3af" },
 ];

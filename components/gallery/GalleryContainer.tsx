@@ -365,7 +365,7 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
           
           <GalleryGrid photos={photos} loading={loading} />
 
-          {photos.length > 0 && (
+          {!loading && photos.length > 0 && (
             <div className="flex justify-between items-center py-4 mt-2 border-t border-white/5 w-full">
               <div className="flex justify-start">
                 <a 
