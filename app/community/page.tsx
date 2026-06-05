@@ -1,7 +1,6 @@
-import { ChevronDownIcon, HandHeartIcon, Crown } from "lucide-react"
+import { ChevronDownIcon, HandHeartIcon } from "lucide-react"
 import { DynamicBackground } from "@/components/ui/DynamicBackground"
-import { CreditsSections } from "@/components/credits/CreditsSections"
-import { UserCard } from "@/components/credits/CreditsSections"
+import { CreditsSections, UserCard } from "@/components/credits/CreditsSections"
 import prisma from "@/lib/prisma"
 import {
   Dialog,
@@ -65,9 +64,15 @@ export default async function AgradecimientosPage() {
     users.map(async (u) => {
       let discordAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(u.discord_id) >> BigInt(22)) % 6}.png`;
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 800);
+        
         const res = await fetch(`https://gatecord.com/wp-json/discord/profile/${u.discord_id}`, { 
-          next: { revalidate: 86400 } // Cache for 24 hours
+          next: { revalidate: 86400 }, // Cache for 24 hours
+          signal: controller.signal as any
         });
+        clearTimeout(timeoutId);
+        
         if (res.ok) {
           const data = await res.json();
           if (data?.avatar) {
@@ -75,7 +80,7 @@ export default async function AgradecimientosPage() {
           }
         }
       } catch (e) {
-        // Fallback already assigned
+        // Fallback already assigned or timeout reached
       }
       return { ...u, discordAvatar };
     })
@@ -163,7 +168,15 @@ export default async function AgradecimientosPage() {
     
     let pAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(panita.discord_id) >> BigInt(22)) % 6}.png`;
     try {
-      const res = await fetch(`https://gatecord.com/wp-json/discord/profile/${panita.discord_id}`, { next: { revalidate: 86400 } });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 800);
+      
+      const res = await fetch(`https://gatecord.com/wp-json/discord/profile/${panita.discord_id}`, { 
+        next: { revalidate: 86400 },
+        signal: controller.signal as any
+      });
+      clearTimeout(timeoutId);
+      
       if (res.ok) {
         const data = await res.json();
         if (data?.avatar) {
