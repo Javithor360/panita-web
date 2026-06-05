@@ -51,6 +51,7 @@ export function Navbar({ user }: NavbarProps) {
               
               {/* Mobile Navigation Links - Top */}
               <nav className="flex flex-col gap-3 text-lg font-medium">
+                {/*
                 <Link 
                   href="/about" 
                   onClick={() => setIsOpen(false)}
@@ -64,6 +65,7 @@ export function Navbar({ user }: NavbarProps) {
                   <BookOpen className="h-6 w-6" />
                   Historia
                 </Link>
+                */}
                 <Link 
                   href="/gallery" 
                   onClick={() => setIsOpen(false)}
@@ -161,6 +163,7 @@ export function Navbar({ user }: NavbarProps) {
 
         {/* Desktop Navigation - Center */}
         <nav className="hidden flex-1 items-center justify-center gap-2 text-sm font-medium md:flex">
+          {/*
           <Link 
             href="/about" 
             className={cn(
@@ -173,6 +176,7 @@ export function Navbar({ user }: NavbarProps) {
             <BookOpen className="h-4 w-4" />
             Historia
           </Link>
+          */}
           <Link 
             href="/gallery" 
             className={cn(
