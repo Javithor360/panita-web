@@ -60,31 +60,12 @@ export default async function AgradecimientosPage() {
     }
   });
 
-  const allCreditsData = await Promise.all(
-    users.map(async (u) => {
-      let discordAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(u.discord_id) >> BigInt(22)) % 6}.png`;
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 800);
-        
-        const res = await fetch(`https://gatecord.com/wp-json/discord/profile/${u.discord_id}`, { 
-          next: { revalidate: 86400 }, // Cache for 24 hours
-          signal: controller.signal as any
-        });
-        clearTimeout(timeoutId);
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.avatar) {
-             discordAvatar = `https://cdn.discordapp.com/avatars/${u.discord_id}/${data.avatar}.png?size=128`;
-          }
-        }
-      } catch (e) {
-        // Fallback already assigned or timeout reached
-      }
-      return { ...u, discordAvatar };
-    })
-  );
+  const allCreditsData = users.map((u) => {
+    return { 
+      ...u, 
+      discordAvatar: "" // Will be fetched client-side
+    };
+  });
 
   const donatorsData = allCreditsData
     .filter(u => u.roles.some(r => r.id === 'donor' || r.id === 'patron'))
@@ -166,24 +147,7 @@ export default async function AgradecimientosPage() {
       
     const activeRole = communityRoles[0] || panita.roles[0]; // fallback
     
-    let pAvatar = `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(panita.discord_id) >> BigInt(22)) % 6}.png`;
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 800);
-      
-      const res = await fetch(`https://gatecord.com/wp-json/discord/profile/${panita.discord_id}`, { 
-        next: { revalidate: 86400 },
-        signal: controller.signal as any
-      });
-      clearTimeout(timeoutId);
-      
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.avatar) {
-          pAvatar = `https://cdn.discordapp.com/avatars/${panita.discord_id}/${data.avatar}.png?size=128`;
-        }
-      }
-    } catch (e) {}
+    let pAvatar = ""; // Will be fetched client-side
 
     const joinedDateRaw = panita.joined_at ? new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(panita.joined_at) : 'desconocido';
     
