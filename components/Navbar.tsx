@@ -3,8 +3,9 @@ import { useState } from "react"
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Image as ImageIcon, LogIn, BookOpen, LayoutGrid, Menu, Heart, ChevronDown } from "lucide-react"
+import { Image as ImageIcon, LogIn, BookOpen, LayoutGrid, Menu, Heart, ChevronDown, Settings, User } from "lucide-react"
 import { usePathname } from "next/navigation"
+import { SettingsModal } from "@/components/profile/SettingsModal"
 import { cn } from "@/lib/utils"
 import {
   Sheet,
@@ -27,6 +28,8 @@ interface NavbarProps {
 
 export function Navbar({ user }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isProfileExpanded, setIsProfileExpanded] = useState(false);
   const pathname = usePathname();
 
   return (
@@ -92,22 +95,48 @@ export function Navbar({ user }: NavbarProps) {
               {/* Mobile Auth Button - Bottom */}
               <div className="mt-auto pb-6 flex flex-col gap-3">
                 {user ? (
-                  <div className="flex flex-col gap-2">
-                    <Link href="/profile" onClick={() => setIsOpen(false)} className="flex h-14 w-full items-center justify-start gap-4 rounded-md bg-secondary/10 px-6 text-lg font-medium transition-colors hover:bg-secondary/20">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={`https://mc-heads.net/avatar/${user.ign}/128`} 
-                        alt={`Skin de ${user.ign}`} 
-                        className="h-8 w-8 rounded-sm" 
-                      />
-                      <span className="truncate">{user.ign}</span>
-                    </Link>
-                    <form action={logoutAction} className="w-full">
-                      <Button variant="destructive" type="submit" className="flex h-14 w-full items-center justify-start gap-4 px-6 text-lg font-medium">
-                        <LogIn className="h-6 w-6 shrink-0 rotate-180" />
-                        <span>Cerrar Sesión</span>
+                  <div className="flex flex-col gap-2 bg-secondary/10 rounded-md overflow-hidden transition-all">
+                    {isProfileExpanded && (
+                      <div className="flex flex-col border-b border-border/20 bg-black/10">
+                        <Link href="/profile" onClick={() => setIsOpen(false)}>
+                          <Button 
+                            variant="ghost" 
+                            className="flex h-12 w-full items-center justify-start gap-4 px-6 text-base font-medium cursor-pointer rounded-none hover:bg-secondary/20"
+                          >
+                            <User className="h-5 w-5 shrink-0" />
+                            <span>Mi Perfil</span>
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="ghost" 
+                          onClick={() => { setIsOpen(false); setIsSettingsOpen(true); }}
+                          className="flex h-12 w-full items-center justify-start gap-4 px-6 text-base font-medium cursor-pointer rounded-none hover:bg-secondary/20"
+                        >
+                          <Settings className="h-5 w-5 shrink-0" />
+                          <span>Configuraciones</span>
+                        </Button>
+                        <form action={logoutAction} className="w-full">
+                          <Button variant="ghost" type="submit" className="flex h-12 w-full items-center justify-start gap-4 px-6 text-base font-medium cursor-pointer rounded-none text-destructive hover:bg-destructive/10 hover:text-destructive">
+                            <LogIn className="h-5 w-5 shrink-0 rotate-180" />
+                            <span>Cerrar Sesión</span>
+                          </Button>
+                        </form>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between px-6 py-3">
+                      <Link href="/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-4 text-lg font-medium hover:opacity-80 transition-opacity">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={`https://mc-heads.net/avatar/${user.ign}/128`} 
+                          alt={`Skin de ${user.ign}`} 
+                          className="h-8 w-8 rounded-sm" 
+                        />
+                        <span className="truncate">{user.ign}</span>
+                      </Link>
+                      <Button variant="ghost" size="icon" onClick={() => setIsProfileExpanded(!isProfileExpanded)} className="h-10 w-10">
+                        <ChevronDown className={cn("h-5 w-5 transition-transform", isProfileExpanded ? "" : "rotate-180")} />
                       </Button>
-                    </form>
+                    </div>
                   </div>
                 ) : (
                   <Link href="/login" onClick={() => setIsOpen(false)} className="w-full">
@@ -185,19 +214,32 @@ export function Navbar({ user }: NavbarProps) {
                   <ChevronDown className="h-4 w-4 text-muted-foreground opacity-70" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem className="cursor-pointer p-0">
-                  <Link href="/profile" className="flex items-center w-full h-full px-2 py-1.5">
-                    Mi Perfil
-                  </Link>
+                {/* Ítem oculto para robar el auto-foco y que "Mi Perfil" no se vea seleccionado por defecto */}
+                <DropdownMenuItem className="sr-only" aria-hidden="true" />
+                <DropdownMenuItem 
+                  className="cursor-pointer flex items-center gap-2"
+                  render={<Link href="/profile" />}
+                >
+                  <User className="h-4 w-4" />
+                  Mi Perfil
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="cursor-pointer flex items-center gap-2" 
+                  onClick={() => setIsSettingsOpen(true)}
+                >
+                  <Settings className="h-4 w-4" />
+                  Configuraciones
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive p-0">
-                  <form action={logoutAction} className="w-full m-0 p-0">
-                    <button type="submit" className="flex w-full items-center px-2 py-1.5 text-left outline-none cursor-pointer">
-                      Cerrar Sesión
-                    </button>
-                  </form>
-                </DropdownMenuItem>
+                <form action={logoutAction} className="w-full m-0 p-0">
+                  <DropdownMenuItem 
+                    className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center gap-2"
+                    render={<button type="submit" className="w-full" />}
+                  >
+                    <LogIn className="h-4 w-4 rotate-180" />
+                    Cerrar Sesión
+                  </DropdownMenuItem>
+                </form>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
@@ -211,6 +253,7 @@ export function Navbar({ user }: NavbarProps) {
         </div>
 
       </div>
+      <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
     </header>
   )
 }
