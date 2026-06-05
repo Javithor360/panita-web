@@ -86,6 +86,63 @@ export function EmblemsManager() {
     setSearchResults([])
   }
 
+  const [isDirty, setIsDirty] = useState(false)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'close' | 'back' | null>(null)
+
+  const executeExit = (action: 'close' | 'back') => {
+    if (action === 'back') {
+      setSelectedEmblem(null)
+    } else {
+      setIsOpen(false)
+    }
+  }
+
+  const requestExit = (action: 'close' | 'back') => {
+    if (isDirty) {
+      setPendingAction(action)
+      setShowExitConfirm(true)
+    } else {
+      executeExit(action)
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedEmblem) {
+      setIsDirty(false)
+      return
+    }
+    const isChanged = 
+      name !== (selectedEmblem.name || '') ||
+      description !== (selectedEmblem.description || '') ||
+      iconUrl !== (selectedEmblem.icon_url || '') ||
+      editionId !== (selectedEmblem.edition_id || '');
+      
+    setIsDirty(isChanged)
+  }, [name, description, iconUrl, editionId, selectedEmblem])
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      requestExit('close')
+    } else {
+      setIsOpen(newOpen)
+    }
+  }
+
+  const handleBack = () => {
+    requestExit('back')
+  }
+
   const handleSave = async () => {
     await saveEmblem(emblemId, {
       name,
@@ -142,7 +199,7 @@ export function EmblemsManager() {
 
   return (
     <>
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger 
         nativeButton={false}
         render={
@@ -196,7 +253,7 @@ export function EmblemsManager() {
               
               <div className="flex items-center justify-between mb-2">
                 <button 
-                  onClick={() => setSelectedEmblem(null)}
+                  onClick={handleBack}
                   className="flex items-center gap-2 px-1 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors select-none cursor-pointer w-fit group"
                   title="Volver a la lista"
                 >
@@ -421,6 +478,29 @@ export function EmblemsManager() {
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Sí, eliminar emblema
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Tienes cambios sin guardar</AlertDialogTitle>
+          <AlertDialogDescription>
+            Si sales ahora, perderás todas las modificaciones que no hayas guardado. ¿Estás seguro de que quieres salir?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => { setShowExitConfirm(false); setPendingAction(null); }}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={() => {
+              setShowExitConfirm(false);
+              if (pendingAction) executeExit(pendingAction);
+            }} 
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Sí, salir sin guardar
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

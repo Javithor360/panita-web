@@ -21,8 +21,8 @@ async function checkAdmin() {
     include: { roles: true }
   })
   
-  if (!user || !user.roles.some((r: Role) => r.id === 'admin')) {
-    throw new Error("Unauthorized: Admin only")
+  if (!user || !user.roles.some((r: Role) => r.id === 'admin' || r.id === 'mod')) {
+    throw new Error("Unauthorized: Admin or Mod only")
   }
 }
 

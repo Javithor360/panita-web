@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { loginSession, logoutSession } from '@/lib/auth';
+import { loginSession, logoutSession, getSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 export async function loginAction(prevState: any, formData: FormData) {
@@ -60,4 +60,45 @@ export async function loginAction(prevState: any, formData: FormData) {
 export async function logoutAction() {
   await logoutSession();
   redirect('/');
+}
+
+export async function changePasswordAction(prevState: any, formData: FormData) {
+  const currentPassword = formData.get('currentPassword') as string;
+  const newPassword = formData.get('newPassword') as string;
+
+  if (!currentPassword || !newPassword) {
+    return { error: 'Por favor completa todos los campos.' };
+  }
+
+  try {
+    const session = await getSession();
+    if (!session?.userId) {
+      return { error: 'No estás autenticado.' };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId }
+    });
+
+    if (!user || !user.password) {
+      return { error: 'Usuario no encontrado o no tiene contraseña configurada.' };
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      return { error: 'La contraseña actual es incorrecta.' };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error changing password:', error);
+    return { error: 'Ocurrió un error al intentar cambiar la contraseña.' };
+  }
 }

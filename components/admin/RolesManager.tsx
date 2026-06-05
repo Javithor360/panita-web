@@ -104,19 +104,28 @@ function RoleEditor({
   isNew, 
   onSave, 
   onCancel, 
-  onDelete 
+  onDelete,
+  onDirtyChange
 }: { 
   initialRole: Partial<Role>, 
   isNew: boolean, 
   onSave: (id: string, name: string, color: string) => Promise<string | void>, 
   onCancel: () => void, 
-  onDelete: (id: string) => void 
+  onDelete: (id: string) => void,
+  onDirtyChange?: (isDirty: boolean) => void
 }) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [roleId, setRoleId] = useState(initialRole.id || '')
   const [name, setName] = useState(initialRole.name || '')
   const [color, setColor] = useState(initialRole.color || '#ffffff')
   const [colorMode, setColorMode] = useState<'hex' | 'gradient'>(initialRole.color?.includes('gradient') ? 'gradient' : 'hex')
+
+  useEffect(() => {
+    if (onDirtyChange) {
+      const isChanged = roleId !== (initialRole.id || '') || name !== (initialRole.name || '') || color !== (initialRole.color || '#ffffff');
+      onDirtyChange(isChanged);
+    }
+  }, [roleId, name, color, initialRole, onDirtyChange]);
 
   const isGradient = color.includes('gradient');
 
@@ -287,6 +296,44 @@ export function RolesManager() {
   const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(false)
   const [roleToDelete, setRoleToDelete] = useState<string | null>(null)
+  const [isDirty, setIsDirty] = useState(false)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'close' | 'back' | null>(null)
+
+  const executeExit = (action: 'close' | 'back') => {
+    if (action === 'back') {
+      setSelectedRole(null)
+    } else {
+      setIsOpen(false)
+    }
+  }
+
+  const requestExit = (action: 'close' | 'back') => {
+    if (isDirty) {
+      setPendingAction(action)
+      setShowExitConfirm(true)
+    } else {
+      executeExit(action)
+    }
+  }
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      requestExit('close')
+    } else {
+      setIsOpen(newOpen)
+    }
+  }
   
   const [selectedRole, setSelectedRole] = useState<Partial<Role> | null>(null)
   const [isNew, setIsNew] = useState(false)
@@ -367,7 +414,7 @@ export function RolesManager() {
 
   return (
     <>
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger 
         nativeButton={false}
         render={
@@ -422,8 +469,9 @@ export function RolesManager() {
               initialRole={selectedRole}
               isNew={isNew}
               onSave={handleSave}
-              onCancel={() => setSelectedRole(null)}
+              onCancel={() => requestExit('back')}
               onDelete={(id) => setRoleToDelete(id)}
+              onDirtyChange={setIsDirty}
             />
           )}
         </div>
@@ -447,6 +495,29 @@ export function RolesManager() {
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Sí, eliminar rango
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Tienes cambios sin guardar</AlertDialogTitle>
+          <AlertDialogDescription>
+            Si sales ahora, perderás todas las modificaciones que no hayas guardado. ¿Estás seguro de que quieres salir?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => { setShowExitConfirm(false); setPendingAction(null); }}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={() => {
+              setShowExitConfirm(false);
+              if (pendingAction) executeExit(pendingAction);
+            }} 
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Sí, salir sin guardar
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
