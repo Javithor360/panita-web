@@ -10,6 +10,7 @@ export interface GalleryFilters {
   categoryIds?: string[];
   years?: string[];
   search?: string | null;
+  randomSeed?: number | null;
 }
 
 export interface Photo {
@@ -92,23 +93,55 @@ export async function getPhotos(filters: GalleryFilters = {}) {
     const totalCount = await prisma.photo.count({ where });
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    // Fetch the actual photos
-    const dbPhotos = await prisma.photo.findMany({
-      where,
-      skip,
-      take: pageSize,
-      orderBy: [
-        { date_taken: 'desc' },
-        { id: 'desc' }
-      ],
-      include: {
-        user: true,
-        edition: true,
-        categories: {
-          select: { id: true }
+    let dbPhotos;
+    if (filters.randomSeed) {
+      const allIds = await prisma.photo.findMany({
+        where,
+        select: { id: true },
+        orderBy: { id: 'asc' }
+      });
+      
+      const rng = (function mulberry32(a: number) {
+        return function() {
+          let t = a += 0x6D2B79F5;
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
         }
-      }
-    });
+      })(filters.randomSeed);
+
+      allIds.sort(() => rng() - 0.5);
+      
+      const pageIds = allIds.slice(skip, skip + pageSize).map(item => item.id);
+      
+      const unsortedDbPhotos = await prisma.photo.findMany({
+        where: { id: { in: pageIds } },
+        include: {
+          user: true,
+          edition: true,
+          categories: { select: { id: true } }
+        }
+      });
+      
+      dbPhotos = pageIds.map(id => unsortedDbPhotos.find(p => p.id === id)).filter(Boolean);
+    } else {
+      dbPhotos = await prisma.photo.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: [
+          { date_taken: 'desc' },
+          { id: 'desc' }
+        ],
+        include: {
+          user: true,
+          edition: true,
+          categories: {
+            select: { id: true }
+          }
+        }
+      });
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const photos: Photo[] = dbPhotos.map((photo: any) => ({

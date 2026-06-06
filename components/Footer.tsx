@@ -36,7 +36,13 @@ export function Footer() {
           </Link>
           <div className="flex flex-col items-center gap-1 text-center text-sm text-muted-foreground sm:items-start sm:text-left">
             <p>© {new Date().getFullYear()} Panitacraft. Todos los derechos reservados.</p>
-            <p>Hecho por Javithor & Aerø</p>
+            <div className="flex flex-row items-center justify-center sm:justify-start gap-2">
+              <p>Hecho por Javithor & Aerø</p>
+              <span className="text-muted-foreground/50 hidden sm:inline-block">•</span>
+              <Link href="/privacy" className="hover:text-foreground transition-colors hover:underline underline-offset-4">
+                Política de Privacidad
+              </Link>
+            </div>
           </div>
         </div>
 

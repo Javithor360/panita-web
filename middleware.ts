@@ -9,7 +9,12 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+    (route) => {
+      if (route === '/profile') {
+        return pathname === '/profile'; // Only protect the root /profile page, not /profile/[ign]
+      }
+      return pathname === route || pathname.startsWith(`${route}/`);
+    }
   );
 
   if (isProtectedRoute) {

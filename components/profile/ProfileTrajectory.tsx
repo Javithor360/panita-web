@@ -30,7 +30,8 @@ function TrajectoryNode({
   expandAction?: { onExpand: () => void; count: number };
 }) {
   const isEven = index % 2 === 0;
-  const editionYear = ue.edition.started_at ? new Date(ue.edition.started_at).getFullYear() : null;
+  const editionDateStr = ue.edition.started_at ? new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(new Date(ue.edition.started_at)) : null;
+  const formattedDate = editionDateStr ? editionDateStr.charAt(0).toUpperCase() + editionDateStr.slice(1) : null;
   const nameLen = ue.edition.name.length;
   
   return (
@@ -104,9 +105,9 @@ function TrajectoryNode({
             }`} title={ue.edition.name}>
               {ue.edition.name}
             </h3>
-            {editionYear && (
-              <span className="text-xs sm:text-sm font-medium text-white/50 tracking-widest mt-0.5">
-                {editionYear}
+            {formattedDate && (
+              <span className="text-xs sm:text-sm font-medium text-white/50 tracking-wide mt-0.5">
+                {formattedDate}
               </span>
             )}
           </div>

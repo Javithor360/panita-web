@@ -15,6 +15,7 @@ import { ProfileColorExtractor } from "@/components/profile/ProfileColorExtracto
 import { cn } from "@/lib/utils"
 import { Crown } from "lucide-react"
 import { getDiscordAvatar } from "@/app/actions/discord"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
 function DiscordAvatar({ discordId, discordName, className }: { discordId: string, discordName: string, className?: string }) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -300,31 +301,34 @@ export function CreditsSections({ donators, staffMembers, panitaOfTheMonth }: { 
       
       {/* Donators Section (Infinite Carousel) */}
       <section className="w-full flex flex-col gap-10 overflow-hidden relative">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm pb-1">
-            Nuestros Donadores
-          </h2>
-          <p className="text-muted-foreground mt-4 font-medium text-lg leading-relaxed">
-            Aquellos usuarios que apoyan económicamente el servidor. Sin importar la cantidad, sus aportes nos permiten cubrir los costos de financiamiento y mejorar la calidad del contenido. ¡Todo lo recaudado va 100% dirigido a mantener vivo a Panitacraft!
-          </p>
-          
-          {/* PayPal Subtle CTA Text */}
-          <div className="flex justify-center mt-4 relative">
-            <p className="text-sm max-[360px]:text-xs text-muted-foreground flex flex-wrap justify-center items-center gap-2 max-[360px]:gap-1">
-              ¿Quieres apoyar a la comunidad? 
-              <a 
-                href="https://www.paypal.me/Javithor360" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-amber-500 hover:text-amber-400 hover:underline font-medium transition-colors"
-              >
-                Realiza tu donación
-              </a>
+        <ScrollReveal>
+          <div className="container mx-auto px-4 text-center max-w-3xl">
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent drop-shadow-sm pb-1">
+              Nuestros Donadores
+            </h2>
+            <p className="text-muted-foreground mt-4 font-medium text-lg leading-relaxed">
+              Aquellos usuarios que apoyan económicamente el servidor. Sin importar la cantidad, sus aportes nos permiten cubrir los costos de financiamiento y mejorar la calidad del contenido. ¡Todo lo recaudado va 100% dirigido a mantener vivo a Panitacraft!
             </p>
+            
+            {/* PayPal Subtle CTA Text */}
+            <div className="flex justify-center mt-4 relative">
+              <p className="text-sm max-[360px]:text-xs text-muted-foreground flex flex-wrap justify-center items-center gap-2 max-[360px]:gap-1">
+                ¿Quieres apoyar a la comunidad? 
+                <a 
+                  href="https://www.paypal.me/Javithor360" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-amber-500 hover:text-amber-400 hover:underline font-medium transition-colors"
+                >
+                  Realiza tu donación
+                </a>
+              </p>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
         
         {/* Carousel Wrapper with mask-image for transparent edges */}
+        <ScrollReveal delay={150}>
         <div 
           className="relative container max-w-4xl mx-auto px-4 flex overflow-hidden pt-2 pb-8"
           style={{ maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)' }}
@@ -342,6 +346,7 @@ export function CreditsSections({ donators, staffMembers, panitaOfTheMonth }: { 
             </div>
           </div>
         </div>
+        </ScrollReveal>
       </section>
 
       {/* Staff Section (Static Grid) */}
@@ -349,18 +354,22 @@ export function CreditsSections({ donators, staffMembers, panitaOfTheMonth }: { 
         {/* Subtle divider line with glow */}
         <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-3/4 max-w-2xl h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         
-        <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-br from-orange-500 via-red-500 to-rose-600 bg-clip-text text-transparent drop-shadow-sm pb-1">
-            Nuestro Equipo del Staff
-          </h2>
-          <p className="text-muted-foreground mt-4 font-medium text-lg leading-relaxed">
-            Colaboradores apasionados que participan sin ánimos de lucro. Demuestran su talento haciendo realidad las ideas y escuchando las sugerencias de la comunidad para brindar la mejor experiencia de juego, tanto dentro como fuera del servidor.
-          </p>
-        </div>
+        <ScrollReveal delay={100}>
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-br from-orange-500 via-red-500 to-rose-600 bg-clip-text text-transparent drop-shadow-sm pb-1">
+              Nuestro Equipo del Staff
+            </h2>
+            <p className="text-muted-foreground mt-4 font-medium text-lg leading-relaxed">
+              Colaboradores apasionados que participan sin ánimos de lucro. Demuestran su talento haciendo realidad las ideas y escuchando las sugerencias de la comunidad para brindar la mejor experiencia de juego, tanto dentro como fuera del servidor.
+            </p>
+          </div>
+        </ScrollReveal>
         
         <div className="flex flex-wrap justify-center gap-8 relative z-10">
-          {staffMembers.map((user) => (
-            <UserCard key={user.id} user={user} />
+          {staffMembers.map((user, index) => (
+            <ScrollReveal key={user.id} delay={150 + index * 100}>
+              <UserCard user={user} />
+            </ScrollReveal>
           ))}
         </div>
       </section>

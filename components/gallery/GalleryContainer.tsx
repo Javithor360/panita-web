@@ -5,7 +5,7 @@ import { GallerySidebar } from "@/components/gallery/GallerySidebar";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 import { MobileFilterSheet } from "@/components/gallery/MobileFilterSheet";
 import { ViewSelect } from "@/components/gallery/ViewSelect";
-import { Search, ArrowUp, MoreHorizontal } from "lucide-react";
+import { Search, ArrowUp, MoreHorizontal, Dices } from "lucide-react";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { getPhotos, getPhotoById, GalleryFilters, Photo } from "@/app/actions/gallery";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -169,6 +169,7 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [randomSeed, setRandomSeed] = useState<number | null>(null);
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -233,7 +234,8 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
         editionIds,
         categoryIds,
         years,
-        search: debouncedSearch
+        search: debouncedSearch,
+        randomSeed
       };
       const result = await getPhotos(filters);
       setPhotos(result.photos);
@@ -243,7 +245,7 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
     };
 
     fetchPhotos();
-  }, [page, pageSize, editionIds, categoryIds, years, debouncedSearch]);
+  }, [page, pageSize, editionIds, categoryIds, years, debouncedSearch, randomSeed]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -255,15 +257,23 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
   const handleEditionToggle = (id: string) => {
     setEditionIds(prev => prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]);
     setPage(1);
+    setRandomSeed(null);
   };
 
   const handleCategoryToggle = (id: string) => {
     setCategoryIds(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
     setPage(1);
+    setRandomSeed(null);
   };
 
   const handleYearToggle = (y: string) => {
     setYears(prev => prev.includes(y) ? prev.filter(item => item !== y) : [...prev, y]);
+    setPage(1);
+    setRandomSeed(null);
+  };
+
+  const handleRandomize = () => {
+    setRandomSeed(Date.now());
     setPage(1);
   };
 
@@ -323,6 +333,14 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
                 value={pageSize}
                 onChange={(val) => { setPageSize(val); setPage(1); }}
               />
+              <button
+                onClick={handleRandomize}
+                className="hidden sm:flex group items-center justify-center gap-2 bg-background/60 backdrop-blur-md border border-white/5 text-sm rounded-md px-4 md:px-3 lg:px-4 py-2 text-foreground font-medium hover:bg-white/5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
+                title="Aleatorizar orden"
+              >
+                <Dices className="size-4 transition-transform duration-500 group-hover:rotate-[360deg]" />
+                <span className="hidden sm:inline md:hidden lg:inline">Aleatorizar</span>
+              </button>
               <MobileFilterSheet 
                 activeEditions={editionIds}
                 activeCategories={categoryIds}
@@ -333,14 +351,21 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
               />
             </div>
 
-            <div className="flex items-center justify-between w-full md:w-auto md:justify-end">
+            <div className="flex items-center justify-between w-full md:w-auto md:justify-end gap-2">
+              <button
+                onClick={handleRandomize}
+                className="sm:hidden group flex items-center justify-center bg-background/60 backdrop-blur-md border border-white/5 rounded-md h-[36px] w-[36px] text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
+                title="Aleatorizar orden"
+              >
+                <Dices className="size-4 transition-transform duration-500 group-hover:rotate-[360deg]" />
+              </button>
               <GalleryPagination page={page} totalPages={totalPages} handlePageChange={handlePageChange} />
             </div>
           </div>
           
           <GalleryGrid photos={photos} loading={loading} />
 
-          {photos.length > 0 && (
+          {!loading && photos.length > 0 && (
             <div className="flex justify-between items-center py-4 mt-2 border-t border-white/5 w-full">
               <div className="flex justify-start">
                 <a 

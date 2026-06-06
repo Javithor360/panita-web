@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
+import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
 export const metadata = {
   title: "Agradecimientos | Panitacraft",
@@ -200,64 +201,68 @@ export default async function AgradecimientosPage() {
           <CreditsSections donators={donatorsData} staffMembers={staffData} />
 
           <div className="mt-32 w-full flex flex-col items-center relative">
-            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-3/4 max-w-2xl h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-            
-            <div className="max-w-3xl mx-auto text-center space-y-8 text-lg text-muted-foreground leading-relaxed px-4">
-              <h3 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-br from-blue-300 via-indigo-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm pb-1">
-                Nuestra Increíble Comunidad
-              </h3>
-              <p className="font-medium">
-                Los jugadores son el pilar esencial de la comunidad que permiten seguir motivados a proponer nuevos proyectos. Sin ustedes, nada de esto sería posible. El factor social ha conformado una comunidad única con lazos de amistad y poder disfrutar el juego sin importar el paso del tiempo, a ustedes son quienes mayormente agradecemos por ser leales y apoyar siempre e invitar a sus amigos.
-              </p>
-            </div>
+            <ScrollReveal delay={200}>
+              <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-3/4 max-w-2xl h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              
+              <div className="max-w-3xl mx-auto text-center space-y-8 text-lg text-muted-foreground leading-relaxed px-4">
+                <h3 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-br from-blue-300 via-indigo-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm pb-1">
+                  Nuestra Increíble Comunidad
+                </h3>
+                <p className="font-medium">
+                  Los jugadores son el pilar esencial de la comunidad que permiten seguir motivados a proponer nuevos proyectos. Sin ustedes, nada de esto sería posible. El factor social ha conformado una comunidad única con lazos de amistad y poder disfrutar el juego sin importar el paso del tiempo, a ustedes son quienes mayormente agradecemos por ser leales y apoyar siempre e invitar a sus amigos.
+                </p>
+              </div>
+            </ScrollReveal>
             
             {/* Panita del Mes Section */}
             {panitaOfTheMonth && (
-              <div className="mt-6 flex flex-col items-center gap-4 relative z-20">
-                <Dialog>
-                  <DialogTrigger 
-                    nativeButton={false} 
-                    render={<div className="relative group mt-6 inline-block cursor-pointer" />}
-                  >
-                    <UserCard user={panitaOfTheMonth} disableModal isPanita />
-                  </DialogTrigger>
-                  <DialogContent showCloseButton={false} className="sm:max-w-2xl md:max-w-3xl w-full border-indigo-500/30 bg-card/95 backdrop-blur-md p-6 sm:p-8">
-                    <DialogClose render={<button className="absolute top-4 right-4 rounded-full p-2 hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground outline-none cursor-pointer" />}>
-                      <XIcon className="h-6 w-6" />
-                      <span className="sr-only">Cerrar</span>
-                    </DialogClose>
-                    
-                    <DialogHeader className="space-y-0">
-                      <DialogTitle className="text-2xl font-bold text-white text-center sm:text-left pb-3">
-                        Panita del Mes
-                      </DialogTitle>
-                      <hr className="border-border/50 w-full" />
-                      <DialogDescription render={<div />} className="text-base text-muted-foreground pt-4 pb-4 space-y-4 text-left">
-                        <p>
-                          El título de <span className="font-bold bg-gradient-to-br from-blue-300 via-indigo-400 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]">Panita del mes</span> es un pequeño homenaje otorgado a los jugadores de la comunidad.
-                        </p>
-                        <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-                          <li>El sistema elige al afortunado de manera completamente <strong>aleatoria</strong> entre todos los usuarios.</li>
-                          <li>Necesitas tener el rango de <strong>Miembro</strong> o superior.</li>
-                          <li>También requieres al menos <strong>6 meses de antigüedad</strong> desde tu ingreso.</li>
-                          <li>La ruleta se reinicia cada primero de mes.</li>
-                        </ul>
-                        <p className="text-muted-foreground">
-                          ¡Quién sabe, quizá tú seas el próximo! ¡Mantente alerta!
-                        </p>
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    <hr className="border-border/50 w-full" />
-                    
-                    <div className="pt-4 flex justify-center sm:justify-end">
-                      <DialogClose render={<Button className="w-full sm:w-auto px-6 py-2 text-sm font-medium cursor-pointer" />}>
-                        ¡Entendido!
+              <ScrollReveal delay={400}>
+                <div className="mt-6 flex flex-col items-center gap-4 relative z-20">
+                  <Dialog>
+                    <DialogTrigger 
+                      nativeButton={false} 
+                      render={<div className="relative group mt-6 inline-block cursor-pointer" />}
+                    >
+                      <UserCard user={panitaOfTheMonth} disableModal isPanita />
+                    </DialogTrigger>
+                    <DialogContent showCloseButton={false} className="sm:max-w-2xl md:max-w-3xl w-full border-indigo-500/30 bg-card/95 backdrop-blur-md p-6 sm:p-8">
+                      <DialogClose render={<button className="absolute top-4 right-4 rounded-full p-2 hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground outline-none cursor-pointer" />}>
+                        <XIcon className="h-6 w-6" />
+                        <span className="sr-only">Cerrar</span>
                       </DialogClose>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
+                      
+                      <DialogHeader className="space-y-0">
+                        <DialogTitle className="text-2xl font-bold text-white text-center sm:text-left pb-3">
+                          Panita del Mes
+                        </DialogTitle>
+                        <hr className="border-border/50 w-full" />
+                        <DialogDescription render={<div />} className="text-base text-muted-foreground pt-4 pb-4 space-y-4 text-left">
+                          <p>
+                            El título de <span className="font-bold bg-gradient-to-br from-blue-300 via-indigo-400 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]">Panita del mes</span> es un pequeño homenaje otorgado a los jugadores de la comunidad.
+                          </p>
+                          <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+                            <li>El sistema elige al afortunado de manera completamente <strong>aleatoria</strong> entre todos los usuarios.</li>
+                            <li>Necesitas tener el rango de <strong>Miembro</strong> o superior.</li>
+                            <li>También requieres al menos <strong>6 meses de antigüedad</strong> desde tu ingreso.</li>
+                            <li>La ruleta se reinicia cada primero de mes.</li>
+                          </ul>
+                          <p className="text-muted-foreground">
+                            ¡Quién sabe, quizá tú seas el próximo! ¡Mantente alerta!
+                          </p>
+                        </DialogDescription>
+                      </DialogHeader>
+                      
+                      <hr className="border-border/50 w-full" />
+                      
+                      <div className="pt-4 flex justify-center sm:justify-end">
+                        <DialogClose render={<Button className="w-full sm:w-auto px-6 py-2 text-sm font-medium cursor-pointer" />}>
+                          ¡Entendido!
+                        </DialogClose>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </ScrollReveal>
             )}
           </div>
         </div>

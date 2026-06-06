@@ -8,10 +8,12 @@
   - Al darle clic, abrir un modal con la información detallada del usuario, incluyendo su historial de participaciones y roles.
 - [ ] **Soporte Multimedia en la Galería:**
   - Agregar compatibilidad para renderizar y reproducir archivos de video (`.mp4`, `.webm`) con un reproductor integrado directamente en el visor y los modales.
-- [ ] **Protección contra pérdida de datos en Panel Admin:**
+- [x] **Protección contra pérdida de datos en Panel Admin:**
   - En los administradores de Usuarios, Rangos y Emblemas: Advertir antes de cerrar o regresar si hay cambios sin guardar.
 - [x] **Gestión de Cuenta:**
   - Agregar una opción para cambiar la contraseña en el perfil de cada usuario.
+- [x] **Avisos Legales:**
+  - Agregar un enlace a la Política de Privacidad (Privacy Policy) en el footer de la página.
 
 ## Línea de Tiempo Avanzada (V2 - Futuro)
 
