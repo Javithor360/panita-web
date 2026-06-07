@@ -14,18 +14,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ProfileColorExtractor } from "@/components/profile/ProfileColorExtractor"
 import { cn } from "@/lib/utils"
 import { Crown } from "lucide-react"
-import { getDiscordAvatar } from "@/app/actions/discord"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
-function DiscordAvatar({ discordId, discordName, className }: { discordId: string, discordName: string, className?: string }) {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    getDiscordAvatar(discordId).then(url => setAvatarUrl(url));
-  }, [discordId]);
-
+function DiscordAvatar({ discordId, discordName, className, avatarUrl }: { discordId: string, discordName: string, className?: string, avatarUrl?: string | null }) {
   return (
-    <div className={cn("transition-opacity duration-500", avatarUrl ? "opacity-100" : "opacity-0", className)}>
+    <div className={cn("transition-opacity duration-500 opacity-100", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img 
         src={avatarUrl || `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(discordId) >> BigInt(22)) % 6}.png`} 
@@ -41,7 +34,7 @@ export type CreditUser = {
   ign: string
   discordName: string
   discordId: string
-  discordAvatar: string
+  discordAvatar?: string | null
   role?: string
   roleName?: string
   roleColor?: string
@@ -92,6 +85,7 @@ export function UserCard({ user, onOpenChange, disableModal, isPanita }: UserCar
                       <DiscordAvatar 
                         discordId={user.discordId} 
                         discordName={user.discordName} 
+                        avatarUrl={user.discordAvatar}
                         className="absolute -bottom-2 -right-2 rounded-full border-2 border-card bg-muted h-8 w-8 overflow-hidden" 
                       />
                     </div>
@@ -197,6 +191,7 @@ export function UserCard({ user, onOpenChange, disableModal, isPanita }: UserCar
             <DiscordAvatar 
               discordId={user.discordId} 
               discordName={user.discordName} 
+              avatarUrl={user.discordAvatar}
               className="h-4 w-4 flex-shrink-0 rounded-full overflow-hidden"
             />
             <span className="text-sm text-muted-foreground font-medium">{user.discordName}</span>

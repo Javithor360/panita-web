@@ -123,18 +123,18 @@ export async function getRoles() {
   })
 }
 
-export async function saveRole(id: string, name: string, color: string, isNew: boolean) {
+export async function saveRole(id: string, name: string, color: string, discord_role_id: string | null, isNew: boolean) {
   await checkAdmin()
   
   try {
     if (isNew) {
       await prisma.role.create({
-        data: { id, name, color }
+        data: { id, name, color, discord_role_id }
       })
     } else {
       await prisma.role.update({
         where: { id },
-        data: { name, color }
+        data: { name, color, discord_role_id }
       })
     }
     revalidatePath('/profile')
