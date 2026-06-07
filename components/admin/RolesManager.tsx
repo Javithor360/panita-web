@@ -109,7 +109,7 @@ function RoleEditor({
 }: { 
   initialRole: Partial<Role>, 
   isNew: boolean, 
-  onSave: (id: string, name: string, color: string) => Promise<string | void>, 
+  onSave: (id: string, name: string, color: string, discord_role_id: string | null) => Promise<string | void>, 
   onCancel: () => void, 
   onDelete: (id: string) => void,
   onDirtyChange?: (isDirty: boolean) => void
@@ -118,14 +118,15 @@ function RoleEditor({
   const [roleId, setRoleId] = useState(initialRole.id || '')
   const [name, setName] = useState(initialRole.name || '')
   const [color, setColor] = useState(initialRole.color || '#ffffff')
+  const [discordRoleId, setDiscordRoleId] = useState(initialRole.discord_role_id || '')
   const [colorMode, setColorMode] = useState<'hex' | 'gradient'>(initialRole.color?.includes('gradient') ? 'gradient' : 'hex')
 
   useEffect(() => {
     if (onDirtyChange) {
-      const isChanged = roleId !== (initialRole.id || '') || name !== (initialRole.name || '') || color !== (initialRole.color || '#ffffff');
+      const isChanged = roleId !== (initialRole.id || '') || name !== (initialRole.name || '') || color !== (initialRole.color || '#ffffff') || discordRoleId !== (initialRole.discord_role_id || '');
       onDirtyChange(isChanged);
     }
-  }, [roleId, name, color, initialRole, onDirtyChange]);
+  }, [roleId, name, color, discordRoleId, initialRole, onDirtyChange]);
 
   const isGradient = color.includes('gradient');
 
@@ -179,6 +180,17 @@ function RoleEditor({
           onChange={e => setName(e.target.value)} 
           className="p-2 bg-background border rounded-md"
           placeholder="MODERADOR"
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium">Discord ID</label>
+        <input 
+          type="text" 
+          value={discordRoleId} 
+          onChange={e => setDiscordRoleId(e.target.value)} 
+          className="p-2 bg-background border rounded-md"
+          placeholder="Ej. 123456789012345678"
         />
       </div>
 
@@ -268,7 +280,7 @@ function RoleEditor({
         <button 
           onClick={async () => {
             setErrorMsg(null)
-            const err = await onSave(roleId, name, color)
+            const err = await onSave(roleId, name, color, discordRoleId || null)
             if (err) setErrorMsg(err)
           }}
           disabled={!roleId || !name || !color}
@@ -364,8 +376,8 @@ export function RolesManager() {
     setIsNew(false)
   }
 
-  const handleSave = async (id: string, name: string, color: string) => {
-    const res = await saveRole(id, name, color, isNew)
+  const handleSave = async (id: string, name: string, color: string, discord_role_id: string | null) => {
+    const res = await saveRole(id, name, color, discord_role_id, isNew)
     if (res && res.error) {
       return res.error
     }
