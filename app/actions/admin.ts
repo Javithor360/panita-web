@@ -65,12 +65,16 @@ export async function updateUser(userId: number, data: {
   enabled?: boolean,
   trusted_author?: boolean,
   joined_at?: Date,
-  roles?: string[],
-  emblems?: string[],
-  editions?: string[]
+  rolesAdded?: string[],
+  rolesRemoved?: string[],
+  emblemsAdded?: string[],
+  emblemsRemoved?: string[],
+  editionsAdded?: string[],
+  editionsRemoved?: string[]
 }) {
   await checkAdmin()
 
+  // 1. Update basic scalar data
   const updateData: Record<string, unknown> = {
     ign: data.ign,
     discord_name: data.discord_name,
@@ -79,34 +83,63 @@ export async function updateUser(userId: number, data: {
     joined_at: data.joined_at,
   };
 
-  if (data.roles) {
-    updateData.roles = {
-      set: data.roles.map(id => ({ id }))
-    }
-  }
-
-  if (data.emblems) {
-    updateData.emblems = {
-      set: data.emblems.map(id => ({ id }))
-    }
-  }
-
   await prisma.user.update({
     where: { id: userId },
     data: updateData
-  })
+  });
 
-  if (data.editions) {
+  // 2. Apply roles individually (loop) to avoid multiple connect bugs
+  if (data.rolesRemoved?.length) {
+    for (const roleId of data.rolesRemoved) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { roles: { disconnect: { id: roleId } } }
+      });
+    }
+  }
+  
+  if (data.rolesAdded?.length) {
+    for (const roleId of data.rolesAdded) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { roles: { connect: { id: roleId } } }
+      });
+    }
+  }
+
+  // 3. Apply emblems individually
+  if (data.emblemsRemoved?.length) {
+    for (const emblemId of data.emblemsRemoved) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { emblems: { disconnect: { id: emblemId } } }
+      });
+    }
+  }
+
+  if (data.emblemsAdded?.length) {
+    for (const emblemId of data.emblemsAdded) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { emblems: { connect: { id: emblemId } } }
+      });
+    }
+  }
+
+  // 4. Apply editions individually
+  if (data.editionsRemoved?.length) {
     await prisma.userEdition.deleteMany({
-      where: { user_id: userId, edition_id: { notIn: data.editions } }
+      where: { user_id: userId, edition_id: { in: data.editionsRemoved } }
     });
+  }
 
-    for (const edId of data.editions) {
+  if (data.editionsAdded?.length) {
+    for (const edId of data.editionsAdded) {
       await prisma.userEdition.upsert({
         where: { user_id_edition_id: { user_id: userId, edition_id: edId } },
         update: {},
         create: { user_id: userId, edition_id: edId }
-      })
+      });
     }
   }
 

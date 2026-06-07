@@ -211,15 +211,32 @@ export function UsersManager() {
     if (!selectedUser) return
     const joinedAtDate = joinedAt ? new Date(joinedAt) : new Date()
     
+    // Calculate exactly what was added and removed to prevent race conditions
+    const originalRoles = selectedUser.roles?.map(r => r.id) || [];
+    const originalEmblems = selectedUser.emblems?.map(e => e.id) || [];
+    const originalEditions = selectedUser.editions?.map(e => e.edition_id) || [];
+
+    const rolesAdded = roles.filter(r => !originalRoles.includes(r));
+    const rolesRemoved = originalRoles.filter(r => !roles.includes(r));
+    
+    const emblemsAdded = emblems.filter(e => !originalEmblems.includes(e));
+    const emblemsRemoved = originalEmblems.filter(e => !emblems.includes(e));
+    
+    const editionsAdded = editions.filter(e => !originalEditions.includes(e));
+    const editionsRemoved = originalEditions.filter(e => !editions.includes(e));
+
     await updateUser(selectedUser.id, {
       ign: ign || null,
       discord_name: discordName,
       enabled,
       trusted_author: trustedAuthor,
       joined_at: joinedAtDate,
-      roles,
-      emblems,
-      editions
+      rolesAdded: rolesAdded.length > 0 ? rolesAdded : undefined,
+      rolesRemoved: rolesRemoved.length > 0 ? rolesRemoved : undefined,
+      emblemsAdded: emblemsAdded.length > 0 ? emblemsAdded : undefined,
+      emblemsRemoved: emblemsRemoved.length > 0 ? emblemsRemoved : undefined,
+      editionsAdded: editionsAdded.length > 0 ? editionsAdded : undefined,
+      editionsRemoved: editionsRemoved.length > 0 ? editionsRemoved : undefined
     })
     
     // Refresh current user list without resetting pagination completely if possible, 
