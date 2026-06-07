@@ -23,5 +23,5 @@
 
 ## Para cuando haya un Bot de Discord
 
-- [ ] **Avatares de Discord:** Reemplazar el proveedor actual (`gatecord.com`) en la Server Action `getDiscordAvatar` por consultas directas a nuestra propia API del bot de Discord para obtener los avatares sin depender de terceros.
+- [x] **Avatares de Discord:** Reemplazar el proveedor actual (`gatecord.com`) en la Server Action `getDiscordAvatar` por consultas directas a nuestra propia API del bot de Discord para obtener los avatares sin depender de terceros.
 - [ ] **Sincronización Automática:** Evaluar si el bot de Discord puede sincronizar automáticamente los roles (Staff/Donador) y las descripciones del perfil hacia la base de datos de Prisma para no usar diccionarios estáticos en código.

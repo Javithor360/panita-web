@@ -64,7 +64,7 @@ export default async function AgradecimientosPage() {
   const allCreditsData = users.map((u) => {
     return { 
       ...u, 
-      discordAvatar: "" // Will be fetched client-side
+      discordAvatar: u.avatar_url
     };
   });
 
@@ -147,8 +147,6 @@ export default async function AgradecimientosPage() {
       .sort((a, b) => (b.position || 0) - (a.position || 0));
       
     const activeRole = communityRoles[0] || panita.roles[0]; // fallback
-    
-    let pAvatar = ""; // Will be fetched client-side
 
     const joinedDateRaw = panita.joined_at ? new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(panita.joined_at) : 'desconocido';
     
@@ -157,7 +155,7 @@ export default async function AgradecimientosPage() {
       ign: panita.ign || panita.discord_name,
       discordName: `@${panita.discord_name}`,
       discordId: panita.discord_id,
-      discordAvatar: pAvatar,
+      discordAvatar: panita.avatar_url,
       role: activeRole?.id,
       roleName: 'Panita del Mes',
       originalRoleName: activeRole?.name || 'Miembro',
