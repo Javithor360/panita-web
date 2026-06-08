@@ -120,7 +120,11 @@ export default async function AgradecimientosPage() {
   const eligiblePanitas = await prisma.user.findMany({
     where: {
       joined_at: { lt: sixMonthsAgo },
-      roles: { some: {} }
+      roles: { 
+        some: { 
+          id: { not: 'default' } 
+        } 
+      }
     },
     include: { roles: true }
   });
