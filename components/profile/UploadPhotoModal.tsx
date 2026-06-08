@@ -7,6 +7,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { CATEGORIES } from '@/lib/constants';
 import { uploadPhoto } from '@/app/actions/gallery';
 import { EditionIcon } from "@/components/ui/EditionIcon";
+import { EditableAuthor } from '@/components/gallery/edit/EditableAuthor';
+import { EditableDate } from '@/components/gallery/edit/EditableDate';
 
 interface UploadPhotoModalProps {
   isOpen: boolean;
@@ -14,9 +16,11 @@ interface UploadPhotoModalProps {
   onSuccess: () => void;
   editions: Array<{ id: string; name: string }>;
   userIgn: string;
+  userId: number;
+  canEdit?: boolean;
 }
 
-export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn }: UploadPhotoModalProps) {
+export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn, userId, canEdit }: UploadPhotoModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [title, setTitle] = useState('');
@@ -27,6 +31,11 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
   const [error, setError] = useState('');
   const [isEditionSelectOpen, setIsEditionSelectOpen] = useState(false);
   const [isTagSelectOpen, setIsTagSelectOpen] = useState(false);
+
+  const [authorId, setAuthorId] = useState<number | null>(userId);
+  const [authorName, setAuthorName] = useState(userIgn);
+  const [authorIgn, setAuthorIgn] = useState<string | null>(userIgn);
+  const [dateTaken, setDateTaken] = useState<string>(() => new Date().toISOString().split('T')[0]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -92,6 +101,11 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
       formData.append('description', description.trim());
       formData.append('edition_id', editionId);
       formData.append('tagIds', JSON.stringify(tagIds));
+      if (canEdit) {
+        if (authorId !== null) formData.append('author_id', String(authorId));
+        else formData.append('author_id', 'null');
+        formData.append('date_taken', dateTaken);
+      }
 
       await uploadPhoto(formData);
       
@@ -102,6 +116,10 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
       setDescription('');
       setEditionId('');
       setTagIds([]);
+      setAuthorId(userId);
+      setAuthorName(userIgn);
+      setAuthorIgn(userIgn);
+      setDateTaken(new Date().toISOString().split('T')[0]);
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -111,12 +129,13 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
     }
   };
 
-  const d = new Date();
-  const month = d.toLocaleDateString("es-ES", { month: "long" });
-  const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
-  const day = d.getDate();
-  const year = d.getFullYear();
-  const formattedDate = `${capitalizedMonth} ${day}, ${year}`;
+  let formattedDate = "";
+  if (dateTaken) {
+    const [year, monthNum, dayNum] = dateTaken.split('-');
+    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const monthName = monthNames[parseInt(monthNum, 10) - 1];
+    formattedDate = `${monthName} ${parseInt(dayNum, 10)}, ${year}`;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isUploading && onClose()}>
@@ -137,10 +156,23 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
             <div className="flex flex-col gap-1.5 pointer-events-auto mt-1 w-full lg:w-auto drop-shadow-md">
               {/* Row 1: Author and Edition */}
               <div className="flex flex-wrap items-center gap-3 text-white/90 font-medium">
-                <div className="flex items-center gap-2">
-                  <img src={`https://mc-heads.net/avatar/${userIgn}`} alt={userIgn} className="size-4 rounded-sm bg-black/20" />
-                  <span>{userIgn}</span>
-                </div>
+                {canEdit ? (
+                  <EditableAuthor 
+                    authorId={authorId}
+                    authorName={authorName}
+                    authorIgn={authorIgn}
+                    onSave={async (id, name, ign) => {
+                      setAuthorId(id);
+                      setAuthorName(name);
+                      setAuthorIgn(ign);
+                    }}
+                  />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <img src={`https://mc-heads.net/avatar/${userIgn}`} alt={userIgn} className="size-4 rounded-sm bg-black/20" />
+                    <span>{userIgn}</span>
+                  </div>
+                )}
                 {editionId && <span className="text-white/40">•</span>}
                 {editionId && (
                   <div className="flex items-center gap-1.5 text-white/70">
@@ -151,7 +183,17 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
               </div>
               {/* Row 2: Date */}
               <div className="flex flex-wrap items-center gap-3 text-white/60 text-sm">
-                <span>{formattedDate}</span>
+                {canEdit ? (
+                  <EditableDate 
+                    value={dateTaken}
+                    formattedDate={formattedDate}
+                    onSave={async (val) => {
+                      setDateTaken(val);
+                    }}
+                  />
+                ) : (
+                  <span>{formattedDate}</span>
+                )}
               </div>
             </div>
           </div>

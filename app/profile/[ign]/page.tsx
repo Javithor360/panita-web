@@ -21,6 +21,7 @@ import type { Metadata } from "next";
 import { ProfileGallery } from "@/components/profile/ProfileGallery";
 import { ProfileTrajectory } from "@/components/profile/ProfileTrajectory";
 import { getUserPhotos } from "@/app/actions/gallery";
+import { getSession } from "@/lib/auth";
 
 export async function generateMetadata(
   props: { params: Promise<{ ign: string }> }
@@ -36,6 +37,19 @@ export async function generateMetadata(
 export default async function PublicProfilePage(props: { params: Promise<{ ign: string }> }) {
   const params = await props.params;
   const targetIgn = decodeURIComponent(params.ign);
+
+  const session = await getSession();
+  let canEdit = false;
+  if (session?.userId) {
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.userId },
+      include: { roles: true }
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (currentUser?.trusted_author && currentUser.roles.some((r: any) => r.id === 'admin' || r.id === 'mod')) {
+      canEdit = true;
+    }
+  }
 
   const user = await prisma.user.findFirst({
     where: { 
@@ -267,6 +281,7 @@ export default async function PublicProfilePage(props: { params: Promise<{ ign: 
             editions={editions} 
             userId={user.id} 
             userIgn={ign}
+            canEdit={canEdit}
           />
 
         </div>

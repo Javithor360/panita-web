@@ -13,11 +13,12 @@ interface ProfileGalleryProps {
   editions: Array<{ id: string; name: string }>;
   userId: number;
   userIgn: string;
+  canEdit?: boolean;
 }
 
 import { useRouter } from 'next/navigation';
 
-export function ProfileGallery({ photos, canUpload, editions, userId, userIgn }: ProfileGalleryProps) {
+export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, canEdit = false }: ProfileGalleryProps) {
   const router = useRouter();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
@@ -152,13 +153,15 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn }:
         }}
         editions={editions}
         userIgn={userIgn}
+        userId={userId}
+        canEdit={canEdit}
       />
 
       {selectedPhoto && (
         <PhotoModal 
           photo={selectedPhoto} 
           onClose={() => setSelectedPhoto(null)} 
-          canEdit={false} // Author can't edit from here unless we allow it. We'll disable it for now.
+          canEdit={canEdit}
           onNext={() => {
             const idx = photos.findIndex(p => p.id === selectedPhoto.id);
             if (idx < photos.length - 1) setSelectedPhoto(photos[idx + 1]);

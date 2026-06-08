@@ -254,6 +254,7 @@ export default async function ProfilePage() {
             editions={editions} 
             userId={user.id} 
             userIgn={ign}
+            canEdit={!!user.trusted_author && userRoles.some((r: any) => r.id === 'admin' || r.id === 'mod')}
           />
 
           {/* Panel de Administrador */}

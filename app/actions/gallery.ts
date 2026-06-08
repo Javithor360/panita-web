@@ -365,14 +365,31 @@ export async function uploadPhoto(formData: FormData) {
 
     const cloudinaryResult = uploadResult as any;
 
+    const authorIdStr = formData.get('author_id') as string | null;
+    const dateTakenStr = formData.get('date_taken') as string | null;
+  
+    let finalUserId: number | null = user.id;
+    let finalDateTaken: Date = new Date();
+  
+    if (isAdminOrMod) {
+      if (authorIdStr === 'null') {
+        finalUserId = null;
+      } else if (authorIdStr) {
+        finalUserId = parseInt(authorIdStr, 10);
+      }
+      if (dateTakenStr) {
+        finalDateTaken = new Date(dateTakenStr);
+      }
+    }
+
     const newPhoto = await prisma.photo.create({
       data: {
         url: cloudinaryResult.secure_url,
         title,
         description: description || null,
         enabled: true,
-        date_taken: new Date(),
-        user_id: user.id,
+        date_taken: finalDateTaken,
+        user_id: finalUserId,
         edition_id: edition_id,
         categories: {
           connect: tagIds.map((id: string) => ({ id }))
