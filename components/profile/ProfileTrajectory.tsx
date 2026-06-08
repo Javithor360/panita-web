@@ -30,8 +30,15 @@ function TrajectoryNode({
   expandAction?: { onExpand: () => void; count: number };
 }) {
   const isEven = index % 2 === 0;
-  const editionDateStr = ue.edition.started_at ? new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(new Date(ue.edition.started_at)) : null;
-  const formattedDate = editionDateStr ? editionDateStr.charAt(0).toUpperCase() + editionDateStr.slice(1) : null;
+  let formattedDate = null;
+  if (ue.edition.started_at) {
+    const dateStr = ue.edition.started_at instanceof Date ? ue.edition.started_at.toISOString() : String(ue.edition.started_at);
+    const datePart = dateStr.split('T')[0];
+    const [year, monthNum] = datePart.split('-');
+    const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+    const monthName = monthNames[parseInt(monthNum, 10) - 1];
+    formattedDate = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} de ${year}`;
+  }
   const nameLen = ue.edition.name.length;
   
   return (

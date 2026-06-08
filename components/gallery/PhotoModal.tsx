@@ -175,12 +175,15 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
 
   let formattedDate = null;
   if (localPhoto.date_taken) {
-    const d = new Date(localPhoto.date_taken);
-    const month = d.toLocaleDateString("es-ES", { month: "short" });
-    const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
-    const day = d.getDate();
-    const year = d.getFullYear();
-    formattedDate = `${capitalizedMonth} ${day}, ${year}`;
+    const dateStr = localPhoto.date_taken instanceof Date ? localPhoto.date_taken.toISOString() : String(localPhoto.date_taken);
+    const datePart = dateStr.split('T')[0]; // "YYYY-MM-DD"
+    const [year, monthNum, dayNum] = datePart.split('-');
+    
+    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const monthName = monthNames[parseInt(monthNum, 10) - 1];
+    const day = parseInt(dayNum, 10);
+    
+    formattedDate = `${monthName} ${day}, ${year}`;
   }
 
   const hasDescription = Boolean(localPhoto.description && localPhoto.description.trim() !== "");
