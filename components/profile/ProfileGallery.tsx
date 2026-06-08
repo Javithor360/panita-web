@@ -121,8 +121,8 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn }:
             {visibleCount < totalItems && (
               <button 
                 onClick={() => setVisibleCount(v => v + 9)}
-                className="flex items-center gap-1.5 sm:gap-2 text-white font-bold text-xs sm:text-base py-2 sm:py-2.5 px-3 sm:px-6 rounded-full shadow-lg transition-all hover:-translate-y-1 hover:brightness-110 active:scale-95 cursor-pointer"
-                style={{ backgroundColor: 'var(--profile-glow)' }}
+                className="flex items-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-base py-2 sm:py-2.5 px-3 sm:px-6 rounded-full shadow-lg transition-all hover:-translate-y-1 hover:brightness-110 active:scale-95 cursor-pointer"
+                style={{ backgroundColor: 'var(--profile-glow)', color: 'var(--profile-glow-text)' }}
               >
                 Mostrar más
                 <ChevronDown className="size-3 sm:size-4" />

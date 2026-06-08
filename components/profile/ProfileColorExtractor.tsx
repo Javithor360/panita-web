@@ -13,6 +13,7 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
   const [styles, setStyles] = useState<React.CSSProperties>({
     '--profile-glow': fallbackColor,
     '--profile-gradient': fallbackColor,
+    '--profile-glow-text': '#ffffff',
   } as React.CSSProperties)
 
   useEffect(() => {
@@ -69,9 +70,14 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
           const luminance = 0.299 * avgColor.r + 0.587 * avgColor.g + 0.114 * avgColor.b;
           const isDark = luminance < 90;
 
+          const finalGlow = isDark ? { r: 255, g: 255, b: 255 } : avgColor;
+          const finalLuminance = 0.299 * finalGlow.r + 0.587 * finalGlow.g + 0.114 * finalGlow.b;
+          const isFinalLight = finalLuminance > 150;
+
           setStyles({
             '--profile-glow': isDark ? '#ffffff' : `rgb(${avgColor.r}, ${avgColor.g}, ${avgColor.b})`,
             '--profile-gradient': `linear-gradient(to bottom right, rgb(${topColor.r}, ${topColor.g}, ${topColor.b}), rgb(${bottomColor.r}, ${bottomColor.g}, ${bottomColor.b}))`,
+            '--profile-glow-text': isFinalLight ? '#000000' : '#ffffff',
           } as React.CSSProperties)
         }
       } catch (e) {
