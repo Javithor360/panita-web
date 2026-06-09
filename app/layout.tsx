@@ -49,6 +49,7 @@ import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Analytics } from "@vercel/analytics/react";
 
 export default async function RootLayout({
   children,
@@ -82,6 +83,7 @@ export default async function RootLayout({
           <Navbar user={user} />
           <main className="flex flex-1 flex-col">{children}</main>
           <Footer />
+          <Analytics />
         </TooltipProvider>
       </body>
     </html>
