@@ -21,6 +21,7 @@ import { Fragment } from "react";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { ProfileGallery } from "@/components/profile/ProfileGallery";
 import { ProfileTrajectory } from "@/components/profile/ProfileTrajectory";
+import { EditionIcon } from "@/components/ui/EditionIcon";
 import { getUserPhotos } from "@/app/actions/gallery";
 
 export default async function ProfilePage() {
@@ -193,12 +194,16 @@ export default async function ProfilePage() {
                     <DialogContent className="sm:max-w-md p-6 [&>button]:top-6 [&>button]:right-6 [&>button]:cursor-pointer">
                       <DialogHeader className="pr-6">
                         <DialogTitle className="text-xl flex items-center gap-2">
-                          <Award className="w-6 h-6 text-primary" />
+                          <Award className="w-6 h-6" style={{ color: 'var(--profile-glow)' }} />
                           {emblem.name}
                         </DialogTitle>
                         {emblem.edition && (
-                          <DialogDescription>
-                            Origen: <span className="font-medium text-foreground">{emblem.edition.name}</span>
+                          <DialogDescription className="flex items-center gap-1.5 mt-1">
+                            Origen: 
+                            <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                              <EditionIcon editionId={emblem.edition.id} className="w-4 h-4 drop-shadow-sm" />
+                              {emblem.edition.name}
+                            </span>
                           </DialogDescription>
                         )}
                       </DialogHeader>
@@ -218,8 +223,14 @@ export default async function ProfilePage() {
                       
                       <div className="border-t pt-4 mt-2">
                         {Math.max(0, emblem._count.users - 1) === 0 ? (
-                          <p className="text-xs text-center font-semibold bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 bg-clip-text text-transparent italic drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">
-                            ¡Es el único con este emblema!
+                          <p 
+                            className="text-xs text-center font-bold italic bg-clip-text text-transparent"
+                            style={{ 
+                              backgroundImage: 'var(--profile-gradient)',
+                              filter: 'drop-shadow(0 0 8px var(--profile-glow))'
+                            }}
+                          >
+                            ¡Eres el único con este emblema!
                           </p>
                         ) : Math.max(0, emblem._count.users - 1) === 1 ? (
                           <p className="text-xs text-muted-foreground/60 italic text-center">

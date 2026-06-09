@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Map } from 'lucide-react';
 import { cn } from '@/lib/utils';

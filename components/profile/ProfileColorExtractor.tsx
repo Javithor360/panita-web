@@ -90,6 +90,22 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
     getColors()
   }, [ign])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.documentElement.style.setProperty('--profile-glow', styles['--profile-glow'] as string);
+      document.documentElement.style.setProperty('--profile-gradient', styles['--profile-gradient'] as string);
+      document.documentElement.style.setProperty('--profile-glow-text', styles['--profile-glow-text'] as string);
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        document.documentElement.style.removeProperty('--profile-glow');
+        document.documentElement.style.removeProperty('--profile-gradient');
+        document.documentElement.style.removeProperty('--profile-glow-text');
+      }
+    };
+  }, [styles]);
+
   return (
     <div className={`w-full relative transition-opacity duration-1000 ease-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={styles}>
       {children}
