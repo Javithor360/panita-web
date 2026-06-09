@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Card } from "@/components/ui/card"
-import { Save, Loader2, Award, Plus, Trash, ArrowLeft, Search, X, PlusCircle, Upload } from "lucide-react"
+import { Save, Loader2, Award, Plus, Trash, ArrowLeft, Search, X, PlusCircle, Upload, ChevronDown } from "lucide-react"
+import { EditionIcon } from "@/components/ui/EditionIcon"
 import { getEmblems, getEditions, saveEmblem, deleteEmblem, getEmblemUsers, searchUsersForAssignment, toggleUserEmblem, uploadEmblemIcon } from "@/app/actions/admin"
 import type { Emblem, Edition } from "@/lib/generated/prisma/client"
 import {
@@ -42,6 +43,7 @@ export function EmblemsManager() {
   const [iconUrl, setIconUrl] = useState('')
   const [iconFile, setIconFile] = useState<File | null>(null)
   const [editionId, setEditionId] = useState('')
+  const [isEditionSelectOpen, setIsEditionSelectOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
   const loadData = async () => {
@@ -381,24 +383,63 @@ export function EmblemsManager() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 relative">
                     <label className="text-sm font-medium">Origen</label>
-                    <select 
-                      value={editionId} 
-                      onChange={e => setEditionId(e.target.value)}
-                      className="p-2 pr-8 bg-background border rounded-md appearance-none cursor-pointer"
-                      style={{
-                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                        backgroundPosition: `right 0.5rem center`,
-                        backgroundRepeat: `no-repeat`,
-                        backgroundSize: `1.5em 1.5em`
-                      }}
+                    <button
+                      type="button"
+                      onClick={() => setIsEditionSelectOpen(!isEditionSelectOpen)}
+                      className="w-full bg-background border border-input hover:border-primary/50 rounded-md p-2 flex items-center justify-between transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50"
                     >
-                      <option value="">-- Ninguna --</option>
-                      {editions.map(ed => (
-                        <option key={ed.id} value={ed.id}>{ed.name}</option>
-                      ))}
-                    </select>
+                      {editionId ? (
+                        <div className="flex items-center gap-2">
+                          <EditionIcon editionId={editionId} className="w-5 h-5" />
+                          <span className="text-sm font-medium">{editions.find(e => e.id === editionId)?.name}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <EditionIcon editionId="extra" className="w-5 h-5" />
+                          <span className="text-sm font-medium">Extra</span>
+                        </div>
+                      )}
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    </button>
+
+                    {isEditionSelectOpen && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={() => setIsEditionSelectOpen(false)} 
+                        />
+                        <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-md border bg-popover text-popover-foreground shadow-md flex flex-col p-1 max-h-48 overflow-y-auto">
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              setEditionId('');
+                              setIsEditionSelectOpen(false);
+                            }}
+                            className={`flex items-center gap-2 text-left px-2 py-2 text-sm rounded-sm transition-colors cursor-pointer ${!editionId ? 'bg-primary/10 text-primary' : 'hover:bg-accent hover:text-accent-foreground'}`}
+                          >
+                            <EditionIcon editionId="extra" className="w-5 h-5" />
+                            <span>Extra</span>
+                          </button>
+                          
+                          {editions.map(ed => (
+                            <button 
+                              key={ed.id}
+                              type="button"
+                              onClick={() => {
+                                setEditionId(ed.id);
+                                setIsEditionSelectOpen(false);
+                              }}
+                              className={`flex items-center gap-2 text-left px-2 py-2 text-sm rounded-sm transition-colors cursor-pointer ${editionId === ed.id ? 'bg-primary/10 text-primary' : 'hover:bg-accent hover:text-accent-foreground'}`}
+                            >
+                              <EditionIcon editionId={ed.id} alt={ed.name} className="w-5 h-5" />
+                              <span>{ed.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3 mt-6">
