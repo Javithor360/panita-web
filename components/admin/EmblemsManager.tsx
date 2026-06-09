@@ -57,6 +57,16 @@ export function EmblemsManager() {
     if (isOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       loadData()
+    } else {
+      const t = setTimeout(() => {
+        setSelectedEmblem(null)
+        setIsNew(false)
+        setActiveTab('edit')
+        setSearchQuery('')
+        setSearchResults([])
+        setEmblemUsers([])
+      }, 300)
+      return () => clearTimeout(t)
     }
   }, [isOpen])
 
@@ -406,7 +416,7 @@ export function EmblemsManager() {
                               </div>
                             </div>
                             <button
-                              className="p-1.5 rounded-md transition-colors text-muted-foreground group-hover:text-foreground"
+                              className="p-1.5 rounded-md transition-colors text-muted-foreground group-hover:text-foreground cursor-pointer"
                               title="Añadir emblema"
                             >
                               <PlusCircle className="w-4 h-4" />
@@ -428,7 +438,7 @@ export function EmblemsManager() {
                     {emblemUsers.length === 0 ? (
                       <p className="text-sm text-muted-foreground py-4 text-center">Nadie tiene este emblema aún.</p>
                     ) : (
-                      <div className="flex flex-col gap-2 max-h-[40vh] overflow-y-auto pr-1">
+                      <div className="flex flex-col gap-2 pr-1">
                         {emblemUsers.map(u => (
                           <div key={u.id} className="flex items-center justify-between p-2.5 border rounded-md bg-card">
                             <div className="flex items-center gap-3">
