@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Card } from "@/components/ui/card"
-import { Save, Loader2, Award, Plus, Trash, ArrowLeft, Search, X, PlusCircle } from "lucide-react"
-import { getEmblems, getEditions, saveEmblem, deleteEmblem, getEmblemUsers, searchUsersForAssignment, toggleUserEmblem } from "@/app/actions/admin"
+import { Save, Loader2, Award, Plus, Trash, ArrowLeft, Search, X, PlusCircle, Upload } from "lucide-react"
+import { getEmblems, getEditions, saveEmblem, deleteEmblem, getEmblemUsers, searchUsersForAssignment, toggleUserEmblem, uploadEmblemIcon } from "@/app/actions/admin"
 import type { Emblem, Edition } from "@/lib/generated/prisma/client"
 import {
   AlertDialog,
@@ -40,7 +40,9 @@ export function EmblemsManager() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [iconUrl, setIconUrl] = useState('')
+  const [iconFile, setIconFile] = useState<File | null>(null)
   const [editionId, setEditionId] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
   const loadData = async () => {
     setLoading(true)
@@ -65,6 +67,7 @@ export function EmblemsManager() {
         setSearchQuery('')
         setSearchResults([])
         setEmblemUsers([])
+        setIconFile(null)
       }, 300)
       return () => clearTimeout(t)
     }
@@ -78,6 +81,7 @@ export function EmblemsManager() {
     setName('')
     setDescription('')
     setIconUrl('')
+    setIconFile(null)
     setEditionId('')
   }
 
@@ -89,6 +93,7 @@ export function EmblemsManager() {
     setName(e.name)
     setDescription(e.description || '')
     setIconUrl(e.icon_url)
+    setIconFile(null)
     setEditionId(e.edition_id || '')
     
     setEmblemUsers([])
@@ -126,10 +131,11 @@ export function EmblemsManager() {
       name !== (selectedEmblem.name || '') ||
       description !== (selectedEmblem.description || '') ||
       iconUrl !== (selectedEmblem.icon_url || '') ||
+      iconFile !== null ||
       editionId !== (selectedEmblem.edition_id || '');
       
     setIsDirty(isChanged)
-  }, [name, description, iconUrl, editionId, selectedEmblem])
+  }, [name, description, iconUrl, iconFile, editionId, selectedEmblem])
 
   useEffect(() => {
     if (!isDirty) return;
@@ -154,15 +160,36 @@ export function EmblemsManager() {
   }
 
   const handleSave = async () => {
-    await saveEmblem(emblemId, {
-      name,
-      description: description || null,
-      icon_url: iconUrl,
-      edition_id: editionId || null
-    }, isNew)
-    
-    setSelectedEmblem(null)
-    loadData()
+    try {
+      setIsSaving(true);
+      let finalIconUrl = iconUrl;
+      
+      if (iconFile) {
+        const formData = new FormData();
+        formData.append('file', iconFile);
+        formData.append('editionId', editionId || 'extra');
+        
+        const result = await uploadEmblemIcon(formData);
+        if (result.error || !result.url) {
+          throw new Error(result.error || 'Failed to upload icon');
+        }
+        finalIconUrl = result.url;
+      }
+      
+      await saveEmblem(emblemId, {
+        name,
+        description: description || null,
+        icon_url: finalIconUrl,
+        edition_id: editionId || null
+      }, isNew);
+      
+      setSelectedEmblem(null);
+      loadData();
+    } catch (e: any) {
+      alert("Error al guardar: " + e.message);
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   const handleDelete = async (id: string) => {
@@ -325,18 +352,31 @@ export function EmblemsManager() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">URL del Icono</label>
+                    <label className="text-sm font-medium">Icono del Emblema</label>
                     <div className="flex gap-2 items-center">
-                      <input 
-                        type="text" 
-                        value={iconUrl} 
-                        onChange={e => setIconUrl(e.target.value)} 
-                        className="p-2 bg-background border rounded-md flex-1"
-                        placeholder="https://..."
-                      />
+                      <div className="relative group flex-1 min-w-0">
+                        <input 
+                          type="file" 
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                          accept="image/svg+xml,image/png,image/jpeg,image/webp" 
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files.length > 0) {
+                              const file = e.target.files[0];
+                              setIconFile(file);
+                              setIconUrl(URL.createObjectURL(file));
+                            }
+                          }}
+                        />
+                        <div className="w-full h-10 bg-background border rounded-md p-2 flex items-center justify-between transition-all group-hover:border-primary/50 text-sm">
+                          <span className="truncate pr-4 text-muted-foreground">
+                            {iconFile ? iconFile.name : (iconUrl || "Seleccionar imagen...")}
+                          </span>
+                          <Upload className="w-4 h-4 text-muted-foreground shrink-0" />
+                        </div>
+                      </div>
                       {iconUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={iconUrl} alt="Preview" className="w-8 h-8 object-contain" />
+                        <img src={iconUrl} alt="Preview" className="w-8 h-8 object-contain rounded-sm" />
                       )}
                     </div>
                   </div>
@@ -364,11 +404,14 @@ export function EmblemsManager() {
                   <div className="flex items-center gap-3 mt-6">
                     <button 
                       onClick={handleSave}
-                      disabled={!emblemId || !name || !iconUrl}
+                      disabled={isSaving || !emblemId || !name || (!iconUrl && !iconFile)}
                       className={`${isNew ? 'w-full' : 'w-3/4'} flex items-center justify-center gap-2 bg-primary text-primary-foreground h-11 rounded-md hover:opacity-90 transition-colors font-medium select-none disabled:opacity-50 cursor-pointer`}
                     >
-                      <Save className="w-4 h-4" />
-                      Guardar
+                      {isSaving ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</>
+                      ) : (
+                        <><Save className="w-4 h-4" /> Guardar</>
+                      )}
                     </button>
                     {!isNew && (
                       <button 

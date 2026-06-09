@@ -250,6 +250,43 @@ export async function deleteEmblem(id: string) {
   return { success: true }
 }
 
+export async function uploadEmblemIcon(formData: FormData) {
+  await checkAdmin();
+  
+  const file = formData.get('file') as File;
+  const editionId = formData.get('editionId') as string;
+  
+  if (!file) {
+    return { error: 'No file provided' };
+  }
+  
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+  
+  const folder = `panita-web/profile/emblem/${editionId || 'extra'}`;
+  
+  try {
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(buffer);
+    });
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cloudinaryResult = uploadResult as any;
+    
+    return { success: true, url: cloudinaryResult.secure_url };
+  } catch (error) {
+    console.error("Error uploading emblem icon:", error);
+    return { error: 'Failed to upload icon to Cloudinary' };
+  }
+}
+
 export async function getEmblemUsers(emblemId: string) {
   await checkAdmin()
   const emblem = await prisma.emblem.findUnique({
