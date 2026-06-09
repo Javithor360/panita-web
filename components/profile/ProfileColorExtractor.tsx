@@ -92,9 +92,10 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      document.documentElement.style.setProperty('--profile-glow', styles['--profile-glow'] as string);
-      document.documentElement.style.setProperty('--profile-gradient', styles['--profile-gradient'] as string);
-      document.documentElement.style.setProperty('--profile-glow-text', styles['--profile-glow-text'] as string);
+      const customStyles = styles as Record<string, string>;
+      document.documentElement.style.setProperty('--profile-glow', customStyles['--profile-glow']);
+      document.documentElement.style.setProperty('--profile-gradient', customStyles['--profile-gradient']);
+      document.documentElement.style.setProperty('--profile-glow-text', customStyles['--profile-glow-text']);
     }
     
     return () => {
