@@ -41,16 +41,16 @@ export type FilterOption = {
 
 export const EDITIONS: FilterOption[] = [
   { id: "survivalcomunitario", label: "Survival Comunitario" },
-  { id: "panitacraft", label: "Panitacraft I" },
-  { id: "tezzlar", label: "Tezzlar I" },
-  { id: "tezzlar2", label: "Tezzlar II" },
   { id: "panitaskyblock", label: "Panitaskyblock" },
+  { id: "tezzlar", label: "Tezzlar I" },
+  { id: "panitacraft", label: "Panitacraft I" },
+  { id: "tezzlar2", label: "Tezzlar II" },
   { id: "panitacraft2", label: "Panitacraft II" },
-  { id: "panitagames", label: "Panita Games" },
   { id: "panitacraft25", label: "Panitacraft 2.5" },
   { id: "allthepanitas", label: "AllThePanitas" },
   { id: "panitacraft275", label: "Panitacraft 2.75" },
   { id: "panitamon", label: "Panitamon" }, 
+  { id: "panitagames", label: "Panita Games" },
 ];
 
 export const RANGOS: Record<string, {name: string, color: string}> = {

@@ -217,7 +217,10 @@ export async function getEmblems(): Promise<(Emblem & { edition: Edition | null 
 export async function getEditions() {
   await checkAdmin()
   return await prisma.edition.findMany({
-    orderBy: { name: 'asc' }
+    orderBy: [
+      { started_at: { sort: 'desc', nulls: 'last' } },
+      { name: 'asc' }
+    ]
   })
 }
 

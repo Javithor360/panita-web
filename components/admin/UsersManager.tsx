@@ -72,7 +72,7 @@ export function UsersManager() {
       
       const sortedEditions = [...edData].sort((a, b) => {
         if (a.started_at && b.started_at) {
-          return new Date(a.started_at).getTime() - new Date(b.started_at).getTime();
+          return new Date(b.started_at).getTime() - new Date(a.started_at).getTime();
         }
         if (a.started_at && !b.started_at) return -1;
         if (!a.started_at && b.started_at) return 1;

@@ -60,7 +60,7 @@ export function EditableEdition({
           >
             Sin edición
           </button>
-          {EDITIONS.map((ed) => (
+          {[...EDITIONS].filter(e => e.id !== 'panitagames').reverse().concat(EDITIONS.filter(e => e.id === 'panitagames')).map((ed) => (
             <button 
               key={ed.id}
               onClick={() => handleSelect(ed.id, ed.label)}

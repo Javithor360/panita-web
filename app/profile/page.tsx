@@ -57,7 +57,12 @@ export default async function ProfilePage() {
 
   const [photos, editions] = await Promise.all([
     getUserPhotos(user.id),
-    prisma.edition.findMany({ orderBy: { id: 'desc' } })
+    prisma.edition.findMany({ 
+      orderBy: [
+        { started_at: { sort: 'desc', nulls: 'last' } },
+        { name: 'asc' }
+      ] 
+    })
   ]);
 
   const ign = user.ign || user.discord_name;
