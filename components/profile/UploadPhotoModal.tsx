@@ -401,7 +401,9 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
                           onClick={() => setIsTagSelectOpen(false)} 
                         />
                         <div className="absolute top-full left-0 mt-2 z-[150] w-48 rounded-lg border border-white/10 bg-[#111] text-white shadow-xl flex flex-col p-1 max-h-60 overflow-y-auto">
-                          {CATEGORIES.filter(c => !tagIds.includes(c.id)).map(cat => (
+                          {CATEGORIES.filter(c => !tagIds.includes(c.id)).map(cat => {
+                            if (cat.id === 'members_choice' && !canEdit) return null;
+                            return (
                             <button 
                               key={cat.id}
                               type="button"
@@ -414,7 +416,8 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
                               <cat.iconComponent className="size-4" style={{ color: cat.color }} />
                               <span>{cat.label}</span>
                             </button>
-                          ))}
+                            );
+                          })}
                         </div>
                       </>
                     )}

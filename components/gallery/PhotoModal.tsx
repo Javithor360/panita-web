@@ -56,6 +56,26 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      
+      // Allow 'e' to toggle edit mode if not typing in an input
+      if ((e.key === "e" || e.key === "E") && canEdit) {
+        const target = e.target as HTMLElement;
+        const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+        if (!isTyping) {
+          e.preventDefault();
+          setIsEditMode(prev => {
+            const nextMode = !prev;
+            if (nextMode) {
+              setShowDetails(true);
+            } else if (!hasDescription) {
+              setShowDetails(false);
+            }
+            return nextMode;
+          });
+          return; // Prevent triggering other handlers
+        }
+      }
+
       if (e.key === "ArrowRight" && onNext && scale === 1 && !isEditMode) {
         e.preventDefault();
         setSlideDir('next');

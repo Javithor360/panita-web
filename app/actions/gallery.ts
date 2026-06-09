@@ -340,6 +340,10 @@ export async function uploadPhoto(formData: FormData) {
     throw new Error("At least one tag is required");
   }
 
+  if (tagIds.includes('members_choice') && !isAdminOrMod) {
+    throw new Error("Unauthorized: Only Admins or Mods can assign the 'Elección del Público' tag");
+  }
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
