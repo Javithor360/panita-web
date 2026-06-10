@@ -24,10 +24,6 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [visibleCount, setVisibleCount] = useState(6);
 
-  // If there are no photos and the user cannot upload, don't show the section at all
-  if (photos.length === 0 && !canUpload) {
-    return null;
-  }
 
   const allItems = [];
 
