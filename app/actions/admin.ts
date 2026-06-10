@@ -43,7 +43,7 @@ export async function getUsers(search?: string, take: number = 5, skip: number =
       where,
       include: {
         roles: { orderBy: { position: 'asc' } },
-        emblems: true,
+        emblems: { orderBy: { position: 'asc' } },
         editions: true
       },
       orderBy: [
@@ -210,8 +210,24 @@ export async function getEmblems(): Promise<(Emblem & { edition: Edition | null 
   await checkAdmin()
   return await prisma.emblem.findMany({
     include: { edition: true },
-    orderBy: { name: 'asc' }
+    orderBy: { position: 'asc' }
   })
+}
+
+export async function updateEmblemPositions(positions: { id: string, position: number }[]) {
+  await checkAdmin()
+  
+  await prisma.$transaction(
+    positions.map(p => 
+      prisma.emblem.update({
+        where: { id: p.id },
+        data: { position: p.position }
+      })
+    )
+  )
+  
+  revalidatePath('/profile')
+  return { success: true }
 }
 
 export async function getEditions() {
@@ -284,9 +300,10 @@ export async function uploadEmblemIcon(formData: FormData) {
     const cloudinaryResult = uploadResult as any;
     
     return { success: true, url: cloudinaryResult.secure_url };
-  } catch (error) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     console.error("Error uploading emblem icon:", error);
-    return { error: 'Failed to upload icon to Cloudinary' };
+    return { error: `Failed to upload icon to Cloudinary: ${error?.message || JSON.stringify(error) || 'Unknown error'}` };
   }
 }
 

@@ -3,9 +3,26 @@
 import { useState, useEffect } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Card } from "@/components/ui/card"
-import { Save, Loader2, Award, Plus, Trash, ArrowLeft, Search, X, PlusCircle, Upload, ChevronDown } from "lucide-react"
+import { Save, Loader2, Award, Plus, Trash, ArrowLeft, Search, X, PlusCircle, Upload, ChevronDown, GripVertical } from "lucide-react"
 import { EditionIcon } from "@/components/ui/EditionIcon"
-import { getEmblems, getEditions, saveEmblem, deleteEmblem, getEmblemUsers, searchUsersForAssignment, toggleUserEmblem, uploadEmblemIcon } from "@/app/actions/admin"
+import { getEmblems, getEditions, saveEmblem, deleteEmblem, getEmblemUsers, searchUsersForAssignment, toggleUserEmblem, uploadEmblemIcon, updateEmblemPositions } from "@/app/actions/admin"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { Emblem, Edition } from "@/lib/generated/prisma/client"
 import {
   AlertDialog,
@@ -17,6 +34,51 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+
+function SortableEmblemItem({ emblem, onEdit }: { emblem: Emblem & { edition: Edition | null }, onEdit: (e: Emblem) => void }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: emblem.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 0,
+    opacity: isDragging ? 0.8 : 1,
+  };
+
+  return (
+    <div 
+      ref={setNodeRef}
+      style={style}
+      className={`p-3 border rounded-md flex justify-between items-center group transition-colors select-none ${isDragging ? 'border-primary bg-secondary/10 shadow-lg' : 'bg-card hover:bg-secondary/20'}`}
+    >
+      <div className="flex items-center gap-3 w-full">
+        <div 
+          {...attributes} 
+          {...listeners} 
+          className="cursor-grab hover:text-primary active:cursor-grabbing text-muted-foreground/50 hover:text-foreground transition-colors flex-shrink-0"
+        >
+          <GripVertical className="w-5 h-5" />
+        </div>
+        
+        <div 
+          onClick={() => onEdit(emblem)}
+          className="flex-1 flex items-center gap-3 cursor-pointer"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={emblem.icon_url} alt="" className="w-6 h-6 object-contain" />
+          <span className="font-medium">{emblem.name}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function EmblemsManager() {
   const [isOpen, setIsOpen] = useState(false)
@@ -201,6 +263,38 @@ export function EmblemsManager() {
     loadData()
   }
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = emblems.findIndex((i) => i.id === active.id);
+      const newIndex = emblems.findIndex((i) => i.id === over.id);
+
+      const newItems = arrayMove(emblems, oldIndex, newIndex);
+      setEmblems(newItems);
+      
+      const positions = newItems.map((item, index) => ({
+        id: item.id,
+        position: index,
+      }));
+      
+      updateEmblemPositions(positions).catch(err => {
+         console.error("Failed to update positions", err);
+      });
+    }
+  };
+
   // Users Tab Logic
   const loadEmblemUsers = async () => {
     if (!selectedEmblem?.id) return
@@ -264,22 +358,27 @@ export function EmblemsManager() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {emblems.map(e => (
-                    <div 
-                      key={e.id} 
-                      onClick={() => handleEdit(e)}
-                      className="p-3 border rounded-md flex justify-between items-center group hover:bg-secondary/20 cursor-pointer transition-colors"
+                  <DndContext 
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext 
+                      items={emblems.map(e => e.id)}
+                      strategy={verticalListSortingStrategy}
                     >
-                      <div className="flex-1 flex items-center gap-3">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={e.icon_url} alt="" className="w-6 h-6 object-contain" />
-                        <span className="font-medium">{e.name}</span>
-                      </div>
-                    </div>
-                  ))}
+                      {emblems.map(e => (
+                        <SortableEmblemItem key={e.id} emblem={e as Emblem & { edition: Edition | null }} onEdit={handleEdit} />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                   <button 
                     onClick={handleCreate}
-                    className="flex items-center gap-2 bg-primary/10 text-primary p-3 rounded-md justify-center font-medium hover:bg-primary/20 transition-colors mt-2 cursor-pointer"
+                    className="flex items-center gap-2 p-3 rounded-md justify-center font-medium transition-all mt-2 cursor-pointer hover:[--btn-opacity:30%] hover:brightness-110"
+                    style={{
+                      backgroundColor: 'color-mix(in srgb, var(--profile-glow) var(--btn-opacity, 15%), transparent)',
+                      color: 'var(--profile-glow)'
+                    } as React.CSSProperties}
                   >
                     <Plus className="w-4 h-4" />
                     Crear Nuevo Emblema
@@ -304,13 +403,21 @@ export function EmblemsManager() {
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => setActiveTab('edit')}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${activeTab === 'edit' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer hover:[--btn-opacity:30%] hover:brightness-110 ${activeTab !== 'edit' ? 'text-muted-foreground hover:text-foreground' : ''}`}
+                      style={{
+                        backgroundColor: `color-mix(in srgb, var(--profile-glow) var(--btn-opacity, ${activeTab === 'edit' ? '15%' : '0%'}), transparent)`,
+                        color: activeTab === 'edit' ? 'var(--profile-glow)' : undefined
+                      } as React.CSSProperties}
                     >
                       Editar
                     </button>
                     <button 
                       onClick={() => setActiveTab('users')}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${activeTab === 'users' ? 'bg-primary/20 text-primary' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer hover:[--btn-opacity:30%] hover:brightness-110 ${activeTab !== 'users' ? 'text-muted-foreground hover:text-foreground' : ''}`}
+                      style={{
+                        backgroundColor: `color-mix(in srgb, var(--profile-glow) var(--btn-opacity, ${activeTab === 'users' ? '15%' : '0%'}), transparent)`,
+                        color: activeTab === 'users' ? 'var(--profile-glow)' : undefined
+                      } as React.CSSProperties}
                     >
                       Usuarios
                     </button>

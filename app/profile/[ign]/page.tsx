@@ -64,6 +64,7 @@ export default async function PublicProfilePage(props: { params: Promise<{ ign: 
         orderBy: { position: 'asc' }
       },
       emblems: {
+        orderBy: { position: 'asc' },
         include: { 
           edition: true,
           _count: {

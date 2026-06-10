@@ -37,6 +37,7 @@ export default async function ProfilePage() {
         orderBy: { position: 'asc' }
       },
       emblems: {
+        orderBy: { position: 'asc' },
         include: { 
           edition: true,
           _count: {

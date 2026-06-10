@@ -468,7 +468,11 @@ export function RolesManager() {
                   </DndContext>
                   <button 
                     onClick={handleCreate}
-                    className="flex items-center gap-2 bg-primary/10 text-primary p-3 rounded-md justify-center font-medium hover:bg-primary/20 transition-colors mt-2 cursor-pointer"
+                    className="flex items-center gap-2 p-3 rounded-md justify-center font-medium transition-all mt-2 cursor-pointer hover:[--btn-opacity:30%] hover:brightness-110"
+                    style={{
+                      backgroundColor: 'color-mix(in srgb, var(--profile-glow) var(--btn-opacity, 15%), transparent)',
+                      color: 'var(--profile-glow)'
+                    } as React.CSSProperties}
                   >
                     <Plus className="w-4 h-4" />
                     Crear nuevo rango
