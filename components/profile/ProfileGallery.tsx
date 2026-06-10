@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, ChevronDown, ChevronUp, ImageOff } from 'lucide-react';
 import type { Photo } from '@/app/actions/gallery';
+import { getUserPhotos } from '@/app/actions/gallery';
 import { UploadPhotoModal } from './UploadPhotoModal';
 import { PhotoModal } from '@/components/gallery/PhotoModal';
 import { EditionIcon } from "@/components/ui/EditionIcon";
@@ -24,6 +25,15 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [visibleCount, setVisibleCount] = useState(6);
 
+  const [loadedPhotos, setLoadedPhotos] = useState<Photo[]>(photos);
+  const [hasMore, setHasMore] = useState(photos.length === 50);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  useEffect(() => {
+    setLoadedPhotos(photos);
+    setHasMore(photos.length === 50);
+  }, [photos]);
+
 
   const allItems = [];
 
@@ -43,7 +53,7 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
     );
   }
 
-  photos.forEach((photo) => {
+  loadedPhotos.forEach((photo) => {
     allItems.push(
       <div 
         key={photo.id}
@@ -92,7 +102,10 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
 
       <div className="relative w-full max-w-5xl mx-auto">
         {totalItems > 0 ? (
-          <div className="relative">
+          <div 
+            className="relative transition-[max-height] duration-700 ease-in-out overflow-hidden"
+            style={{ maxHeight: `${Math.ceil(visibleCount / 2) * 500}px` }}
+          >
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {visibleItems}
             </div>
@@ -113,16 +126,37 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
         )}
 
         {/* Action Buttons */}
-        {totalItems > 6 && (
+        {(totalItems > 6 || hasMore) && (
           <div className="mt-8 flex justify-center gap-2 sm:gap-4 relative z-10">
-            {visibleCount < totalItems && (
+            {(visibleCount < totalItems || hasMore) && (
               <button 
-                onClick={() => setVisibleCount(v => v + 9)}
-                className="flex items-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-base py-2 sm:py-2.5 px-3 sm:px-6 rounded-full shadow-lg transition-all hover:-translate-y-1 hover:brightness-110 active:scale-95 cursor-pointer"
+                onClick={async () => {
+                  const nextVisibleCount = visibleCount + 9;
+                  const neededPhotos = canUpload ? nextVisibleCount - 1 : nextVisibleCount;
+                  
+                  if (neededPhotos > loadedPhotos.length && hasMore) {
+                    setIsLoadingMore(true);
+                    try {
+                      const morePhotos = await getUserPhotos(userId, loadedPhotos.length, 50);
+                      if (morePhotos.length < 50) {
+                        setHasMore(false);
+                      }
+                      setLoadedPhotos(prev => [...prev, ...morePhotos]);
+                    } catch (error) {
+                      console.error('Error cargando más fotos:', error);
+                    } finally {
+                      setIsLoadingMore(false);
+                    }
+                  }
+                  
+                  setVisibleCount(nextVisibleCount);
+                }}
+                disabled={isLoadingMore}
+                className={`flex items-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-base py-2 sm:py-2.5 px-3 sm:px-6 rounded-full shadow-lg transition-all hover:-translate-y-1 hover:brightness-110 active:scale-95 cursor-pointer ${isLoadingMore ? 'opacity-70 cursor-not-allowed hover:translate-y-0' : ''}`}
                 style={{ backgroundColor: 'var(--profile-glow)', color: 'var(--profile-glow-text)' }}
               >
-                Mostrar más
-                <ChevronDown className="size-3 sm:size-4" />
+                {isLoadingMore ? 'Cargando...' : 'Mostrar más'}
+                {!isLoadingMore && <ChevronDown className="size-3 sm:size-4" />}
               </button>
             )}
             
@@ -159,12 +193,12 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
           onClose={() => setSelectedPhoto(null)} 
           canEdit={canEdit}
           onNext={() => {
-            const idx = photos.findIndex(p => p.id === selectedPhoto.id);
-            if (idx < photos.length - 1) setSelectedPhoto(photos[idx + 1]);
+            const idx = loadedPhotos.findIndex(p => p.id === selectedPhoto.id);
+            if (idx < loadedPhotos.length - 1) setSelectedPhoto(loadedPhotos[idx + 1]);
           }}
           onPrev={() => {
-            const idx = photos.findIndex(p => p.id === selectedPhoto.id);
-            if (idx > 0) setSelectedPhoto(photos[idx - 1]);
+            const idx = loadedPhotos.findIndex(p => p.id === selectedPhoto.id);
+            if (idx > 0) setSelectedPhoto(loadedPhotos[idx - 1]);
           }}
         />
       )}

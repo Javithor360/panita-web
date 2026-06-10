@@ -261,7 +261,7 @@ export async function updatePhoto(id: string, data: {
   revalidatePath('/gallery');
   return { success: true };
 }
-export async function getUserPhotos(userId: number) {
+export async function getUserPhotos(userId: number, skip: number = 0, take: number = 50) {
   try {
     const dbPhotos = await prisma.photo.findMany({
       where: { 
@@ -273,7 +273,8 @@ export async function getUserPhotos(userId: number) {
         ]
       },
       orderBy: { created_at: 'desc' },
-      take: 50,
+      skip,
+      take,
       include: {
         user: true,
         edition: true,
