@@ -140,14 +140,14 @@ export function Navbar({ user }: NavbarProps) {
                       </Button>
                     </div>
                   </div>
-                ) : (
+                ) : /* (
                   <Link href="/login" onClick={() => setIsOpen(false)} className="w-full">
                     <Button variant="default" className="flex h-14 w-full items-center justify-start gap-4 px-6 text-lg font-medium">
                       <LogIn className="h-6 w-6 shrink-0" />
                       <span>Iniciar Sesión</span>
                     </Button>
                   </Link>
-                )}
+                ) */ null}
               </div>
             </SheetContent>
           </Sheet>
@@ -247,14 +247,14 @@ export function Navbar({ user }: NavbarProps) {
                 </form>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
+          ) : /* (
             <Link href="/login">
               <Button variant="default" className="gap-2 font-medium cursor-pointer">
                 <LogIn className="h-4 w-4" />
                 <span>Iniciar Sesión</span>
               </Button>
             </Link>
-          )}
+          ) */ null}
         </div>
 
       </div>
