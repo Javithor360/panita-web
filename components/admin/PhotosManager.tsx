@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Card } from "@/components/ui/card"
 import { Image as ImageIcon, Loader2, Trash2, Eye, Square, Check } from "lucide-react"
 import { getHiddenPhotos, deleteHiddenPhotosBulk } from "@/app/actions/admin"
+import { updatePhoto } from "@/app/actions/gallery"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   AlertDialog,
@@ -206,6 +207,27 @@ export function PhotosManager() {
               className="max-w-full max-h-full object-contain drop-shadow-2xl pointer-events-auto" 
               onClick={(e) => e.stopPropagation()}
             />
+            
+            <div className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 pointer-events-auto">
+              <button 
+                onClick={async (e) => {
+                  e.stopPropagation()
+                  if (!previewPhoto) return
+                  try {
+                    await updatePhoto(previewPhoto.id, { enabled: true })
+                    setPreviewPhoto(null)
+                    loadData()
+                  } catch (error) {
+                    console.error("Error unhiding photo:", error)
+                    alert("Error al desocultar la foto.")
+                  }
+                }}
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-full shadow-xl transition-transform hover:-translate-y-1 active:scale-95 font-semibold cursor-pointer"
+              >
+                <Eye className="w-5 h-5" />
+                Restaurar Foto
+              </button>
+            </div>
           </div>
         )}
       </DialogContent>
