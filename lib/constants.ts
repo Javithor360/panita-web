@@ -49,8 +49,8 @@ export const EDITIONS: FilterOption[] = [
   { id: "allthepanitas", label: "AllThePanitas" },
   { id: "panitacraft275", label: "Panitacraft 2.75" },
   { id: "panitamon", label: "Panitamon" }, 
-  { id: "panitagames", label: "Panita Games" },
   { id: "tezzlar3", label: "Tezzlar III" },
+  { id: "panitagames", label: "Panita Games" },
 ];
 
 export const RANGOS: Record<string, {name: string, color: string}> = {
