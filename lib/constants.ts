@@ -34,6 +34,8 @@ export type FilterOption = {
   iconComponent?: any; // Actual Lucide component for rendering
   color?: string; // Hex color for UI styling
   imagePath?: string; // Hardcoded custom image
+  started_at?: Date | string; // Optional start date
+  discord_role_id?: string; // Optional discord role id
 }
 
 export const EDITIONS: FilterOption[] = [
@@ -48,6 +50,7 @@ export const EDITIONS: FilterOption[] = [
   { id: "panitacraft275", label: "Panitacraft 2.75" },
   { id: "panitamon", label: "Panitamon" }, 
   { id: "panitagames", label: "Panita Games" },
+  { id: "tezzlar3", label: "Tezzlar III" },
 ];
 
 export const RANGOS: Record<string, {name: string, color: string}> = {
