@@ -129,10 +129,7 @@ export async function getPhotos(filters: GalleryFilters = {}) {
         where,
         skip,
         take: pageSize,
-        orderBy: [
-          { date_taken: 'desc' },
-          { id: 'desc' }
-        ],
+        orderBy: { created_at: 'desc' },
         include: {
           user: true,
           edition: true,
