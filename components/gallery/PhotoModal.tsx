@@ -109,7 +109,7 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
   }, [showDetails]);
 
   const handleShare = async () => {
-    const shareUrl = window.location.href;
+    const shareUrl = `${window.location.origin}/gallery?photo=${localPhoto.id}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
