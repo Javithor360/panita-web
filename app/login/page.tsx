@@ -103,7 +103,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-muted-foreground">
           ¿Necesitas ayuda?{' '}
-          <Link href="https://discord.com/channels/707103390852710491/1406385534712156301/1407906197624979466" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
+          <Link href="https://discord.com/channels/707103390852710491/707103391167545414/1516923530359607388" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
             Abre ticket
           </Link>
         </p>
