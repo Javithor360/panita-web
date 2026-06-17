@@ -24,7 +24,7 @@ model Photo {
 
 model User {
   id             Int           @id @default(autoincrement())
-  ign            String?
+  ign            String?       @unique
   discord_name   String
   discord_id     String        @unique
   password       String?
@@ -57,7 +57,7 @@ model Category {
 }
 
 model Role {
-  id              String  @id
+  id              String  @id @default(uuid())
   name            String
   color           String
   position        Int     @default(0)
@@ -88,16 +88,17 @@ model UserEdition {
 }
 
 model TicketPanel {
-  id              String   @id
-  guild_id        String
-  channel_id      String
-  message_id      String
-  title           String
-  description     String?
-  category_id     String?
-  staff_role_id   String?
-  ticket_counter  Int      @default(0)
-  tickets         Ticket[]
+  id                      String   @id
+  guild_id                String
+  channel_id              String
+  message_id              String
+  title                   String
+  description             String?
+  category_id             String?
+  staff_role_id           String?
+  ticket_counter          Int      @default(0)
+  show_panel_id_in_name   Boolean  @default(true)
+  tickets                 Ticket[]
 }
 
 model Ticket {
