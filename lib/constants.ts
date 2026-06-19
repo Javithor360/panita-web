@@ -49,7 +49,7 @@ export const EDITIONS: FilterOption[] = [
   { id: "allthepanitas", label: "AllThePanitas" },
   { id: "panitacraft275", label: "Panitacraft 2.75" },
   { id: "panitamon", label: "Panitamon" }, 
-  { id: "tezzlar3", label: "Tezzlar III" },
+  // { id: "tezzlar3", label: "Tezzlar III" },
   { id: "panitagames", label: "Panita Games" },
 ];
 
