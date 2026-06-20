@@ -38,8 +38,8 @@ export default function Home() {
           {/* CTA */}
           <div className="pt-4 flex flex-col sm:flex-row gap-4 items-center justify-center">
             <Dialog>
-              <DialogTrigger render={<Button variant="secondary" size="lg" className="h-14 gap-2 px-8 text-lg font-semibold transition-transform hover:scale-105 cursor-pointer bg-secondary/80 hover:bg-secondary/100" />}>
-                <PlayCircle className="h-5 w-5" />
+              <DialogTrigger render={<Button size="lg" className="h-14 gap-2 px-8 text-lg font-semibold transition-transform hover:scale-105 cursor-pointer bg-[#8b3122] hover:bg-[#6d251a] text-white" />}>
+                <img src="/assets/edition_logos/icon_tezzlar3.png" alt="Tezzlar 3 Logo" className="h-6 w-6 object-contain" />
                 Ver Tráiler
               </DialogTrigger>
               <DialogContent showCloseButton={false} className="max-w-[95vw] sm:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[80%] w-full p-1 sm:p-2 bg-black border-zinc-800">
