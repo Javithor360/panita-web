@@ -110,7 +110,7 @@ export default async function ProfilePage() {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src={`https://mc-heads.net/avatar/${ign}/256`}
+              src={`https://render.crafty.gg/2d/head/${ign}`}
               alt={`Avatar de ${ign}`}
               className="w-full h-full object-cover"
               style={{ imageRendering: 'pixelated' }}

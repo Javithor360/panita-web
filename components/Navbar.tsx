@@ -129,7 +129,7 @@ export function Navbar({ user }: NavbarProps) {
                       <Link href="/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-4 text-lg font-medium hover:opacity-80 transition-opacity">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
-                          src={`https://mc-heads.net/avatar/${user.ign}/128`} 
+                          src={`https://render.crafty.gg/2d/head/${user.ign}`} 
                           alt={`Skin de ${user.ign}`} 
                           className="h-8 w-8 rounded-sm" 
                         />
@@ -210,7 +210,7 @@ export function Navbar({ user }: NavbarProps) {
               <DropdownMenuTrigger className="flex items-center gap-2.5 h-10 px-2 rounded-md bg-transparent hover:bg-accent/50 cursor-pointer outline-none transition-colors">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
-                    src={`https://mc-heads.net/avatar/${user.ign}/128`} 
+                    src={`https://render.crafty.gg/2d/head/${user.ign}`} 
                     alt={`Skin de ${user.ign}`} 
                     className="h-7 w-7 rounded-full bg-black/10" 
                   />

@@ -242,7 +242,7 @@ export function PhotoModal({ photo, onClose, onNext, onPrev, canEdit = false, on
             ) : (
               <div className="flex items-center gap-2">
                 {localPhoto.authorIgn ? (
-                  <img src={`https://mc-heads.net/avatar/${localPhoto.authorIgn}`} alt={localPhoto.authorIgn} className="size-4 rounded-sm bg-black/20" />
+                  <img src={`https://render.crafty.gg/2d/head/${localPhoto.authorIgn}`} alt={localPhoto.authorIgn} className="size-4 rounded-sm bg-black/20" />
                 ) : (
                   <User className="size-4" />
                 )}

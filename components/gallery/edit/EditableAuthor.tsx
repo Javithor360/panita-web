@@ -68,7 +68,7 @@ export function EditableAuthor({
         {isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : authorIgn ? (
-          <img src={`https://mc-heads.net/avatar/${authorIgn}`} alt={authorIgn} className="size-4 rounded-sm bg-black/20 shrink-0" />
+          <img src={`https://render.crafty.gg/2d/head/${authorIgn}`} alt={authorIgn} className="size-4 rounded-sm bg-black/20 shrink-0" />
         ) : (
           <UserIcon className="size-4 shrink-0" />
         )}
@@ -117,7 +117,7 @@ export function EditableAuthor({
                 className="flex items-center gap-3 p-2 rounded-md hover:bg-white/10 text-left transition-colors cursor-pointer"
               >
                 <img 
-                  src={`https://mc-heads.net/avatar/${user.ign || 'steve'}`} 
+                  src={`https://render.crafty.gg/2d/head/${user.ign || 'steve'}`} 
                   alt={user.ign || "Avatar"} 
                   className="size-8 rounded-sm bg-black/20 shrink-0"
                 />

@@ -599,7 +599,7 @@ export function EmblemsManager() {
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-md bg-secondary overflow-hidden flex-shrink-0">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={u.ign ? `https://mc-heads.net/avatar/${u.ign}/32` : "/steve.svg"} alt="" className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
+                                <img src={u.ign ? `https://render.crafty.gg/2d/head/${u.ign}` : "/steve.svg"} alt="" className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
                               </div>
                               <div className="flex flex-col">
                                 <span className="text-sm font-medium">{u.ign || u.discord_name}</span>
@@ -635,7 +635,7 @@ export function EmblemsManager() {
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-md bg-secondary overflow-hidden flex-shrink-0">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={u.ign ? `https://mc-heads.net/avatar/${u.ign}/32` : "/steve.svg"} alt="" className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
+                                <img src={u.ign ? `https://render.crafty.gg/2d/head/${u.ign}` : "/steve.svg"} alt="" className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
                               </div>
                               <div className="flex flex-col">
                                 <span className="text-sm font-medium">{u.ign || u.discord_name}</span>

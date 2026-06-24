@@ -297,7 +297,7 @@ export function UsersManager() {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-md bg-secondary overflow-hidden flex-shrink-0 relative">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={u.ign ? `https://mc-heads.net/avatar/${u.ign}/64` : "/steve.svg"} alt={u.ign || 'Steve'} className="w-full h-full object-cover z-10 relative" style={{ imageRendering: 'pixelated' }} />
+                            <img src={u.ign ? `https://render.crafty.gg/2d/head/${u.ign}` : "/steve.svg"} alt={u.ign || 'Steve'} className="w-full h-full object-cover z-10 relative" style={{ imageRendering: 'pixelated' }} />
                             {/* Loading placeholder skeleton underneath */}
                             <div className="absolute inset-0 bg-muted animate-pulse z-0"></div>
                           </div>
@@ -337,7 +337,7 @@ export function UsersManager() {
                 <div className="flex items-center gap-4 min-w-0 w-full sm:w-auto">
                    <div className="w-16 h-16 rounded-md bg-secondary overflow-hidden shadow-md relative flex-shrink-0">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={ign ? `https://mc-heads.net/avatar/${ign}/128` : "/steve.svg"} alt={ign || 'Steve'} className="w-full h-full object-cover z-10 relative" style={{ imageRendering: 'pixelated' }} />
+                    <img src={ign ? `https://render.crafty.gg/2d/head/${ign}` : "/steve.svg"} alt={ign || 'Steve'} className="w-full h-full object-cover z-10 relative" style={{ imageRendering: 'pixelated' }} />
                     {/* Loading placeholder skeleton underneath */}
                     <div className="absolute inset-0 bg-muted animate-pulse z-0"></div>
                   </div>

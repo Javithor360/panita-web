@@ -166,7 +166,7 @@ export function PhotoCard({ id, title, author, authorIgn, tagIds = [], tags: leg
 
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-auto shrink-0">
             {authorIgn ? (
-              <img src={`https://mc-heads.net/avatar/${authorIgn}`} alt={authorIgn} className="size-3.5 rounded-sm bg-black/20 shrink-0" />
+              <img src={`https://render.crafty.gg/2d/head/${authorIgn}`} alt={authorIgn} className="size-3.5 rounded-sm bg-black/20 shrink-0" />
             ) : (
               <User className="size-3.5 shrink-0" />
             )}

@@ -169,7 +169,7 @@ export function UploadPhotoModal({ isOpen, onClose, onSuccess, editions, userIgn
                   />
                 ) : (
                   <div className="flex items-center gap-2">
-                    <img src={`https://mc-heads.net/avatar/${userIgn}`} alt={userIgn} className="size-4 rounded-sm bg-black/20" />
+                    <img src={`https://render.crafty.gg/2d/head/${userIgn}`} alt={userIgn} className="size-4 rounded-sm bg-black/20" />
                     <span>{userIgn}</span>
                   </div>
                 )}

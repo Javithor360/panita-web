@@ -77,7 +77,7 @@ export function UserCard({ user, onOpenChange, disableModal, isPanita }: UserCar
                         </div>
                       )}
                       <img 
-                        src={`https://mc-heads.net/avatar/${user.ign}/128?cors=true`} 
+                        src={`https://render.crafty.gg/2d/head/${user.ign}?cors=true`} 
                         alt={user.ign} 
                         className="h-20 w-20 rounded-md shadow-md"
                         style={{ imageRendering: 'pixelated' }}
@@ -180,7 +180,7 @@ export function UserCard({ user, onOpenChange, disableModal, isPanita }: UserCar
         <DialogHeader className="items-center sm:text-center pt-4">
           <div className="relative mb-4">
             <img 
-              src={`https://mc-heads.net/avatar/${user.ign}/256?cors=true`} 
+              src={`https://render.crafty.gg/2d/head/${user.ign}?cors=true`} 
               alt={user.ign} 
               className="h-32 w-32 rounded-lg shadow-xl ring-2 ring-primary/20"
               style={{ imageRendering: 'pixelated' }}

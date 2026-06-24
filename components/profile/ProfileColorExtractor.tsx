@@ -30,7 +30,7 @@ export function ProfileColorExtractor({ ign, fallbackColor, children }: ProfileC
         await new Promise((resolve, reject) => {
           img.onload = resolve
           img.onerror = reject
-          img.src = `https://mc-heads.net/avatar/${ign}/256`
+          img.src = `https://render.crafty.gg/2d/head/${ign}`
         })
 
         const canvas = document.createElement('canvas')
