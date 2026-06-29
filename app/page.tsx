@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Image as ImageIcon, ArrowRight } from "lucide-react"
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogClose } from "@/components/ui/dialog"
 import { CountdownTimer } from "@/components/CountdownTimer"
 
 export default function Home() {
@@ -40,34 +39,12 @@ export default function Home() {
 
           {/* CTA */}
           <div className="pt-4 flex flex-col sm:flex-row gap-4 items-center justify-center">
-            <Dialog>
-              <DialogTrigger render={<Button size="lg" className="h-14 gap-2 px-8 text-lg font-semibold transition-transform hover:scale-105 cursor-pointer bg-[#8b3122] hover:bg-[#6d251a] text-white" />}>
+            <Link href="/tezzlar3">
+              <Button size="lg" className="h-14 gap-2 px-8 text-lg font-semibold transition-transform hover:scale-105 cursor-pointer bg-[#8b3122] hover:bg-[#6d251a] text-white">
                 <img src="/assets/edition_logos/icon_tezzlar3.png" alt="Tezzlar 3 Logo" className="h-6 w-6 object-contain" />
-                Ver Tráiler
-              </DialogTrigger>
-              <DialogContent showCloseButton={false} className="max-w-[95vw] sm:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[80%] w-full p-1 sm:p-2 bg-black border-zinc-800">
-                <DialogHeader className="sr-only">
-                  <DialogTitle>Tráiler de Panitacraft</DialogTitle>
-                  <DialogDescription>Video promocional de las distintas ediciones de Panitacraft</DialogDescription>
-                </DialogHeader>
-                <div className="aspect-video w-full rounded-md overflow-hidden bg-black/50">
-                  <iframe 
-                    className="w-full h-full"
-                    src="https://www.youtube.com/embed/DgSIYtxt_jE?autoplay=1" 
-                    title="Tráiler Promocional" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    referrerPolicy="strict-origin-when-cross-origin" 
-                    allowFullScreen>
-                  </iframe>
-                </div>
-                <div className="pt-2 pb-1 flex justify-center">
-                  <DialogClose render={<Button className="bg-white !text-black hover:bg-zinc-200 hover:!text-black font-semibold px-8 cursor-pointer" />}>
-                    Cerrar
-                  </DialogClose>
-                </div>
-              </DialogContent>
-            </Dialog>
+                Tezzlar III
+              </Button>
+            </Link>
 
             <Link href="/gallery">
               <Button size="lg" className="h-14 gap-2 px-8 text-lg font-semibold transition-transform hover:scale-105 hover:bg-primary/90 cursor-pointer">

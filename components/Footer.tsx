@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ImageIcon } from "lucide-react"
 
-const DiscordIcon = ({ className }: { className?: string }) => (
+export const DiscordIcon = ({ className }: { className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 127.14 96.36" 

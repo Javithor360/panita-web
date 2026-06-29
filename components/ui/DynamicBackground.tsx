@@ -7,13 +7,15 @@ export function DynamicBackground({
   color?: string, 
   spacing?: number, 
   position?: "fixed" | "absolute",
-  pattern?: "crosses" | "squares"
+  pattern?: "crosses" | "squares" | "stars"
 }) {
   const primaryColor = color || 'var(--primary)';
   
   const svgPattern = pattern === "crosses" 
     ? `%3Csvg width='${spacing}' height='${spacing}' viewBox='0 0 ${spacing} ${spacing}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M${spacing/2} ${spacing/2 - 4}v8M${spacing/2 - 4} ${spacing/2}h8' stroke='rgba(255,255,255,0.12)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E`
-    : `%3Csvg width='${spacing}' height='${spacing}' viewBox='0 0 ${spacing} ${spacing}' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='${spacing}' height='${spacing}' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3C/svg%3E`;
+    : pattern === "squares"
+    ? `%3Csvg width='${spacing}' height='${spacing}' viewBox='0 0 ${spacing} ${spacing}' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='${spacing}' height='${spacing}' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3C/svg%3E`
+    : `%3Csvg width='${spacing}' height='${spacing}' viewBox='0 0 ${spacing} ${spacing}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${spacing/4}' cy='${spacing/4}' r='1.5' fill='%235FE2C5' opacity='0.7'/%3E%3Ccircle cx='${spacing*3/4}' cy='${spacing*3/4}' r='1' fill='%23C6DEF1' opacity='0.4'/%3E%3C/svg%3E`;
   
   return (
     <div className={`${position} inset-0 z-[-1] pointer-events-none bg-[#050505] overflow-hidden`}>

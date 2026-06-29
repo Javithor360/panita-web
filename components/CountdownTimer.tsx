@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-export function CountdownTimer() {
+interface CountdownTimerProps {
+  disableHoverEffects?: boolean;
+  plainTitle?: boolean;
+  theme?: "epic" | "cyan";
+}
+
+export function CountdownTimer({ disableHoverEffects = false, plainTitle = false, theme = "epic" }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [targetInfo, setTargetInfo] = useState({ title: "", targetDate: -1 });
   const [isMounted, setIsMounted] = useState(false);
@@ -86,13 +92,15 @@ export function CountdownTimer() {
 
   if (!isMounted || targetInfo.targetDate === -1) return null;
 
+  const isCyan = theme === "cyan";
+
   return (
-    <div className="relative flex flex-col items-center justify-center my-6 p-6 sm:p-8 rounded-2xl border border-white/10 bg-black/30 backdrop-blur-xl shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:border-white/20 hover:shadow-[0_0_40px_-10px_rgba(139,49,34,0.3)] select-none animate-in fade-in zoom-in duration-700 overflow-hidden group">
+    <div className={`relative flex flex-col items-center justify-center my-6 p-6 sm:p-8 rounded-2xl border border-white/10 bg-black/30 backdrop-blur-xl shadow-2xl select-none animate-in fade-in zoom-in duration-700 overflow-hidden ${disableHoverEffects ? "" : `group transition-all duration-500 hover:scale-[1.02] hover:border-white/20 cursor-pointer ${isCyan ? 'hover:shadow-[0_0_40px_-10px_rgba(95,226,197,0.3)]' : 'hover:shadow-[0_0_40px_-10px_rgba(139,49,34,0.3)]'}`}`}>
       
       {/* Subtle glow effect inside the box */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#8b3122]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className={`absolute inset-0 -z-10 bg-gradient-to-b opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${isCyan ? 'from-[#5FE2C5]/10' : 'from-[#8b3122]/10'} to-transparent`} />
 
-      <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#5FE2C5] via-[#C6DEF1] to-[#5FE2C5] text-transparent bg-clip-text mb-6 drop-shadow-[0_2px_4px_#0D1E40] tracking-wide">
+      <h3 className={`text-xl sm:text-2xl font-bold tracking-wide mb-6 ${plainTitle ? "text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" : "bg-gradient-to-r from-[#5FE2C5] via-[#C6DEF1] to-[#5FE2C5] text-transparent bg-clip-text drop-shadow-[0_2px_4px_#0D1E40]"}`}>
         {targetInfo.title}
       </h3>
       
@@ -105,8 +113,8 @@ export function CountdownTimer() {
             { label: "SEGUNDOS", value: timeLeft.seconds }
           ].map((item, index) => (
             <div key={item.label} className="flex flex-col items-center">
-              <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-xl border border-white/20 bg-black/40 backdrop-blur-md shadow-[0_8px_32px_0_rgba(255,255,255,0.05)] transition-all duration-1000 ease-in-out group-hover:bg-black/60 group-hover:border-[#FDE047]/40 group-hover:shadow-[inset_0_0_20px_rgba(234,179,8,0.2)]">
-                <span className="text-2xl sm:text-4xl font-bold tabular-nums tracking-tighter inline-block transform-gpu bg-gradient-to-b from-white to-white/50 group-hover:from-[#FDE047] group-hover:to-[#D97706] text-transparent bg-clip-text drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)] group-hover:drop-shadow-[0_0_30px_rgba(234,179,8,0.8)] transition-all duration-1000 ease-in-out group-hover:scale-110">
+              <div className={`flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-xl border border-white/20 bg-black/40 backdrop-blur-md shadow-[0_8px_32px_0_rgba(255,255,255,0.05)] transition-all duration-1000 ease-in-out group-hover:bg-black/60 ${isCyan ? 'group-hover:border-[#5FE2C5]/40 group-hover:shadow-[inset_0_0_20px_rgba(95,226,197,0.2)]' : 'group-hover:border-[#FDE047]/40 group-hover:shadow-[inset_0_0_20px_rgba(234,179,8,0.2)]'}`}>
+                <span className={`text-2xl sm:text-4xl font-bold tabular-nums tracking-tighter inline-block transform-gpu bg-gradient-to-b from-white to-white/50 text-transparent bg-clip-text drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)] transition-all duration-1000 ease-in-out group-hover:scale-110 ${isCyan ? 'group-hover:from-white group-hover:to-[#5FE2C5] group-hover:drop-shadow-[0_0_20px_rgba(95,226,197,0.6)]' : 'group-hover:from-[#FDE047] group-hover:to-[#D97706] group-hover:drop-shadow-[0_0_30px_rgba(234,179,8,0.8)]'}`}>
                   {item.value.toString().padStart(2, '0')}
                 </span>
               </div>
