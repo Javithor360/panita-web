@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Image as ImageIcon, ArrowRight, PlayCircle } from "lucide-react"
+import { Image as ImageIcon, ArrowRight } from "lucide-react"
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogClose } from "@/components/ui/dialog"
+import { CountdownTimer } from "@/components/CountdownTimer"
 
 export default function Home() {
   return (
@@ -34,6 +35,8 @@ export default function Home() {
               Descubre todos los recuerdos a través de las distintas ediciones. Una comunidad que perdura en el tiempo.
             </p>
           </div>
+
+          <CountdownTimer />
 
           {/* CTA */}
           <div className="pt-4 flex flex-col sm:flex-row gap-4 items-center justify-center">
