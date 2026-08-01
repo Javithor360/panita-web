@@ -115,12 +115,14 @@ export default async function AgradecimientosPage() {
   // -------------------------------------------------------------
   // Panita del Mes Logic (Deterministic Pseudo-Random)
   // -------------------------------------------------------------
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const now = new Date();
+  // Fix the cutoff to exactly the 1st day of the current month, 6 months ago.
+  // This prevents new users from reaching the 6-month mark midway through the current month.
+  const cutoffDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
 
   const eligiblePanitas = await prisma.user.findMany({
     where: {
-      joined_at: { lt: sixMonthsAgo },
+      joined_at: { lt: cutoffDate },
       roles: { 
         some: { 
           id: { not: 'default' } 
@@ -133,18 +135,34 @@ export default async function AgradecimientosPage() {
   let panitaOfTheMonth = null;
 
   if (eligiblePanitas.length > 0) {
-    // Sort consistently by ID so the list is always identical
-    eligiblePanitas.sort((a, b) => Number(a.id) - Number(b.id));
-    
-    const now = new Date();
     // Seed based on Year and Month (e.g. 202606)
     const seed = now.getFullYear() * 100 + now.getMonth();
     
-    // Simple fast seeded PRNG
-    const x = Math.sin(seed) * 10000;
-    const randomIndex = Math.floor((x - Math.floor(x)) * eligiblePanitas.length);
+    // Instead of selecting by index (which is highly sensitive to array length changes),
+    // we assign a deterministic score to each user based on their ID and the month's seed.
+    // The user with the highest score wins.
+    let maxScore = -1;
+    let panita = eligiblePanitas[0];
     
-    const panita = eligiblePanitas[randomIndex];
+    for (const user of eligiblePanitas) {
+      // Simple fast seeded PRNG
+      const x = Math.sin(Number(user.id) + seed) * 10000;
+      const score = x - Math.floor(x);
+      
+      if (score > maxScore) {
+        maxScore = score;
+        panita = user;
+      }
+    }
+
+    // Temporary override for August 2026 (Month 7, since it's 0-indexed)
+    // to preserve the previously randomly selected user.
+    if (now.getFullYear() === 2026 && now.getMonth() === 7) {
+      const forcedPanita = eligiblePanitas.find(u => u.id === 2);
+      if (forcedPanita) {
+        panita = forcedPanita;
+      }
+    }
     
     // Get highest community role (excluding staff and donators)
     const communityRoles = panita.roles
