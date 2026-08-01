@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Plus, ChevronDown, ChevronUp, ImageOff } from 'lucide-react';
-import type { Photo } from '@/app/actions/gallery';
-import { getUserPhotos } from '@/app/actions/gallery';
-import { UploadPhotoModal } from './UploadPhotoModal';
-import { PhotoModal } from '@/components/gallery/PhotoModal';
+import { useState, useEffect } from "react";
+import { Plus, ChevronDown, ChevronUp, ImageOff } from "lucide-react";
+import type { Photo } from "@/app/actions/gallery";
+import { getUserPhotos } from "@/app/actions/gallery";
+import { UploadPhotoModal } from "./UploadPhotoModal";
+import { PhotoModal } from "@/components/gallery/PhotoModal";
 import { EditionIcon } from "@/components/ui/EditionIcon";
 
 interface ProfileGalleryProps {
@@ -17,9 +17,16 @@ interface ProfileGalleryProps {
   canEdit?: boolean;
 }
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
-export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, canEdit = false }: ProfileGalleryProps) {
+export function ProfileGallery({
+  photos,
+  canUpload,
+  editions,
+  userId,
+  userIgn,
+  canEdit = false,
+}: ProfileGalleryProps) {
   const router = useRouter();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
@@ -34,48 +41,66 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
     setHasMore(photos.length === 50);
   }, [photos]);
 
-
   const allItems = [];
 
   if (canUpload) {
     allItems.push(
-      <div 
+      <div
         key="upload-card"
         onClick={() => setIsUploadOpen(true)}
         className="w-full aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-3 cursor-pointer transition-all hover:scale-[1.02] animate-in fade-in zoom-in-95 duration-500 opacity-60 hover:opacity-100 hover:bg-white/5"
-        style={{ borderColor: 'var(--profile-glow)', color: 'var(--profile-glow)' }}
+        style={{
+          borderColor: "var(--profile-glow)",
+          color: "var(--profile-glow)",
+        }}
       >
-        <div className="p-3 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--profile-glow) 20%, transparent)' }}>
+        <div
+          className="p-3 rounded-full"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--profile-glow) 20%, transparent)",
+          }}
+        >
           <Plus className="w-8 h-8" />
         </div>
         <p className="font-medium text-sm sm:text-base">Subir Foto</p>
-      </div>
+      </div>,
     );
   }
 
   loadedPhotos.forEach((photo) => {
     allItems.push(
-      <div 
+      <div
         key={photo.id}
         onClick={() => setSelectedPhoto(photo)}
         className="w-full aspect-video rounded-xl bg-card border overflow-hidden cursor-pointer group relative transition-all hover:scale-[1.02] animate-in fade-in zoom-in-95 duration-500"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img 
-          src={photo.imageUrl.replace('/upload/', '/upload/c_fill,w_600,h_338,q_auto,f_auto/')} 
+        <img
+          src={photo.imageUrl.replace(
+            "/upload/",
+            "/upload/c_fill,w_600,h_338,q_auto,f_auto/",
+          )}
           alt={photo.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-          <h3 className="text-white font-bold text-sm sm:text-base truncate drop-shadow-md">{photo.title}</h3>
+          <h3 className="text-white font-bold text-sm sm:text-base truncate drop-shadow-md">
+            {photo.title}
+          </h3>
           {photo.edition_name && (
             <div className="flex items-center gap-1.5 mt-0.5">
-              <EditionIcon editionId={photo.edition_id || ''} className="size-3.5 opacity-80" />
-              <p className="text-white/80 text-xs font-medium drop-shadow-md">{photo.edition_name}</p>
+              <EditionIcon
+                editionId={photo.edition_id || ""}
+                className="size-3.5 opacity-80"
+              />
+              <p className="text-white/80 text-xs font-medium drop-shadow-md">
+                {photo.edition_name}
+              </p>
             </div>
           )}
         </div>
-      </div>
+      </div>,
     );
   });
 
@@ -84,25 +109,41 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
 
   return (
     <div className="mt-12 w-full">
-      <div className="flex items-center justify-center gap-4 mb-8">
-        <div 
-          className="h-[1px] flex-1" 
-          style={{ background: `linear-gradient(to right, transparent, var(--profile-glow))`, opacity: 0.5 }} 
+      <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 w-full">
+        <div
+          className="h-[1px] w-full min-w-[20px]"
+          style={{
+            background: `linear-gradient(to right, transparent, var(--profile-glow))`,
+            opacity: 0.5,
+          }}
         />
-        <h2 className="text-lg tracking-tight sm:text-xl md:text-2xl font-bold text-foreground uppercase sm:tracking-wide">
-          <span className="select-none mr-3" style={{ color: 'var(--profile-glow)', opacity: 0.8 }}>✦</span>
+        <h2 className="text-lg tracking-tight sm:text-xl md:text-2xl font-bold text-foreground uppercase sm:tracking-wide shrink-0 max-w-[60%] sm:max-w-[70%] break-words text-center flex justify-center">
+          <span
+            className="select-none mr-3"
+            style={{ color: "var(--profile-glow)", opacity: 0.8 }}
+          >
+            ✦
+          </span>
           Publicaciones
-          <span className="select-none ml-3" style={{ color: 'var(--profile-glow)', opacity: 0.8 }}>✦</span>
+          <span
+            className="select-none ml-3"
+            style={{ color: "var(--profile-glow)", opacity: 0.8 }}
+          >
+            ✦
+          </span>
         </h2>
-        <div 
-          className="h-[1px] flex-1" 
-          style={{ background: `linear-gradient(to left, transparent, var(--profile-glow))`, opacity: 0.5 }} 
+        <div
+          className="h-[1px] w-full min-w-[20px]"
+          style={{
+            background: `linear-gradient(to left, transparent, var(--profile-glow))`,
+            opacity: 0.5,
+          }}
         />
       </div>
 
       <div className="relative w-full max-w-5xl mx-auto">
         {totalItems > 0 ? (
-          <div 
+          <div
             className="relative transition-[max-height] duration-700 ease-in-out overflow-hidden"
             style={{ maxHeight: `${Math.ceil(visibleCount / 2) * 500}px` }}
           >
@@ -116,12 +157,14 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
             )}
           </div>
         ) : (
-          <div 
+          <div
             className="flex flex-col items-center justify-center py-12"
-            style={{ color: 'var(--profile-glow)' }}
+            style={{ color: "var(--profile-glow)" }}
           >
             <ImageOff className="w-16 h-16 mb-4 opacity-40 drop-shadow-md" />
-            <p className="text-sm font-medium opacity-80">Sin registros de publicaciones hasta la fecha.</p>
+            <p className="text-sm font-medium opacity-80">
+              Sin registros de publicaciones hasta la fecha.
+            </p>
           </div>
         )}
 
@@ -129,40 +172,49 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
         {(totalItems > 6 || hasMore) && (
           <div className="mt-8 flex justify-center gap-2 sm:gap-4 relative z-10">
             {(visibleCount < totalItems || hasMore) && (
-              <button 
+              <button
                 onClick={async () => {
                   const nextVisibleCount = visibleCount + 9;
-                  const neededPhotos = canUpload ? nextVisibleCount - 1 : nextVisibleCount;
-                  
+                  const neededPhotos = canUpload
+                    ? nextVisibleCount - 1
+                    : nextVisibleCount;
+
                   if (neededPhotos > loadedPhotos.length && hasMore) {
                     setIsLoadingMore(true);
                     try {
-                      const morePhotos = await getUserPhotos(userId, loadedPhotos.length, 50);
+                      const morePhotos = await getUserPhotos(
+                        userId,
+                        loadedPhotos.length,
+                        50,
+                      );
                       if (morePhotos.length < 50) {
                         setHasMore(false);
                       }
-                      setLoadedPhotos(prev => [...prev, ...morePhotos]);
+                      setLoadedPhotos((prev) => [...prev, ...morePhotos]);
                     } catch (error) {
-                      console.error('Error cargando más fotos:', error);
+                      console.error("Error cargando más fotos:", error);
                     } finally {
                       setIsLoadingMore(false);
                     }
                   }
-                  
+
                   setVisibleCount(nextVisibleCount);
                 }}
                 disabled={isLoadingMore}
-                className={`flex items-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-base py-2 sm:py-2.5 px-3 sm:px-6 rounded-full shadow-lg transition-all hover:-translate-y-1 hover:brightness-110 active:scale-95 cursor-pointer ${isLoadingMore ? 'opacity-70 cursor-not-allowed hover:translate-y-0' : ''}`}
-                style={{ backgroundColor: 'var(--profile-glow)', color: 'var(--profile-glow-text)' }}
+                className={`flex items-center gap-1.5 sm:gap-2 font-bold text-xs sm:text-base py-2 sm:py-2.5 px-3 sm:px-6 rounded-full shadow-lg transition-all hover:-translate-y-1 hover:brightness-110 active:scale-95 cursor-pointer ${isLoadingMore ? "opacity-70 cursor-not-allowed hover:translate-y-0" : ""}`}
+                style={{
+                  backgroundColor: "var(--profile-glow)",
+                  color: "var(--profile-glow-text)",
+                }}
               >
-                {isLoadingMore ? 'Cargando...' : 'Mostrar más'}
+                {isLoadingMore ? "Cargando..." : "Mostrar más"}
                 {!isLoadingMore && <ChevronDown className="size-3 sm:size-4" />}
               </button>
             )}
-            
+
             {visibleCount > 6 && (
-              <button 
-                onClick={() => setVisibleCount(v => Math.max(6, v - 9))}
+              <button
+                onClick={() => setVisibleCount((v) => Math.max(6, v - 9))}
                 className="flex items-center gap-1.5 sm:gap-2 bg-card border border-border hover:bg-card/80 text-card-foreground font-bold text-xs sm:text-base py-2 sm:py-2.5 px-3 sm:px-6 rounded-full shadow-md transition-all hover:-translate-y-1 active:scale-95 cursor-pointer"
               >
                 Mostrar menos
@@ -173,7 +225,7 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
         )}
       </div>
 
-      <UploadPhotoModal 
+      <UploadPhotoModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
         onSuccess={() => {
@@ -188,16 +240,21 @@ export function ProfileGallery({ photos, canUpload, editions, userId, userIgn, c
       />
 
       {selectedPhoto && (
-        <PhotoModal 
-          photo={selectedPhoto} 
-          onClose={() => setSelectedPhoto(null)} 
+        <PhotoModal
+          photo={selectedPhoto}
+          onClose={() => setSelectedPhoto(null)}
           canEdit={canEdit}
           onNext={() => {
-            const idx = loadedPhotos.findIndex(p => p.id === selectedPhoto.id);
-            if (idx < loadedPhotos.length - 1) setSelectedPhoto(loadedPhotos[idx + 1]);
+            const idx = loadedPhotos.findIndex(
+              (p) => p.id === selectedPhoto.id,
+            );
+            if (idx < loadedPhotos.length - 1)
+              setSelectedPhoto(loadedPhotos[idx + 1]);
           }}
           onPrev={() => {
-            const idx = loadedPhotos.findIndex(p => p.id === selectedPhoto.id);
+            const idx = loadedPhotos.findIndex(
+              (p) => p.id === selectedPhoto.id,
+            );
             if (idx > 0) setSelectedPhoto(loadedPhotos[idx - 1]);
           }}
         />

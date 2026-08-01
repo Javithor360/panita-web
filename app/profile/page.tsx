@@ -23,6 +23,7 @@ import { ProfileGallery } from "@/components/profile/ProfileGallery";
 import { ProfileTrajectory } from "@/components/profile/ProfileTrajectory";
 import { EditionIcon } from "@/components/ui/EditionIcon";
 import { getUserPhotos } from "@/app/actions/gallery";
+import { ProfileForms } from "@/components/profile/ProfileForms";
 
 export default async function ProfilePage() {
   const session = await getSession();
@@ -56,13 +57,21 @@ export default async function ProfilePage() {
     redirect('/login');
   }
 
-  const [photos, editions] = await Promise.all([
+  const [photos, editions, forms] = await Promise.all([
     getUserPhotos(user.id),
     prisma.edition.findMany({ 
       orderBy: [
         { started_at: { sort: 'desc', nulls: 'last' } },
         { name: 'asc' }
       ] 
+    }),
+    prisma.form.findMany({
+      orderBy: { created_at: 'desc' },
+      include: {
+        responses: {
+          where: { user_id: user.id }
+        }
+      }
     })
   ]);
 
@@ -273,6 +282,8 @@ export default async function ProfilePage() {
             userIgn={ign}
             canEdit={!!user.trusted_author && userRoles.some((r: any) => r.id === 'admin' || r.id === 'mod')}
           />
+
+          <ProfileForms forms={forms} />
 
           {/* Panel de Administrador */}
           {userRoles.some((r: any) => r.id === 'admin' || r.id === 'mod') && (
