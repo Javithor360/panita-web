@@ -34,13 +34,14 @@ const STAFF_DESCRIPTIONS: Record<string, string> = {
 
 const DONATOR_DESCRIPTIONS: Record<string, string> = {
   2: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li></ul>",
-  3: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li></ul>",
-  10: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>AllThePanitas</li><li>Panitacraft 2.75</li></ul>",
+  3: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li><li>Tezzlar III</li></ul>",
+  10: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>AllThePanitas</li><li>Panitacraft 2.75</li><li>Tezzlar III</li></ul>",
   15: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>AllThePanitas</li></ul>",
-  16: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Tezzlar</li><li>Panitacraft 2.75</li></ul>",
-  17: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li><li>Panitamon</li></ul>",
-  19: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li></ul>",
+  16: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Tezzlar</li><li>Panitacraft 2.75</li><li>Tezzlar III</li></ul>",
+  17: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li><li>Panitamon</li><li>Tezzlar III</li></ul>",
+  19: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li><li>Tezzlar III</li></ul>",
   39: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Panitacraft 2.75</li></ul>",
+  111: "<p class='text-center'>Ha dejado su aporte para el mantenimiento y seguimiento de Panitacraft en las siguientes ediciones:</p><br><ul><li>Tezzlar III</li></ul>",
 };
 
 // Default descriptions
