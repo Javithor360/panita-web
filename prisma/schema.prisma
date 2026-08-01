@@ -35,13 +35,16 @@ model User {
   photos         Photo[]
   editions       UserEdition[]
   emblems        Emblem[]      @relation("EmblemToUser")
-  roles          Role[]        @relation("RoleToUser")
+  roles          Role[]         @relation("RoleToUser")
+  forms          Form[]         @relation("FormCreator")
+  form_responses FormResponse[] @relation("UserFormResponses")
 }
 
 model Edition {
   id              String        @id
   name            String
   started_at      DateTime?
+  ended_at        DateTime?
   discord_role_id String?       @unique
   emblems         Emblem[]
   photos          Photo[]
@@ -118,5 +121,69 @@ model Tag {
   media_urls String[]
   author_id  String
   created_at DateTime @default(now())
+}
+
+// ---------------------------------------------------------
+// FORMS / SURVEYS SYSTEM
+// ---------------------------------------------------------
+
+model Form {
+  id            String         @id @default(uuid())
+  slug          String         @unique
+  title         String
+  description   String?
+  is_open       Boolean        @default(false)
+  require_login Boolean        @default(true)
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  creator_id    Int
+  creator       User           @relation("FormCreator", fields: [creator_id], references: [id])
+  sections      FormSection[]
+  responses     FormResponse[]
+}
+
+model FormSection {
+  id          String         @id @default(uuid())
+  form_id     String
+  title       String?
+  description String?
+  position    Int            @default(0)
+  form        Form           @relation(fields: [form_id], references: [id], onDelete: Cascade)
+  questions   FormQuestion[]
+}
+
+model FormQuestion {
+  id          String       @id @default(uuid())
+  section_id  String
+  title       String
+  description String?
+  type        String       // SHORT_TEXT, LONG_TEXT, SINGLE_CHOICE, MULTIPLE_CHOICE, DROPDOWN
+  is_required Boolean      @default(false)
+  position    Int          @default(0)
+  options     Json?        // Array of strings to store choices
+  section     FormSection  @relation(fields: [section_id], references: [id], onDelete: Cascade)
+  answers     FormAnswer[]
+}
+
+model FormResponse {
+  id         String       @id @default(uuid())
+  form_id    String
+  user_id    Int
+  created_at DateTime     @default(now())
+  form       Form         @relation(fields: [form_id], references: [id], onDelete: Cascade)
+  user       User         @relation("UserFormResponses", fields: [user_id], references: [id], onDelete: Cascade)
+  answers    FormAnswer[]
+
+  @@unique([form_id, user_id])
+}
+
+model FormAnswer {
+  id          String       @id @default(uuid())
+  response_id String
+  question_id String
+  value       String?      
+  values      String[]     
+  response    FormResponse @relation(fields: [response_id], references: [id], onDelete: Cascade)
+  question    FormQuestion @relation(fields: [question_id], references: [id], onDelete: Cascade)
 }
 
