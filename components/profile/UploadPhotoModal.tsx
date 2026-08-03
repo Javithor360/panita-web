@@ -768,7 +768,7 @@ export function UploadPhotoModal({
                           <span className="text-xs text-white/40">
                             {videoFile
                               ? videoFile.name
-                              : "MP4, WebM — máx. 500 MB"}
+                              : "MP4, WebM — máx. 4.5 MB"}
                           </span>
                         </div>
                       </div>

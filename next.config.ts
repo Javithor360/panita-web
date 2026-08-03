@@ -24,8 +24,8 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      // Increased to support large video file uploads (up to 500 MB).
-      bodySizeLimit: '500mb',
+      // Increased to support large video file uploads (up to 4.5 MB).
+      bodySizeLimit: '4.5mb',
     },
   },
 };
