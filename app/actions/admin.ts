@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import type { User as PrismaUser, Role, Emblem, Edition, UserEdition } from "@/lib/generated/prisma/client"
 import { v2 as cloudinary } from 'cloudinary';
+import { deleteYouTubeVideo } from '@/lib/youtube';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -366,10 +367,17 @@ export async function deleteHiddenPhotosBulk(ids: string[]) {
     where: { id: { in: ids } }
   })
   
-  // Delete from Cloudinary
+  // Delete from Cloudinary and YouTube
   const deletePromises = photos.map(async (photo) => {
     try {
-      if (photo.url.includes('res.cloudinary.com')) {
+      // If it's a video, delete it from YouTube
+      // Check for photo.media_type via Prisma generated type (might need a cast if Prisma types haven't regenerated, but it exists in DB)
+      const mediaType = (photo as any).media_type || 'image';
+      const youtubeId = (photo as any).youtube_id;
+      
+      if (mediaType === 'video' && youtubeId) {
+        await deleteYouTubeVideo(youtubeId);
+      } else if (photo.url.includes('res.cloudinary.com')) {
         const urlParts = photo.url.split('/upload/');
         if (urlParts.length > 1) {
           // Remove version if present and extension
@@ -379,7 +387,7 @@ export async function deleteHiddenPhotosBulk(ids: string[]) {
         }
       }
     } catch (e) {
-      console.error(`Error eliminando foto de Cloudinary: ${photo.url}`, e);
+      console.error(`Error eliminando medio (${photo.url}):`, e);
     }
   });
   

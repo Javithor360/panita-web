@@ -11,6 +11,8 @@ export interface GalleryFilters {
   years?: string[];
   search?: string | null;
   randomSeed?: number | null;
+  /** Filter by media type. Defaults to 'image' to preserve backward compatibility. */
+  mediaType?: 'all' | 'image' | 'video';
 }
 
 export interface Photo {
@@ -20,12 +22,17 @@ export interface Photo {
   author: string;
   authorIgn?: string | null;
   tagIds: string[];
+  /** For images: Cloudinary URL. For videos: YouTube thumbnail URL. */
   imageUrl: string;
   date_taken: Date | null;
   edition_id: string | null;
   edition_name: string | null;
   enabled: boolean;
   authorId: number | null;
+  /** Distinguishes photo vs video entries. */
+  media_type: 'image' | 'video';
+  /** YouTube video ID, only present when media_type is 'video'. */
+  youtube_id?: string | null;
 }
 
 export async function getPhotos(filters: GalleryFilters = {}) {
@@ -36,19 +43,20 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       editionIds = [], 
       categoryIds = [],
       years = [],
-      search 
+      search,
+      // Default to 'image' for backward compatibility with existing gallery behavior.
+      mediaType = 'image',
     } = filters;
 
     const skip = (page - 1) * pageSize;
 
-    // Construct the where clause dynamically
-    const where: Prisma.PhotoWhereInput = {
-      enabled: true,
-      NOT: [
-        { url: { endsWith: '.mp4', mode: 'insensitive' } },
-        { url: { endsWith: '.webm', mode: 'insensitive' } }
-      ]
-    };
+    // Construct the where clause dynamically.
+    const where: Prisma.PhotoWhereInput = { enabled: true };
+
+    // Apply media type filter.
+    if (mediaType !== 'all') {
+      where.media_type = mediaType;
+    }
 
     if (editionIds.length > 0) {
       where.edition_id = { in: editionIds };
@@ -154,7 +162,9 @@ export async function getPhotos(filters: GalleryFilters = {}) {
       edition_id: photo.edition_id,
       edition_name: photo.edition?.name || null,
       enabled: photo.enabled,
-      authorId: photo.user_id
+      authorId: photo.user_id,
+      media_type: (photo.media_type as 'image' | 'video') ?? 'image',
+      youtube_id: photo.youtube_id ?? null,
     }));
 
     return {
@@ -203,7 +213,9 @@ export async function getPhotoById(id: string): Promise<Photo | null> {
       edition_id: photo.edition_id,
       edition_name: photo.edition?.name || null,
       enabled: photo.enabled,
-      authorId: photo.user_id
+      authorId: photo.user_id,
+      media_type: (photo.media_type as 'image' | 'video') ?? 'image',
+      youtube_id: photo.youtube_id ?? null,
     };
   } catch (error) {
     console.error(`Error fetching photo by id ${id}:`, error);
@@ -264,10 +276,8 @@ export async function getUserPhotos(userId: number, skip: number = 0, take: numb
       where: { 
         user_id: userId,
         enabled: true,
-        NOT: [
-          { url: { endsWith: '.mp4', mode: 'insensitive' } },
-          { url: { endsWith: '.webm', mode: 'insensitive' } }
-        ]
+        // Include both images and videos on the profile page.
+        media_type: { in: ['image', 'video'] },
       },
       orderBy: { created_at: 'desc' },
       skip,
@@ -288,10 +298,12 @@ export async function getUserPhotos(userId: number, skip: number = 0, take: numb
       authorId: p.user_id,
       tagIds: p.categories.map(c => c.id),
       imageUrl: p.url,
-        date_taken: p.date_taken,
+      date_taken: p.date_taken,
       edition_id: p.edition_id,
       edition_name: p.edition?.name || 'Desconocida',
-      enabled: p.enabled
+      enabled: p.enabled,
+      media_type: (p.media_type as 'image' | 'video') ?? 'image',
+      youtube_id: p.youtube_id ?? null,
     }));
   } catch (error) {
     console.error("Error fetching user photos:", error);
