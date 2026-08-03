@@ -63,7 +63,7 @@ export function ProfileGallery({
         >
           <Plus className="w-8 h-8" />
         </div>
-        <p className="font-medium text-sm sm:text-base">Subir Foto</p>
+        <p className="font-medium text-sm sm:text-base">Subir Contenido</p>
       </div>,
     );
   }
