@@ -17,6 +17,8 @@ model Photo {
   user_id     Int?
   edition_id  String?
   title       String?
+  media_type  String     @default("image")  // "image" | "video"
+  youtube_id  String?                        // YouTube video ID (only for media_type = "video")
   edition     Edition?   @relation(fields: [edition_id], references: [id])
   user        User?      @relation(fields: [user_id], references: [id])
   categories  Category[] @relation("CategoryToPhoto")
