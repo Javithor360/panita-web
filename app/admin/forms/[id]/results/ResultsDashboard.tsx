@@ -131,6 +131,53 @@ const CustomTooltip = ({ active, payload, label, totalValues }: any) => {
   return null;
 };
 
+const PAGE_SIZE = 10;
+
+function TextAnswersList({ answers }: { answers: any[] }) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(answers.length / PAGE_SIZE);
+  const pageAnswers = answers.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const start = page * PAGE_SIZE + 1;
+  const end = Math.min((page + 1) * PAGE_SIZE, answers.length);
+
+  return (
+    <div className="flex flex-col gap-2">
+      {pageAnswers.map((ans: any, i: number) => (
+        <div
+          key={i}
+          className="bg-secondary/20 hover:bg-secondary/40 transition-colors px-4 py-3 rounded-xl border border-border/60 text-sm text-foreground/90 leading-relaxed relative overflow-hidden shadow-sm group"
+        >
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-violet-500/40 group-hover:bg-violet-500 transition-colors" />
+          {ans.value}
+        </div>
+      ))}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-3 px-1">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-secondary/30 hover:bg-secondary/60 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          >
+            ← Anterior
+          </button>
+          <span className="text-xs text-muted-foreground">
+            Mostrando {start}–{end} de {answers.length} respuestas
+            <span className="ml-2 text-muted-foreground/60">· Pág. {page + 1}/{totalPages}</span>
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page === totalPages - 1}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-secondary/30 hover:bg-secondary/60 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ResultsDashboard({ form }: { form: any }) {
   const [activeTab, setActiveTab] = useState<"summary" | "individual">(
     "summary",
@@ -260,13 +307,11 @@ export function ResultsDashboard({ form }: { form: any }) {
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   };
 
-  // Text answers logic
+  // Text answers logic — returns ALL non-empty answers for text questions
   const getTextAnswers = (q: any) => {
     if (["SINGLE_CHOICE", "MULTIPLE_CHOICE", "DROPDOWN"].includes(q.type))
       return null;
-    return q.answers
-      .filter((a: any) => a.value && a.value.trim() !== "")
-      .slice(0, 10);
+    return q.answers.filter((a: any) => a.value && a.value.trim() !== "");
   };
 
   return (
@@ -585,23 +630,7 @@ export function ResultsDashboard({ form }: { form: any }) {
                         )}
 
                         {texts && texts.length > 0 && (
-                          <div className="flex flex-col gap-2">
-                            {texts.map((ans: any, i: number) => (
-                              <div
-                                key={i}
-                                className="bg-secondary/20 hover:bg-secondary/40 transition-colors px-4 py-3 rounded-xl border border-border/60 text-sm text-foreground/90 leading-relaxed relative overflow-hidden shadow-sm group"
-                              >
-                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-violet-500/40 group-hover:bg-violet-500 transition-colors" />
-                                {ans.value}
-                              </div>
-                            ))}
-                            {q.answers.length > 10 && (
-                              <p className="text-xs text-muted-foreground text-center mt-2">
-                                Mostrando las últimas 10 respuestas de{" "}
-                                {q.answers.length}
-                              </p>
-                            )}
-                          </div>
+                          <TextAnswersList answers={texts} />
                         )}
 
                         {texts && texts.length === 0 && (
