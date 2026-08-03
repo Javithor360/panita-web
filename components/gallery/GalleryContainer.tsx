@@ -164,6 +164,7 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [years, setYears] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [mediaType, setMediaType] = useState<'all' | 'image' | 'video'>('all');
   
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -235,7 +236,8 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
         categoryIds,
         years,
         search: debouncedSearch,
-        randomSeed
+        randomSeed,
+        mediaType,
       };
       const result = await getPhotos(filters);
       setPhotos(result.photos);
@@ -245,7 +247,7 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
     };
 
     fetchPhotos();
-  }, [page, pageSize, editionIds, categoryIds, years, debouncedSearch, randomSeed]);
+  }, [page, pageSize, editionIds, categoryIds, years, debouncedSearch, randomSeed, mediaType]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -268,6 +270,12 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
 
   const handleYearToggle = (y: string) => {
     setYears(prev => prev.includes(y) ? prev.filter(item => item !== y) : [...prev, y]);
+    setPage(1);
+    setRandomSeed(null);
+  };
+
+  const handleMediaTypeChange = (type: 'all' | 'image' | 'video') => {
+    setMediaType(type);
     setPage(1);
     setRandomSeed(null);
   };
@@ -309,9 +317,11 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
           activeEditions={editionIds}
           activeCategories={categoryIds}
           activeYears={years}
+          activeMediaType={mediaType}
           onEditionToggle={handleEditionToggle}
           onCategoryToggle={handleCategoryToggle}
           onYearToggle={handleYearToggle}
+          onMediaTypeChange={handleMediaTypeChange}
         />
         
         <div className="flex-1 flex flex-col gap-4 min-w-0">
@@ -345,9 +355,11 @@ export function GalleryContainer({ canEdit = false }: { canEdit?: boolean }) {
                 activeEditions={editionIds}
                 activeCategories={categoryIds}
                 activeYears={years}
+                activeMediaType={mediaType}
                 onEditionToggle={handleEditionToggle}
                 onCategoryToggle={handleCategoryToggle}
                 onYearToggle={handleYearToggle}
+                onMediaTypeChange={handleMediaTypeChange}
               />
             </div>
 

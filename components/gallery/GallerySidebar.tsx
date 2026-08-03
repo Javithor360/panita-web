@@ -13,23 +13,56 @@ interface GallerySidebarProps {
   activeEditions?: string[];
   activeCategories?: string[];
   activeYears?: string[];
+  activeMediaType?: 'all' | 'image' | 'video';
   onEditionToggle?: (id: string) => void;
   onCategoryToggle?: (id: string) => void;
   onYearToggle?: (year: string) => void;
+  onMediaTypeChange?: (type: 'all' | 'image' | 'video') => void;
 }
 
 export function GallerySidebar({
   activeEditions = [],
   activeCategories = [],
   activeYears = [],
+  activeMediaType = 'all',
   onEditionToggle,
   onCategoryToggle,
-  onYearToggle
+  onYearToggle,
+  onMediaTypeChange,
 }: GallerySidebarProps) {
+  const MEDIA_TYPE_OPTIONS: { id: 'all' | 'image' | 'video'; label: string }[] = [
+    { id: 'all', label: 'Todos' },
+    { id: 'image', label: 'Fotos' },
+    { id: 'video', label: 'Videos' },
+  ];
+
   return (
     <aside className="hidden md:flex flex-col w-[200px] xl:w-[240px] shrink-0 gap-4 xl:gap-6 pb-10">
       
       <Accordion multiple defaultValue={DEFAULT_OPEN} className="w-full flex flex-col gap-3 xl:gap-4 ">
+        {/* Format / Media Type Filter */}
+        <AccordionItem value="format" className="border border-white/5 bg-background/60 backdrop-blur-md rounded-[0.5rem] px-3 xl:px-4 py-1">
+          <AccordionTrigger className="hover:no-underline py-2 xl:py-3 text-base xl:text-lg font-bold text-foreground transition-colors">
+            Formato
+          </AccordionTrigger>
+          <AccordionContent className="pt-1 xl:pt-2 pb-2 xl:pb-3 flex flex-col gap-1">
+            {MEDIA_TYPE_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => onMediaTypeChange?.(opt.id)}
+                className={cn(
+                  "flex items-center space-x-2 xl:space-x-3 w-full px-2 xl:px-3 py-1.5 xl:py-2 rounded-md transition-all text-xs xl:text-sm cursor-pointer",
+                  activeMediaType === opt.id
+                    ? "bg-primary/20 text-primary font-semibold"
+                    : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
+                )}
+              >
+                <span>{opt.label}</span>
+              </button>
+            ))}
+          </AccordionContent>
+        </AccordionItem>
+
         {/* Editions Filter */}
         <AccordionItem value="editions" className="border border-white/5 bg-background/60 backdrop-blur-md rounded-[0.5rem] px-3 xl:px-4 py-1">
           <AccordionTrigger className="hover:no-underline py-2 xl:py-3 text-base xl:text-lg font-bold text-foreground transition-colors">

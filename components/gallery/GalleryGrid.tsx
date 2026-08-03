@@ -2,7 +2,7 @@ import { PhotoCard } from "./PhotoCard";
 import { Loader2 } from "lucide-react";
 
 interface GalleryGridProps {
-  photos: Array<{ id: string, title: string, author: string, tagIds: string[], imageUrl: string }>;
+  photos: Array<{ id: string, title: string, author: string, authorIgn?: string | null, tagIds: string[], imageUrl: string, media_type?: 'image' | 'video', youtube_id?: string | null }>;
   loading?: boolean;
 }
 
@@ -60,10 +60,12 @@ export function GalleryGrid({ photos, loading }: GalleryGridProps) {
             authorIgn={(photo as any).authorIgn}
             tagIds={photo.tagIds}
             imageUrl={photo.imageUrl}
-            priority={i < 4} 
+            priority={i < 4}
+            mediaType={photo.media_type ?? 'image'}
           />
         ))}
       </div>
     </div>
   );
 }
+

@@ -15,19 +15,28 @@ interface MobileFilterSheetProps {
   activeEditions?: string[];
   activeCategories?: string[];
   activeYears?: string[];
+  activeMediaType?: 'all' | 'image' | 'video';
   onEditionToggle?: (id: string) => void;
   onCategoryToggle?: (id: string) => void;
   onYearToggle?: (year: string) => void;
+  onMediaTypeChange?: (type: 'all' | 'image' | 'video') => void;
 }
 
 export function MobileFilterSheet({
   activeEditions = [],
   activeCategories = [],
   activeYears = [],
+  activeMediaType = 'all',
   onEditionToggle,
   onCategoryToggle,
-  onYearToggle
+  onYearToggle,
+  onMediaTypeChange,
 }: MobileFilterSheetProps) {
+  const MEDIA_TYPE_OPTIONS: { id: 'all' | 'image' | 'video'; label: string }[] = [
+    { id: 'all', label: 'Todos' },
+    { id: 'image', label: 'Fotos' },
+    { id: 'video', label: 'Videos' },
+  ];
   return (
     <Sheet>
       <SheetTrigger className="md:hidden flex-1 flex justify-center items-center gap-2 bg-background/60 backdrop-blur-md border border-white/5 text-sm rounded-md px-4 py-2 text-foreground font-medium hover:bg-white/5 transition-colors focus:outline-none focus:ring-1 focus:ring-primary h-[38px]">
@@ -44,6 +53,29 @@ export function MobileFilterSheet({
         
         <div className="flex-1 overflow-y-auto px-6 pb-10 overscroll-contain">
           <Accordion multiple defaultValue={DEFAULT_OPEN} className="w-full flex flex-col gap-4">
+          {/* Format / Media Type Filter */}
+          <AccordionItem value="format" className="border border-white/5 bg-background/60 backdrop-blur-md rounded-[0.5rem] px-4 py-1">
+            <AccordionTrigger className="hover:no-underline py-3 text-lg font-bold text-foreground transition-colors">
+              Formato
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-3 flex flex-col gap-1">
+              {MEDIA_TYPE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => onMediaTypeChange?.(opt.id)}
+                  className={cn(
+                    "flex items-center space-x-3 w-full px-3 py-2 rounded-md transition-all text-sm cursor-pointer",
+                    activeMediaType === opt.id
+                      ? "bg-primary/20 text-primary font-semibold"
+                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground font-medium"
+                  )}
+                >
+                  <span>{opt.label}</span>
+                </button>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+
           {/* Editions Filter */}
           <AccordionItem value="editions" className="border border-white/5 bg-background/60 backdrop-blur-md rounded-[0.5rem] px-4 py-1">
             <AccordionTrigger className="hover:no-underline py-3 text-lg font-bold text-foreground transition-colors">
