@@ -44,10 +44,31 @@ export async function generateMetadata(
               type: 'image/jpeg',
             },
           ],
+          videos: photo.media_type === 'video' && photo.youtube_id ? [
+            {
+              url: `https://www.youtube.com/embed/${photo.youtube_id}`,
+              width: 1280,
+              height: 720,
+              type: 'text/html',
+            }
+          ] : undefined,
           locale: 'es_ES',
-          type: 'website',
+          type: photo.media_type === 'video' ? 'video.other' : 'website',
         },
-        twitter: {
+        twitter: photo.media_type === 'video' && photo.youtube_id ? {
+          card: 'player',
+          title: photo.title,
+          description,
+          images: [ogImageUrl],
+          players: [
+            {
+              playerUrl: `https://www.youtube.com/embed/${photo.youtube_id}`,
+              streamUrl: `https://www.youtube.com/embed/${photo.youtube_id}`,
+              width: 1280,
+              height: 720,
+            }
+          ]
+        } : {
           card: 'summary_large_image',
           title: photo.title,
           description,
