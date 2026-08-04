@@ -2,20 +2,27 @@
 
 import { useState, useRef } from "react";
 import { EditionIcon } from "@/components/ui/EditionIcon";
-import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
+import { EditionHistoryModal } from "./EditionHistoryModal";
+import { ChevronUp, MapPin, Info } from "lucide-react";
 
 interface UserEdition {
   id: string;
   joined_at: Date | null;
+  history_text: string | null;
   edition: {
     id: string;
     name: string;
     started_at: Date | null;
+    ended_at: Date | null;
+    synopsis: string | null;
+    theme_color: string | null;
   };
 }
 
 interface ProfileTrajectoryProps {
   userEditions: UserEdition[];
+  titles?: any[];
+  userName: string;
 }
 
 function TrajectoryNode({
@@ -23,11 +30,15 @@ function TrajectoryNode({
   index,
   isFirst,
   expandAction,
+  onOpenHistory,
+  editionTitles = [],
 }: {
   ue: UserEdition;
   index: number;
   isFirst: boolean;
   expandAction?: { onExpand: () => void; count: number };
+  onOpenHistory: (ue: UserEdition) => void;
+  editionTitles?: any[];
 }) {
   const isEven = index % 2 === 0;
   let formattedDate = null;
@@ -55,7 +66,6 @@ function TrajectoryNode({
     const monthName = monthNames[parseInt(monthNum, 10) - 1];
     formattedDate = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} de ${year}`;
   }
-  const nameLen = ue.edition.name.length;
 
   return (
     <div
@@ -63,7 +73,7 @@ function TrajectoryNode({
         isEven ? "md:flex-row" : "md:flex-row-reverse"
       }`}
     >
-      {/* Etiqueta y Flecha de "Aquí inicia tu aventura" */}
+      {/* Label and Arrow of "Here begins your adventure" */}
       {isFirst && (
         <div
           className="hidden md:flex absolute -top-16 right-4 md:top-1/2 md:-translate-y-[100%] md:right-auto md:left-[calc(50%+2.5rem)] items-center gap-2 pointer-events-none z-20 -rotate-2"
@@ -89,7 +99,7 @@ function TrajectoryNode({
         </div>
       )}
 
-      {/* Portal Mágico para Expandir */}
+      {/* Magic portal to expand */}
       {expandAction && (
         <button
           onClick={expandAction.onExpand}
@@ -109,7 +119,7 @@ function TrajectoryNode({
         </button>
       )}
 
-      {/* Nodo en la línea (círculo) */}
+      {/* Node */}
       <div
         className={`absolute left-8 md:left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-4 h-4 rounded-full border-2 border-background bg-[var(--profile-glow)] transition-all duration-500 group-hover:scale-150 ${expandAction ? "animate-pulse" : ""}`}
         style={{
@@ -117,14 +127,28 @@ function TrajectoryNode({
         }}
       />
 
-      {/* Tarjeta de la edición */}
+      {/* Edition card */}
       <div
         className={`w-full md:w-1/2 pl-20 md:pl-0 flex py-2 ${isEven ? "md:justify-end" : "md:justify-start"}`}
       >
-        <div
-          className="w-full sm:w-[320px] flex items-center gap-4 p-4 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 transition-all duration-300 group-hover:bg-black/40 group-hover:border-white/20 hover:-translate-y-1"
-          style={{ boxShadow: "0 10px 30px -15px rgba(0,0,0,0.5)" }}
+        <button
+          onClick={() => onOpenHistory(ue)}
+          className="w-full sm:w-[320px] flex items-center gap-4 p-4 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 transition-all duration-300 group-hover:bg-black/40 group-hover:border-white/20 hover:-translate-y-1 cursor-pointer relative text-left"
+          style={{
+            boxShadow: ue.history_text
+              ? `0 10px 30px -15px ${ue.edition.theme_color || "rgba(0,0,0,0.5)"}`
+              : "0 10px 30px -15px rgba(0,0,0,0.5)",
+            borderColor: ue.history_text
+              ? `color-mix(in srgb, ${ue.edition.theme_color || "var(--profile-glow)"} 30%, transparent)`
+              : "rgba(255,255,255,0.1)",
+          }}
         >
+          {ue.history_text && (
+            <div className="absolute top-4 right-4 flex items-center justify-center pointer-events-none">
+              <div className="absolute inset-0 rounded-full animate-ping opacity-40 bg-[var(--profile-glow)]" />
+              <Info className="w-5 h-5 text-[var(--profile-glow)] drop-shadow-md relative z-10" />
+            </div>
+          )}
           <div className="shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/5 rounded-xl p-2 flex items-center justify-center shadow-inner">
             <EditionIcon
               editionId={ue.edition.id}
@@ -134,7 +158,7 @@ function TrajectoryNode({
           <div className="flex flex-col min-w-0 flex-1">
             <h3
               className={`font-bold font-minecraft text-white/90 drop-shadow-md truncate md:whitespace-normal md:break-words md:leading-tight ${
-                nameLen > 18
+                ue.edition.name.length > 18
                   ? "text-sm sm:text-base tracking-normal md:tracking-[0.1em]"
                   : "text-base sm:text-lg tracking-wide md:tracking-[0.15em]"
               }`}
@@ -147,18 +171,46 @@ function TrajectoryNode({
                 {formattedDate}
               </span>
             )}
+            {editionTitles && editionTitles.length > 0 && (
+              <div className="flex items-center gap-1.5 mt-2.5">
+                <span
+                  className="px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold tracking-wide border shadow-sm"
+                  style={{
+                    color: "var(--profile-glow)",
+                    borderColor:
+                      "color-mix(in srgb, var(--profile-glow) 30%, transparent)",
+                    backgroundColor:
+                      "color-mix(in srgb, var(--profile-glow) 15%, transparent)",
+                  }}
+                >
+                  ✦ {editionTitles[0].name}
+                </span>
+                {editionTitles.length > 1 && (
+                  <span className="text-[10px] sm:text-xs font-bold text-white/40 tracking-wider">
+                    +{editionTitles.length - 1}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-        </div>
+        </button>
       </div>
 
-      {/* Espacio vacío para equilibrar el flex */}
+      {/* Empty space to balance flex */}
       <div className="hidden md:block w-1/2" />
     </div>
   );
 }
 
-export function ProfileTrajectory({ userEditions }: ProfileTrajectoryProps) {
+export function ProfileTrajectory({
+  userEditions,
+  titles = [],
+  userName,
+}: ProfileTrajectoryProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedHistory, setSelectedHistory] = useState<UserEdition | null>(
+    null,
+  );
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const handleCollapse = () => {
@@ -254,6 +306,10 @@ export function ProfileTrajectory({ userEditions }: ProfileTrajectoryProps) {
                           ue={ue}
                           index={idx}
                           isFirst={idx === 0}
+                          onOpenHistory={setSelectedHistory}
+                          editionTitles={titles.filter(
+                            (t: any) => t.edition_id === ue.edition.id,
+                          )}
                         />
                       ))}
                     </div>
@@ -276,6 +332,10 @@ export function ProfileTrajectory({ userEditions }: ProfileTrajectoryProps) {
                           }
                         : undefined
                     }
+                    onOpenHistory={setSelectedHistory}
+                    editionTitles={titles.filter(
+                      (t: any) => t.edition_id === ue.edition.id,
+                    )}
                   />
                 ))}
               </div>
@@ -310,6 +370,19 @@ export function ProfileTrajectory({ userEditions }: ProfileTrajectoryProps) {
           </div>
         )}
       </div>
+      <EditionHistoryModal
+        isOpen={!!selectedHistory}
+        onClose={() => setSelectedHistory(null)}
+        userEdition={selectedHistory}
+        editionTitles={
+          selectedHistory
+            ? titles.filter(
+                (t: any) => t.edition_id === selectedHistory.edition.id,
+              )
+            : []
+        }
+        userName={userName}
+      />
     </div>
   );
 }

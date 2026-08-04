@@ -107,6 +107,7 @@ export default async function ProfilePage() {
   }).format(new Date(user.joined_at));
   const joinedDate =
     formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  const titles = user.emblems.filter((e: any) => !e.icon_url);
 
   return (
     <ProfileColorExtractor ign={ign} fallbackColor={glowColor}>
@@ -210,9 +211,9 @@ export default async function ProfilePage() {
                 />
               </div>
 
-              {user.emblems.length > 0 ? (
+              {user.emblems.filter((e: any) => e.icon_url).length > 0 ? (
                 <div className="flex flex-wrap justify-center gap-6">
-                  {user.emblems.map((emblem: any) => (
+                  {user.emblems.filter((e: any) => e.icon_url).map((emblem: any) => (
                     <Dialog key={emblem.id}>
                       <Tooltip>
                         <TooltipTrigger
@@ -313,7 +314,11 @@ export default async function ProfilePage() {
               )}
             </div>
 
-            <ProfileTrajectory userEditions={user.editions} />
+            <ProfileTrajectory 
+              userEditions={user.editions} 
+              titles={titles}
+              userName={user.ign || user.discord_name} 
+            />
 
             <ProfileGallery
               photos={photos}
