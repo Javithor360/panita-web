@@ -9,7 +9,6 @@ import {
   Link,
   Film,
   Camera,
-  Plus,
   ChevronDown,
   FileVideo,
 } from "lucide-react";
@@ -57,7 +56,6 @@ export function UploadPhotoModal({
   const [error, setError] = useState("");
   const [uploadProgress, setUploadProgress] = useState("");
   const [isEditionSelectOpen, setIsEditionSelectOpen] = useState(false);
-  const [isTagSelectOpen, setIsTagSelectOpen] = useState(false);
 
   const [authorId, setAuthorId] = useState<number | null>(userId);
   const [authorName, setAuthorName] = useState(userIgn);
@@ -796,75 +794,36 @@ export function UploadPhotoModal({
                 </span>
               </label>
               <div className="flex flex-wrap gap-2">
-                {tagIds.map((id) => {
-                  const cat = CATEGORIES.find((c) => c.id === id);
-                  if (!cat) return null;
+                {CATEGORIES.map((cat) => {
+                  if (cat.id === "members_choice" && !canEdit) return null;
+                  
+                  const isSelected = tagIds.includes(cat.id);
+                  
                   return (
                     <button
                       key={cat.id}
+                      type="button"
                       onClick={() => toggleTag(cat.id)}
-                      style={{
-                        backgroundColor: `${cat.color}33`,
-                        borderColor: `${cat.color}66`,
-                        color: cat.color,
-                      }}
-                      className="px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 border"
+                      style={
+                        isSelected
+                          ? {
+                              backgroundColor: `${cat.color}33`,
+                              borderColor: `${cat.color}66`,
+                              color: cat.color,
+                            }
+                          : {}
+                      }
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 border ${
+                        isSelected
+                          ? ""
+                          : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/70"
+                      }`}
                     >
                       <cat.iconComponent className="size-3.5" />
                       {cat.label}
-                      <span className="ml-1 opacity-60 font-bold text-sm leading-none flex items-center justify-center">
-                        ×
-                      </span>
                     </button>
                   );
                 })}
-
-                {CATEGORIES.filter((c) => !tagIds.includes(c.id)).length >
-                  0 && (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setIsTagSelectOpen(!isTagSelectOpen)}
-                      className="size-[30px] rounded-full text-xs font-medium transition-all cursor-pointer flex items-center justify-center border bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/70"
-                    >
-                      <Plus className="size-4" />
-                    </button>
-
-                    {isTagSelectOpen && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-[140]"
-                          onClick={() => setIsTagSelectOpen(false)}
-                        />
-                        <div className="absolute top-full left-0 mt-2 z-[150] w-48 rounded-lg border border-white/10 bg-[#111] text-white shadow-xl flex flex-col p-1 max-h-60 overflow-y-auto">
-                          {CATEGORIES.filter((c) => !tagIds.includes(c.id)).map(
-                            (cat) => {
-                              if (cat.id === "members_choice" && !canEdit)
-                                return null;
-                              return (
-                                <button
-                                  key={cat.id}
-                                  type="button"
-                                  onClick={() => {
-                                    toggleTag(cat.id);
-                                    setIsTagSelectOpen(false);
-                                  }}
-                                  className="flex items-center gap-2 text-left px-3 py-2 text-sm rounded-md transition-colors cursor-pointer hover:bg-white/10"
-                                >
-                                  <cat.iconComponent
-                                    className="size-4"
-                                    style={{ color: cat.color }}
-                                  />
-                                  <span>{cat.label}</span>
-                                </button>
-                              );
-                            },
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
 
