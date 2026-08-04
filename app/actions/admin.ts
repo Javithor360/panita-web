@@ -244,7 +244,7 @@ export async function getEditions() {
 export async function saveEmblem(id: string, data: {
   name: string,
   description: string | null,
-  icon_url: string,
+  icon_url: string | null,
   edition_id: string | null
 }, isNew: boolean) {
   await checkAdmin()
@@ -441,6 +441,26 @@ export async function removeUserFromEdition(userId: number, editionId: string) {
     }
   }).catch(() => {}) // Ignore if not exists
   
+  revalidatePath('/profile')
+  return { success: true }
+}
+
+// Updates the history text (Markdown) for a specific user-edition record
+export async function updateUserEditionHistory(userId: number, editionId: string, historyText: string | null) {
+  await checkAdmin()
+
+  await prisma.userEdition.update({
+    where: {
+      user_id_edition_id: {
+        user_id: userId,
+        edition_id: editionId
+      }
+    },
+    data: {
+      history_text: historyText || null
+    }
+  })
+
   revalidatePath('/profile')
   return { success: true }
 }
