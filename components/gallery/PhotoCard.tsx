@@ -48,6 +48,7 @@ export function PhotoCard({
   const [isMeasured, setIsMeasured] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [fallbackAttempted, setFallbackAttempted] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -117,6 +118,11 @@ export function PhotoCard({
     );
   }
 
+  // Use a local variable to determine the actual source based on fallback state
+  const finalImageUrl = (fallbackAttempted && optimizedUrl.includes('maxresdefault.jpg')) 
+    ? optimizedUrl.replace('maxresdefault.jpg', 'hqdefault.jpg')
+    : optimizedUrl;
+
   return (
     <Card
       onClick={handleClick}
@@ -143,15 +149,19 @@ export function PhotoCard({
         )}
 
         <Image
-          src={hasError ? "/assets/logo_white.svg" : optimizedUrl}
+          src={hasError ? "/assets/logo_white.svg" : finalImageUrl}
           alt={title}
           width={800}
           height={450}
           priority={priority}
           onLoad={() => setImageLoaded(true)}
           onError={() => {
-            setHasError(true);
-            setImageLoaded(true);
+            if (!fallbackAttempted && optimizedUrl.includes('maxresdefault.jpg')) {
+              setFallbackAttempted(true);
+            } else {
+              setHasError(true);
+              setImageLoaded(true);
+            }
           }}
           className={`absolute inset-0 w-full h-full transition-all duration-700 ease-in-out group-hover:scale-105 z-20 ${imageLoaded && !hasError ? "opacity-100 blur-0 object-cover" : "opacity-0 blur-sm"}`}
         />
