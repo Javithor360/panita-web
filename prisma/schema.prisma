@@ -48,6 +48,8 @@ model Edition {
   started_at      DateTime?
   ended_at        DateTime?
   discord_role_id String?       @unique
+  synopsis        String?       // Brief description of what this edition was about
+  theme_color     String?       // Hex color for dynamic UI theming (e.g. #FF5555)
   emblems         Emblem[]
   photos          Photo[]
   users           UserEdition[]
@@ -74,7 +76,7 @@ model Emblem {
   id          String   @id
   name        String
   description String?
-  icon_url    String
+  icon_url    String?  // Optional: when null, emblem acts as a text-only award/title
   position    Int      @default(0)
   edition_id  String?
   edition     Edition? @relation(fields: [edition_id], references: [id])
@@ -82,12 +84,13 @@ model Emblem {
 }
 
 model UserEdition {
-  id         String    @id @default(uuid())
-  user_id    Int
-  edition_id String
-  joined_at  DateTime?
-  edition    Edition   @relation(fields: [edition_id], references: [id], onDelete: Cascade)
-  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id           String    @id @default(uuid())
+  user_id      Int
+  edition_id   String
+  joined_at    DateTime?
+  history_text String?   // Player history/biography for this edition (Markdown)
+  edition      Edition   @relation(fields: [edition_id], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, edition_id])
 }
