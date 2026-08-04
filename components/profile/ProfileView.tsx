@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import Image from "next/image";
 import { ProfileColorExtractor } from "@/components/profile/ProfileColorExtractor";
 import { DynamicBackground } from "@/components/ui/DynamicBackground";
 import {
@@ -22,7 +23,11 @@ import { ProfileForms } from "@/components/profile/ProfileForms";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 
 import type { UserProfilePayload } from "@/app/actions/profile";
-import type { Edition, Form, FormResponse } from "@/lib/generated/prisma/client";
+import type {
+  Edition,
+  Form,
+  FormResponse,
+} from "@/lib/generated/prisma/client";
 import type { Photo } from "@/app/actions/gallery";
 
 type UserRole = UserProfilePayload["roles"][number];
@@ -86,10 +91,11 @@ export function ProfileView({
               className="rounded-full border-4 border-card bg-card overflow-hidden h-40 w-40 sm:h-48 sm:w-48 shadow-xl transition-all duration-500 hover:scale-105"
               style={{ boxShadow: "0 10px 30px -15px var(--profile-glow)" }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image unoptimized
                 src={`https://render.crafty.gg/2d/head/${ign}`}
                 alt={`Avatar de ${ign}`}
+                width={192}
+                height={192}
                 className="w-full h-full object-cover"
                 style={{ imageRendering: "pixelated" }}
               />
@@ -181,10 +187,11 @@ export function ProfileView({
                             />
                           }
                         >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
+                          <Image
                             src={emblem.icon_url!}
                             alt={emblem.name}
+                            width={64}
+                            height={64}
                             className="h-16 w-16 object-contain drop-shadow-md"
                           />
                         </TooltipTrigger>
@@ -216,10 +223,11 @@ export function ProfileView({
                           )}
                         </DialogHeader>
                         <div className="flex flex-col sm:flex-row items-center gap-6 py-4">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
+                          <Image
                             src={emblem.icon_url!}
                             alt={emblem.name}
+                            width={96}
+                            height={96}
                             className="h-24 w-24 object-contain drop-shadow-lg shrink-0"
                           />
                           <div className="flex flex-col gap-3 w-full">

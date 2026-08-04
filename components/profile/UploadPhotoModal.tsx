@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import Image from "next/image";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Upload,
@@ -352,9 +353,11 @@ export function UploadPhotoModal({
                   />
                 ) : (
                   <div className="flex items-center gap-2">
-                    <img
+                    <Image unoptimized
                       src={`https://render.crafty.gg/2d/head/${userIgn}`}
                       alt={userIgn}
+                      width={16}
+                      height={16}
                       className="size-4 rounded-sm bg-black/20"
                     />
                     <span>{userIgn}</span>
@@ -391,6 +394,7 @@ export function UploadPhotoModal({
           {/* Preview area */}
           <div className="absolute inset-0 p-4 pt-24 pb-32 md:p-12 md:pt-28 md:pb-40 flex items-center justify-center pointer-events-none z-0">
             {mediaMode === "photo" && preview && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={preview}
                 alt="Preview"
@@ -712,9 +716,11 @@ export function UploadPhotoModal({
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <img
+                        <Image
                           src="/assets/medal_logo_white.png"
                           alt="Medal"
+                          width={20}
+                          height={20}
                           className="w-5 h-5 object-contain"
                         />
                         <span className="text-sm font-medium text-white">
@@ -796,9 +802,9 @@ export function UploadPhotoModal({
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((cat) => {
                   if (cat.id === "members_choice" && !canEdit) return null;
-                  
+
                   const isSelected = tagIds.includes(cat.id);
-                  
+
                   return (
                     <button
                       key={cat.id}

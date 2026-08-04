@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Sheet,
   SheetContent,
@@ -108,10 +109,11 @@ function SortableEmblemItem({
           className="flex-1 flex items-center gap-3 cursor-pointer"
         >
           {emblem.icon_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={emblem.icon_url}
               alt=""
+              width={24}
+              height={24}
               className="w-6 h-6 object-contain"
             />
           ) : (
@@ -628,10 +630,11 @@ export function EmblemsManager() {
                           </div>
                         </div>
                         {iconUrl && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={iconUrl}
                             alt="Preview"
+                            width={32}
+                            height={32}
                             className="w-8 h-8 object-contain rounded-sm"
                           />
                         )}
@@ -791,14 +794,15 @@ export function EmblemsManager() {
                               >
                                 <div className="flex items-center gap-3">
                                   <div className="w-8 h-8 rounded-md bg-secondary overflow-hidden flex-shrink-0">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
+                                    <Image unoptimized
                                       src={
                                         u.ign
                                           ? `https://render.crafty.gg/2d/head/${u.ign}`
                                           : "/steve.svg"
                                       }
                                       alt=""
+                                      width={32}
+                                      height={32}
                                       className="w-full h-full object-cover"
                                       style={{ imageRendering: "pixelated" }}
                                     />
@@ -849,14 +853,15 @@ export function EmblemsManager() {
                             >
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-md bg-secondary overflow-hidden flex-shrink-0">
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img
+                                  <Image unoptimized
                                     src={
                                       u.ign
                                         ? `https://render.crafty.gg/2d/head/${u.ign}`
                                         : "/steve.svg"
                                     }
                                     alt=""
+                                    width={32}
+                                    height={32}
                                     className="w-full h-full object-cover"
                                     style={{ imageRendering: "pixelated" }}
                                   />

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition, useRef } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import {
   X,
   Share2,
@@ -319,9 +320,11 @@ export function PhotoModal({
             ) : (
               <div className="flex items-center gap-2">
                 {localPhoto.authorIgn ? (
-                  <img
+                  <Image unoptimized
                     src={`https://render.crafty.gg/2d/head/${localPhoto.authorIgn}`}
                     alt={localPhoto.authorIgn}
+                    width={16}
+                    height={16}
                     className="size-4 rounded-sm bg-black/20"
                   />
                 ) : (
@@ -502,6 +505,7 @@ export function PhotoModal({
       >
         {/* Blurred placeholder — only for images while loading */}
         {!isVideo && !imageLoaded && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             key={`${localPhoto.id}-thumb`}
             src={thumbnailUrl}
@@ -537,6 +541,7 @@ export function PhotoModal({
 
         {/* High-res image — only for image entries */}
         {!isVideo && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             key={localPhoto.id}
             src={optimizedUrl}

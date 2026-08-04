@@ -119,9 +119,10 @@ export function PhotoCard({
   }
 
   // Use a local variable to determine the actual source based on fallback state
-  const finalImageUrl = (fallbackAttempted && optimizedUrl.includes('maxresdefault.jpg')) 
-    ? optimizedUrl.replace('maxresdefault.jpg', 'hqdefault.jpg')
-    : optimizedUrl;
+  const finalImageUrl =
+    fallbackAttempted && optimizedUrl.includes("maxresdefault.jpg")
+      ? optimizedUrl.replace("maxresdefault.jpg", "hqdefault.jpg")
+      : optimizedUrl;
 
   return (
     <Card
@@ -132,9 +133,11 @@ export function PhotoCard({
         {/* Placeholder / Fallback logo */}
         {(!imageLoaded || hasError) && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 bg-black">
-            <img
+            <Image
               src="/assets/logo_white.svg"
               alt="Loading..."
+              width={112}
+              height={112}
               className={`w-28 h-28 object-contain drop-shadow-lg transition-all duration-300 ${mediaType === "video" ? "group-hover:scale-90 group-hover:opacity-10" : ""} ${!hasError ? "opacity-30 animate-pulse" : "opacity-20"}`}
             />
             {mediaType === "video" && (
@@ -156,7 +159,10 @@ export function PhotoCard({
           priority={priority}
           onLoad={() => setImageLoaded(true)}
           onError={() => {
-            if (!fallbackAttempted && optimizedUrl.includes('maxresdefault.jpg')) {
+            if (
+              !fallbackAttempted &&
+              optimizedUrl.includes("maxresdefault.jpg")
+            ) {
               setFallbackAttempted(true);
             } else {
               setHasError(true);
@@ -242,9 +248,11 @@ export function PhotoCard({
 
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-auto shrink-0">
             {authorIgn ? (
-              <img
+              <Image unoptimized
                 src={`https://render.crafty.gg/2d/head/${authorIgn}`}
                 alt={authorIgn}
+                width={14}
+                height={14}
                 className="size-3.5 rounded-sm bg-black/20 shrink-0"
               />
             ) : (

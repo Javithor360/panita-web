@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
   Sheet,
   SheetContent,
@@ -380,14 +381,15 @@ export function UsersManager() {
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-md bg-secondary overflow-hidden flex-shrink-0 relative">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
+                              <Image unoptimized
                                 src={
                                   u.ign
                                     ? `https://render.crafty.gg/2d/head/${u.ign}`
                                     : "/steve.svg"
                                 }
                                 alt={u.ign || "Steve"}
+                                width={40}
+                                height={40}
                                 className="w-full h-full object-cover z-10 relative"
                                 style={{ imageRendering: "pixelated" }}
                               />
@@ -437,14 +439,15 @@ export function UsersManager() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 mt-2">
                   <div className="flex items-center gap-4 min-w-0 w-full sm:w-auto">
                     <div className="w-16 h-16 rounded-md bg-secondary overflow-hidden shadow-md relative flex-shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image unoptimized
                         src={
                           ign
                             ? `https://render.crafty.gg/2d/head/${ign}`
                             : "/steve.svg"
                         }
                         alt={ign || "Steve"}
+                        width={64}
+                        height={64}
                         className="w-full h-full object-cover z-10 relative"
                         style={{ imageRendering: "pixelated" }}
                       />
@@ -642,10 +645,11 @@ export function UsersManager() {
                           title="Click para remover"
                         >
                           {e.icon_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <Image
                               src={e.icon_url}
                               alt=""
+                              width={14}
+                              height={14}
                               className="w-3.5 h-3.5 object-contain"
                             />
                           ) : (
@@ -677,10 +681,11 @@ export function UsersManager() {
                                 className="flex items-center gap-2"
                               >
                                 {e.icon_url ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
+                                  <Image
                                     src={e.icon_url}
                                     alt=""
+                                    width={16}
+                                    height={16}
                                     className="w-4 h-4 object-contain"
                                   />
                                 ) : (
@@ -697,7 +702,7 @@ export function UsersManager() {
                   </div>
                 </div>
 
-                {/* Historial de Participación */}
+                {/* Participation History */}
                 <div className="flex flex-col gap-2 mt-2">
                   <label className="text-sm font-medium">
                     Historial de Participación

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Card } from "@/components/ui/card";
 import { deleteFormResponse } from "@/app/actions/forms";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   BarChart,
   Bar,
@@ -122,7 +123,8 @@ const CustomTooltip = ({ active, payload, label, totalValues }: any) => {
             style={{ backgroundColor: color }}
           />
           <span>
-            Elegido {value} {value === 1 ? 'vez' : 'veces'} {percent !== null ? `(${percent}%)` : ""}
+            Elegido {value} {value === 1 ? "vez" : "veces"}{" "}
+            {percent !== null ? `(${percent}%)` : ""}
           </span>
         </div>
       </div>
@@ -163,7 +165,9 @@ function TextAnswersList({ answers }: { answers: any[] }) {
           </button>
           <span className="text-xs text-muted-foreground">
             Mostrando {start}–{end} de {answers.length} respuestas
-            <span className="ml-2 text-muted-foreground/60">· Pág. {page + 1}/{totalPages}</span>
+            <span className="ml-2 text-muted-foreground/60">
+              · Pág. {page + 1}/{totalPages}
+            </span>
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
@@ -667,9 +671,11 @@ export function ResultsDashboard({ form }: { form: any }) {
                       : "hover:bg-violet-500/10 hover:text-violet-300 text-foreground"
                   }`}
                 >
-                  <img
-                    src={`https://render.crafty.gg/2d/head/${resp.user.ign || 'Steve'}`}
-                    alt={resp.user.ign || 'Avatar'}
+                  <Image unoptimized
+                    src={`https://render.crafty.gg/2d/head/${resp.user.ign || "Steve"}`}
+                    alt={resp.user.ign || "Avatar"}
+                    width={32}
+                    height={32}
                     className="w-8 h-8 rounded-md bg-secondary/50"
                   />
                   <div className="flex flex-col">
@@ -702,9 +708,11 @@ export function ResultsDashboard({ form }: { form: any }) {
               <div className="flex flex-col gap-6">
                 <div className="border-b border-border pb-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <img
-                      src={`https://render.crafty.gg/2d/head/${selectedResponse.user.ign || 'Steve'}`}
-                      alt={selectedResponse.user.ign || 'Avatar'}
+                    <Image unoptimized
+                      src={`https://render.crafty.gg/2d/head/${selectedResponse.user.ign || "Steve"}`}
+                      alt={selectedResponse.user.ign || "Avatar"}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-lg bg-secondary/50 shadow-sm"
                     />
                     <div className="flex flex-col">
@@ -717,13 +725,17 @@ export function ResultsDashboard({ form }: { form: any }) {
                       </p>
                     </div>
                   </div>
-                  
+
                   <button
                     onClick={() => setDeleteResponse(selectedResponse)}
                     disabled={isPending}
                     className="flex items-center gap-2 px-3 py-2 bg-destructive/10 hover:bg-destructive/20 text-destructive rounded-lg transition-colors font-medium text-sm cursor-pointer"
                   >
-                    {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    {isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
                     Eliminar
                   </button>
                 </div>
@@ -850,18 +862,22 @@ export function ResultsDashboard({ form }: { form: any }) {
           </Card>
         </div>
       )}
-      <AlertDialog open={!!deleteResponse} onOpenChange={(open) => !open && setDeleteResponse(null)}>
+      <AlertDialog
+        open={!!deleteResponse}
+        onOpenChange={(open) => !open && setDeleteResponse(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar respuesta?</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Estás seguro de que quieres eliminar esta respuesta permanentemente?
-              Al hacerlo, este usuario podrá volver a llenar el formulario.
+              ¿Estás seguro de que quieres eliminar esta respuesta
+              permanentemente? Al hacerlo, este usuario podrá volver a llenar el
+              formulario.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               disabled={isPending}
               onClick={(e) => {
                 e.preventDefault();
@@ -869,7 +885,11 @@ export function ResultsDashboard({ form }: { form: any }) {
               }}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground cursor-pointer"
             >
-              {isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+              {isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-2" />
+              )}
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

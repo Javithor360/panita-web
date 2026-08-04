@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
       {
+        protocol: "https",
+        hostname: "render.crafty.gg",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.discordapp.com",
+      },
+      {
         // YouTube video thumbnails (used when media_type = 'video')
         protocol: "https",
         hostname: "img.youtube.com",

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Plus, ChevronDown, ChevronUp, ImageOff } from "lucide-react";
 import type { Photo } from "@/app/actions/gallery";
@@ -75,13 +76,14 @@ export function ProfileGallery({
         onClick={() => setSelectedPhoto(photo)}
         className="w-full aspect-video rounded-xl bg-card border overflow-hidden cursor-pointer group relative transition-all hover:scale-[1.02] animate-in fade-in zoom-in-95 duration-500"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={photo.imageUrl.replace(
             "/upload/",
             "/upload/c_fill,w_600,h_338,q_auto,f_auto/",
           )}
           alt={photo.title}
+          width={600}
+          height={338}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
