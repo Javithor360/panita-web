@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Plus, ChevronDown, ChevronUp, ImageOff } from "lucide-react";
+import { Plus, ChevronDown, ChevronUp, ImageOff, Play } from "lucide-react";
 import type { Photo } from "@/app/actions/gallery";
 import { getUserPhotos } from "@/app/actions/gallery";
 import { UploadPhotoModal } from "./UploadPhotoModal";
@@ -19,6 +19,109 @@ interface ProfileGalleryProps {
 }
 
 import { useRouter } from "next/navigation";
+
+function ProfileGalleryItem({
+  photo,
+  onClick,
+}: {
+  photo: Photo;
+  onClick: (photo: Photo) => void;
+}) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [fallbackAttempted, setFallbackAttempted] = useState(false);
+
+  let optimizedUrl = photo.imageUrl;
+  if (
+    optimizedUrl.includes("res.cloudinary.com") &&
+    optimizedUrl.includes("/upload/")
+  ) {
+    optimizedUrl = optimizedUrl.replace(
+      "/upload/",
+      "/upload/c_fill,w_600,h_338,q_auto,f_auto/",
+    );
+  }
+  // also add fallback for .mp4 just in case they have legacy cloudinary videos
+  optimizedUrl = optimizedUrl.replace(/\.mp4$/, ".jpg");
+
+  const finalImageUrl =
+    fallbackAttempted && optimizedUrl.includes("maxresdefault.jpg")
+      ? optimizedUrl.replace("maxresdefault.jpg", "hqdefault.jpg")
+      : optimizedUrl;
+
+  return (
+    <div
+      onClick={() => onClick(photo)}
+      className="w-full aspect-video rounded-xl bg-card border overflow-hidden cursor-pointer group relative transition-all hover:scale-[1.02] animate-in fade-in zoom-in-95 duration-500"
+    >
+      <div className="relative w-full h-full bg-black">
+        {/* Placeholder / Fallback logo */}
+        {(!imageLoaded || hasError) && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 bg-black">
+            <Image
+              src="/assets/logo_white.svg"
+              alt="Loading..."
+              width={80}
+              height={80}
+              className={`w-20 h-20 object-contain drop-shadow-lg transition-all duration-300 ${photo.media_type === "video" ? "group-hover:scale-90 group-hover:opacity-10" : ""} ${!hasError ? "opacity-30 animate-pulse" : "opacity-20"}`}
+            />
+          </div>
+        )}
+
+        <Image
+          src={hasError ? "/assets/logo_white.svg" : finalImageUrl}
+          alt={photo.title}
+          width={600}
+          height={338}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            if (
+              !fallbackAttempted &&
+              optimizedUrl.includes("maxresdefault.jpg")
+            ) {
+              setFallbackAttempted(true);
+            } else {
+              setHasError(true);
+              setImageLoaded(true);
+            }
+          }}
+          className={`absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-110 z-20 ${imageLoaded && !hasError ? "opacity-100 blur-0 object-cover" : "opacity-0 blur-sm"}`}
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 z-30">
+          <h3 className="text-white font-bold text-sm sm:text-base truncate drop-shadow-md">
+            {photo.title}
+          </h3>
+          {photo.edition_name && (
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <EditionIcon
+                editionId={photo.edition_id || ""}
+                className="size-3.5 opacity-80"
+              />
+              <p className="text-white/80 text-xs font-medium drop-shadow-md">
+                {photo.edition_name}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Video play overlay */}
+        {photo.media_type === "video" && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
+            <Play className="size-12 text-white drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] transition-transform duration-300 group-hover:scale-110" />
+          </div>
+        )}
+
+        {/* Video badge */}
+        {photo.media_type === "video" && (
+          <span className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/20 tracking-wider uppercase z-40 pointer-events-none">
+            Video
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function ProfileGallery({
   photos,
@@ -71,38 +174,11 @@ export function ProfileGallery({
 
   loadedPhotos.forEach((photo) => {
     allItems.push(
-      <div
+      <ProfileGalleryItem
         key={photo.id}
-        onClick={() => setSelectedPhoto(photo)}
-        className="w-full aspect-video rounded-xl bg-card border overflow-hidden cursor-pointer group relative transition-all hover:scale-[1.02] animate-in fade-in zoom-in-95 duration-500"
-      >
-        <Image
-          src={photo.imageUrl.replace(
-            "/upload/",
-            "/upload/c_fill,w_600,h_338,q_auto,f_auto/",
-          )}
-          alt={photo.title}
-          width={600}
-          height={338}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-          <h3 className="text-white font-bold text-sm sm:text-base truncate drop-shadow-md">
-            {photo.title}
-          </h3>
-          {photo.edition_name && (
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <EditionIcon
-                editionId={photo.edition_id || ""}
-                className="size-3.5 opacity-80"
-              />
-              <p className="text-white/80 text-xs font-medium drop-shadow-md">
-                {photo.edition_name}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>,
+        photo={photo}
+        onClick={setSelectedPhoto}
+      />,
     );
   });
 
