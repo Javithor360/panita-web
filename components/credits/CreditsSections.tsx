@@ -35,14 +35,13 @@ function DiscordAvatar({
     <div
       className={cn("transition-opacity duration-500 opacity-100", className)}
     >
-      <Image
+      <img
         src={
           avatarUrl ||
           `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(discordId) >> BigInt(22)) % 6}.png`
         }
         alt={discordName}
-        fill
-        className="object-cover"
+        className="w-full h-full object-cover"
       />
     </div>
   );
@@ -114,7 +113,8 @@ export function UserCard({
                 <Crown className="w-16 h-16 text-yellow-500 fill-yellow-500" />
               </div>
             )}
-            <Image unoptimized
+            <Image
+              unoptimized
               src={`https://render.crafty.gg/2d/head/${user.ign}?cors=true`}
               alt={user.ign}
               width={80}
@@ -243,7 +243,8 @@ export function UserCard({
       >
         <DialogHeader className="items-center sm:text-center pt-4">
           <div className="relative mb-4">
-            <Image unoptimized
+            <Image
+              unoptimized
               src={`https://render.crafty.gg/2d/head/${user.ign}?cors=true`}
               alt={user.ign}
               width={128}
