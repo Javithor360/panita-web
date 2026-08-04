@@ -55,6 +55,7 @@ export function EditionHistoryModal({
       day: "numeric",
       month: "short",
       year: "numeric",
+      timeZone: "UTC",
     });
   };
 
