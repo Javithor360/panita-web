@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { X, Calendar, BookOpen, Award, Trophy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Calendar, BookOpen, Award, Trophy, ChevronDown } from "lucide-react";
 import { EditionIcon } from "@/components/ui/EditionIcon";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import { cn } from "@/lib/utils";
 
 interface EditionHistoryModalProps {
   isOpen: boolean;
@@ -32,6 +33,9 @@ export function EditionHistoryModal({
   editionTitles = [],
   userName,
 }: EditionHistoryModalProps) {
+  const [isSynopsisOpen, setIsSynopsisOpen] = useState(true);
+  const [isTitlesOpen, setIsTitlesOpen] = useState(true);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -124,80 +128,117 @@ export function EditionHistoryModal({
         <div className="relative flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
           {/* Synopsis Section */}
           {edition.synopsis && (
-            <div className="bg-white/5 rounded-xl p-5 border border-white/5">
+            <div className="bg-white/5 rounded-xl border border-white/5 overflow-hidden">
               <div
-                className="flex items-center gap-2 mb-2"
-                style={{ color: themeColor }}
+                className="flex items-center justify-between p-5 cursor-pointer hover:bg-white/5 transition-colors select-none"
+                onClick={() => setIsSynopsisOpen(!isSynopsisOpen)}
               >
-                <BookOpen className="w-4 h-4" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">
-                  Sobre esta edición
-                </h3>
+                <div
+                  className="flex items-center gap-2"
+                  style={{ color: themeColor }}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider">
+                    Sobre esta edición
+                  </h3>
+                </div>
+                <ChevronDown
+                  className={cn("w-5 h-5 text-white/50 transition-transform", !isSynopsisOpen && "-rotate-90")}
+                />
               </div>
-              <p className="text-sm text-white/80 leading-relaxed whitespace-pre-line">
-                {edition.synopsis}
-              </p>
+              <div
+                className={cn(
+                  "grid transition-all duration-300 ease-in-out",
+                  isSynopsisOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                )}
+              >
+                <div className="overflow-hidden">
+                  <div className="p-5 pt-0">
+                    <p className="text-sm text-white/80 leading-relaxed whitespace-pre-line">
+                      {edition.synopsis}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Títulos Section */}
           {editionTitles && editionTitles.length > 0 && (
-            <div className="bg-white/5 rounded-xl p-5 border border-white/5">
+            <div className="bg-white/5 rounded-xl border border-white/5 overflow-hidden">
               <div
-                className="flex items-center gap-2 mb-4"
-                style={{ color: themeColor }}
+                className="flex items-center justify-between p-5 cursor-pointer hover:bg-white/5 transition-colors select-none"
+                onClick={() => setIsTitlesOpen(!isTitlesOpen)}
               >
-                <Trophy className="w-5 h-5" />
-                <h3 className="text-sm font-bold uppercase tracking-widest">
-                  Títulos y Méritos
-                </h3>
+                <div
+                  className="flex items-center gap-2"
+                  style={{ color: themeColor }}
+                >
+                  <Trophy className="w-5 h-5" />
+                  <h3 className="text-sm font-bold uppercase tracking-widest">
+                    Títulos y Méritos
+                  </h3>
+                </div>
+                <ChevronDown
+                  className={cn("w-5 h-5 text-white/50 transition-transform", !isTitlesOpen && "-rotate-90")}
+                />
               </div>
-              <div className="flex flex-col mt-2">
-                {editionTitles.map((t: any, idx: number) => (
-                  <div key={t.id} className="group relative">
-                    <div className="py-4 relative z-10 flex flex-col gap-2">
-                      <div className="flex items-center gap-3">
-                        {/* Stylized Bullet / Medal */}
-                        <div className="relative shrink-0 flex items-center justify-center w-8 h-8 rounded-full border border-white/10 bg-white/5 group-hover:scale-110 transition-transform">
-                          <Award
-                            className="w-4 h-4"
-                            style={{ color: themeColor }}
-                          />
-                          <div
-                            className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-30 blur-md transition-opacity"
-                            style={{ backgroundColor: themeColor }}
-                          />
-                        </div>
-                        <span className="text-sm sm:text-base font-bold tracking-wide text-white drop-shadow-sm group-hover:text-white/90 transition-colors">
-                          {t.name}
-                        </span>
-                      </div>
+              
+              <div
+                className={cn(
+                  "grid transition-all duration-300 ease-in-out",
+                  isTitlesOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                )}
+              >
+                <div className="overflow-hidden">
+                  <div className="flex flex-col p-5 pt-0">
+                    {editionTitles.map((t: any, idx: number) => (
+                      <div key={t.id} className="group relative">
+                        <div className="py-4 relative z-10 flex flex-col gap-2">
+                          <div className="flex items-center gap-3">
+                            {/* Stylized Bullet / Medal */}
+                            <div className="relative shrink-0 flex items-center justify-center w-8 h-8 rounded-full border border-white/10 bg-white/5 group-hover:scale-110 transition-transform">
+                              <Award
+                                className="w-4 h-4"
+                                style={{ color: themeColor }}
+                              />
+                              <div
+                                className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-30 blur-md transition-opacity"
+                                style={{ backgroundColor: themeColor }}
+                              />
+                            </div>
+                            <span className="text-sm sm:text-base font-bold tracking-wide text-white drop-shadow-sm group-hover:text-white/90 transition-colors">
+                              {t.name}
+                            </span>
+                          </div>
 
-                      {/* Información */}
-                      <div className="pl-11">
-                        {t.description ? (
-                          <p
-                            className="text-xs sm:text-sm text-white/70 leading-relaxed italic pl-3 border-l-2"
-                            style={{
-                              borderLeftColor: `color-mix(in srgb, ${themeColor} 50%, transparent)`,
-                            }}
-                          >
-                            &quot;{t.description}&quot;
-                          </p>
-                        ) : (
-                          <p className="text-[10px] sm:text-xs text-white/40 italic pl-3 border-l-2 border-white/10">
-                            Mérito honorífico sin descripción detallada.
-                          </p>
+                          {/* Información */}
+                          <div className="pl-11">
+                            {t.description ? (
+                              <p
+                                className="text-xs sm:text-sm text-white/70 leading-relaxed italic pl-3 border-l-2"
+                                style={{
+                                  borderLeftColor: `color-mix(in srgb, ${themeColor} 50%, transparent)`,
+                                }}
+                              >
+                                &quot;{t.description}&quot;
+                              </p>
+                            ) : (
+                              <p className="text-[10px] sm:text-xs text-white/40 italic pl-3 border-l-2 border-white/10">
+                                Mérito honorífico sin descripción detallada.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Gradient Separator */}
+                        {idx < editionTitles.length - 1 && (
+                          <div className="absolute bottom-0 left-12 right-0 h-[1px] bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
                         )}
                       </div>
-                    </div>
-
-                    {/* Gradient Separator */}
-                    {idx < editionTitles.length - 1 && (
-                      <div className="absolute bottom-0 left-12 right-0 h-[1px] bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
-                    )}
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           )}
