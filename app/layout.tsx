@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "Panitacraft",
   description: "Sitio web oficial del servidor de Panitacraft",
   icons: {
-    icon: "/assets/logo_white.svg"
+    icon: "/assets/logo_white.svg",
   },
   openGraph: {
     title: "Panitacraft",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   other: {
     "theme-color": "#5c7cfa",
-  }
+  },
 };
 
 import { getSession } from "@/lib/auth";
@@ -58,16 +58,17 @@ export default async function RootLayout({
 }>) {
   const session = await getSession();
   let user = null;
-  
+
   if (session?.userId) {
     const dbUser = await prisma.user.findUnique({
       where: { id: session.userId },
-      select: { ign: true, discord_name: true }
+      select: { ign: true, discord_name: true, trusted_author: true },
     });
-    
+
     if (dbUser) {
       user = {
         ign: dbUser.ign || dbUser.discord_name,
+        trusted_author: dbUser.trusted_author,
       };
     }
   }

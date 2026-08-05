@@ -33,7 +33,7 @@ import {
 import { logoutAction } from "@/app/actions/auth";
 
 interface NavbarProps {
-  user?: { ign: string } | null;
+  user?: { ign: string; trusted_author?: boolean } | null;
 }
 
 export function Navbar({ user }: NavbarProps) {
@@ -331,7 +331,11 @@ export function Navbar({ user }: NavbarProps) {
           )}
         </div>
       </div>
-      <SettingsModal open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+      <SettingsModal
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        user={user}
+      />
     </header>
   );
 }

@@ -102,3 +102,60 @@ export async function changePasswordAction(prevState: any, formData: FormData) {
     return { error: 'Ocurrió un error al intentar cambiar la contraseña.' };
   }
 }
+
+export async function changeIgnAction(prevState: any, formData: FormData) {
+  const newIgn = formData.get('newIgn') as string;
+
+  if (!newIgn) {
+    return { error: 'Por favor ingresa un nombre de usuario.' };
+  }
+
+  // Minecraft username validation: 3-16 chars, alphanumeric and underscore only.
+  const isValidIgn = /^[a-zA-Z0-9_]{3,16}$/.test(newIgn);
+  if (!isValidIgn) {
+    return { error: 'El nombre debe tener entre 3 y 16 caracteres y solo contener letras, números y guiones bajos (_).' };
+  }
+
+  try {
+    const session = await getSession();
+    if (!session?.userId) {
+      return { error: 'No estás autenticado.' };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId }
+    });
+
+    if (!user) {
+      return { error: 'Usuario no encontrado.' };
+    }
+
+    if (!user.trusted_author) {
+      return { error: 'No tienes permisos de editor para cambiar tu nombre de usuario.' };
+    }
+
+    // Check if the new IGN is already taken
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { ign: { equals: newIgn, mode: 'insensitive' } },
+          { discord_name: { equals: newIgn, mode: 'insensitive' } }
+        ]
+      }
+    });
+
+    if (existingUser && existingUser.id !== user.id) {
+      return { error: 'Este nombre de usuario ya está en uso.' };
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { ign: newIgn }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error changing IGN:', error);
+    return { error: 'Ocurrió un error al intentar cambiar el nombre de usuario.' };
+  }
+}
