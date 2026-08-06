@@ -119,6 +119,11 @@
     --mantine-color-text: #e5e7eb !important;
     --bn-colors-editor-textColor-black: #000000 !important;
   }
+
+  .wiki-editor .bn-editor {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
 }
 
 /* Custom Scrollbar */

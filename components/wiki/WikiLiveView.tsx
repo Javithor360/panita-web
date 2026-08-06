@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import * as Icons from "lucide-react";
 import { AssetPickerModal } from "./editor/AssetPickerModal";
+import { ItemTemplateModal } from "./editor/ItemTemplateModal";
 import { EditionIcon } from "@/components/ui/EditionIcon";
 import {
   AlertDialog,
@@ -120,6 +121,14 @@ export function WikiLiveView({
   >(Array.isArray(article?.infobox_data) ? (article.infobox_data as any) : []);
 
   const blocksRef = useRef<Block[]>((article?.content as Block[]) ?? []);
+
+  // Template Modal State
+  const initialCat = categories.find(
+    (c) => c.id === (article?.category_id ?? initialCategoryId ?? categories[0]?.id ?? "")
+  );
+  const [templatePicked, setTemplatePicked] = useState(
+    !(isNew && initialCat?.slug === "items")
+  );
 
   // UI State
   const [showSettings, setShowSettings] = useState(true);
@@ -228,6 +237,98 @@ export function WikiLiveView({
         color: article.edition.theme_color,
       }
     : null;
+
+  const applyTemplate = (type: string) => {
+    let newInfobox: { id: string; label: string; value: string }[] = [];
+    let newBlocks: any[] = [
+      { type: "paragraph", content: "Añade una descripción inicial aquí..." },
+    ];
+
+    const addHeading = (text: string) => {
+      newBlocks.push({ type: "heading", props: { level: 2 }, content: text });
+      newBlocks.push({ type: "paragraph" });
+    };
+
+    switch (type) {
+      case "material":
+        newInfobox = [
+          { id: crypto.randomUUID(), label: "Rareza", value: "" },
+          { id: crypto.randomUUID(), label: "Stack", value: "" },
+        ];
+        addHeading("Obtención");
+        addHeading("Uso");
+        break;
+      case "comida":
+        newInfobox = [
+          { id: crypto.randomUUID(), label: "Rareza", value: "" },
+          { id: crypto.randomUUID(), label: "Hambre", value: "" },
+          { id: crypto.randomUUID(), label: "Saturación", value: "" },
+          { id: crypto.randomUUID(), label: "Efectos", value: "" },
+          { id: crypto.randomUUID(), label: "Stack", value: "" },
+        ];
+        addHeading("Obtención");
+        addHeading("Uso");
+        addHeading("Efectos Especiales");
+        break;
+      case "armadura":
+        newInfobox = [
+          { id: crypto.randomUUID(), label: "Rareza", value: "" },
+          { id: crypto.randomUUID(), label: "Armadura", value: "" },
+          { id: crypto.randomUUID(), label: "Dureza de armadura", value: "" },
+          { id: crypto.randomUUID(), label: "Durabilidad", value: "" },
+          { id: crypto.randomUUID(), label: "Stack", value: "" },
+        ];
+        addHeading("Obtención");
+        addHeading("Uso");
+        addHeading("Reparación");
+        addHeading("Patrones de Armadura");
+        addHeading("Habilidades");
+        addHeading("Historia");
+        addHeading("Galería");
+        break;
+      case "herramienta":
+        newInfobox = [
+          { id: crypto.randomUUID(), label: "Rareza", value: "" },
+          { id: crypto.randomUUID(), label: "Eficiencia Minera", value: "" },
+          { id: crypto.randomUUID(), label: "Nivel de Minería", value: "" },
+          { id: crypto.randomUUID(), label: "Daño", value: "" },
+          { id: crypto.randomUUID(), label: "Velocidad de Ataque", value: "" },
+          { id: crypto.randomUUID(), label: "Durabilidad", value: "" },
+          { id: crypto.randomUUID(), label: "Stack", value: "" },
+        ];
+        addHeading("Obtención");
+        addHeading("Uso");
+        addHeading("Reparación");
+        addHeading("Habilidades");
+        addHeading("Historia");
+        break;
+      case "arma":
+        newInfobox = [
+          { id: crypto.randomUUID(), label: "Rareza", value: "" },
+          { id: crypto.randomUUID(), label: "Daño", value: "" },
+          { id: crypto.randomUUID(), label: "Velocidad de Ataque", value: "" },
+          { id: crypto.randomUUID(), label: "Durabilidad", value: "" },
+          { id: crypto.randomUUID(), label: "Stack", value: "" },
+        ];
+        addHeading("Obtención");
+        addHeading("Uso");
+        addHeading("Reparación");
+        addHeading("Habilidades");
+        addHeading("Historia");
+        break;
+      case "ninguno":
+        // Fallback simple
+        break;
+    }
+
+    setInfoboxData(newInfobox);
+    blocksRef.current = newBlocks as Block[];
+    setTemplatePicked(true);
+  };
+
+  if (!templatePicked) {
+    return <ItemTemplateModal onSelect={applyTemplate} />;
+  }
 
   return (
     <>
@@ -552,7 +653,7 @@ export function WikiLiveView({
             </div>
           )}
 
-          <div className="min-h-[300px]">
+          <div className="min-h-[300px] pt-4">
             {isEditing ? (
               <WikiEditor
                 initialContent={blocksRef.current}
