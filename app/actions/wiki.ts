@@ -1,0 +1,149 @@
+"use server";
+
+import prisma from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// ---------------------------------------------------------------------------
+// Guards
+// ---------------------------------------------------------------------------
+
+async function requireWikiEditor() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { id: true, trusted_author: true, roles: { select: { name: true } } },
+  });
+  const isMod =
+    user?.trusted_author ||
+    user?.roles.some((r) => ["Admin", "Moderador"].includes(r.name));
+  if (!isMod) redirect("/wiki");
+  return user!;
+}
+
+// ---------------------------------------------------------------------------
+// Article mutations
+// ---------------------------------------------------------------------------
+
+export async function createWikiArticle(formData: FormData) {
+  const user = await requireWikiEditor();
+
+  const slug = String(formData.get("slug")).trim();
+  const title = String(formData.get("title")).trim();
+  const categoryId = String(formData.get("category_id"));
+  const editionId = formData.get("edition_id") as string | null;
+  const excerpt = formData.get("excerpt") as string | null;
+  const coverUrl = formData.get("cover_url") as string | null;
+  const content = JSON.parse(String(formData.get("content")));
+  const aliases = JSON.parse(String(formData.get("aliases") || "[]")) as string[];
+  const isPublished = formData.get("is_published") === "true";
+
+  await prisma.wikiArticle.create({
+    data: {
+      slug,
+      title,
+      content,
+      category_id: categoryId,
+      edition_id: editionId || null,
+      excerpt: excerpt || null,
+      cover_url: coverUrl || null,
+      author_id: user.id,
+      aliases,
+      is_published: isPublished,
+    },
+  });
+
+  revalidatePath("/wiki");
+  revalidatePath(`/wiki/${slug}`);
+  redirect(`/wiki/${slug}`);
+}
+
+export async function updateWikiArticle(id: string, formData: FormData) {
+  await requireWikiEditor();
+
+  const slug = String(formData.get("slug")).trim();
+  const title = String(formData.get("title")).trim();
+  const categoryId = String(formData.get("category_id"));
+  const editionId = formData.get("edition_id") as string | null;
+  const excerpt = formData.get("excerpt") as string | null;
+  const coverUrl = formData.get("cover_url") as string | null;
+  const content = JSON.parse(String(formData.get("content")));
+  const aliases = JSON.parse(String(formData.get("aliases") || "[]")) as string[];
+  const isPublished = formData.get("is_published") === "true";
+
+  const article = await prisma.wikiArticle.update({
+    where: { id },
+    data: {
+      slug,
+      title,
+      content,
+      category_id: categoryId,
+      edition_id: editionId || null,
+      excerpt: excerpt || null,
+      cover_url: coverUrl || null,
+      aliases,
+      is_published: isPublished,
+    },
+    include: {
+      category: true,
+    }
+  });
+
+  revalidatePath("/wiki");
+  revalidatePath(`/wiki/${article.category.slug}/${article.slug}`);
+  redirect(`/wiki/${article.category.slug}/${article.slug}`);
+}
+
+export async function deleteWikiArticle(id: string) {
+  await requireWikiEditor();
+  const article = await prisma.wikiArticle.delete({ where: { id } });
+  revalidatePath("/wiki");
+  revalidatePath(`/wiki/${article.slug}`);
+}
+
+// ---------------------------------------------------------------------------
+// Asset upload (Cloudinary + DB record)
+// ---------------------------------------------------------------------------
+
+export async function uploadWikiAsset(formData: FormData) {
+  await requireWikiEditor();
+
+  const file = formData.get("file") as File;
+  const category = String(formData.get("category")).toLowerCase().trim();
+  const name = String(formData.get("name")).toLowerCase().trim().replace(/\.[^/.]+$/, ""); // strip extension
+
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      {
+        folder: `panita-web/wiki/${category}`,
+        public_id: name,
+        overwrite: false,
+      },
+      (error, result) => {
+        if (error || !result) reject(error);
+        else resolve(result as { secure_url: string });
+      }
+    ).end(buffer);
+  });
+
+  // Upsert so re-uploads update the URL
+  const asset = await prisma.wikiAsset.upsert({
+    where: { category_name: { category, name } },
+    update: { url: result.secure_url },
+    create: { name, url: result.secure_url, category },
+  });
+
+  return asset;
+}
