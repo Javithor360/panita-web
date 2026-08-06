@@ -24,11 +24,6 @@ export default async function WikiCategoryPage({ params }: { params: Promise<{ c
     notFound()
   }
 
-  const articles = await getWikiArticlesByCategory(cat.slug)
-  const Icon: LucideIcon = cat.icon 
-    ? ((Icons as unknown as Record<string, LucideIcon>)[cat.icon] ?? Icons.BookOpen)
-    : Icons.BookOpen
-
   // Check permissions
   const session = await getSession()
   let canEdit = false
@@ -39,6 +34,11 @@ export default async function WikiCategoryPage({ params }: { params: Promise<{ c
     })
     canEdit = !!(user?.trusted_author || user?.roles.some((r) => ["Admin", "Moderador"].includes(r.name)))
   }
+
+  const articles = await getWikiArticlesByCategory(cat.slug, canEdit)
+  const Icon: LucideIcon = cat.icon 
+    ? ((Icons as unknown as Record<string, LucideIcon>)[cat.icon] ?? Icons.BookOpen)
+    : Icons.BookOpen
 
   return (
     <div className="space-y-8">
@@ -78,7 +78,7 @@ export default async function WikiCategoryPage({ params }: { params: Promise<{ c
           )}
           
           {articles.map((article) => (
-            <WikiArticleCard key={article.slug} article={article} />
+            <WikiArticleCard key={article.slug} article={article} canEdit={canEdit} />
           ))}
           {articles.length === 0 && !canEdit && (
             <div className="col-span-full py-12 text-center text-muted-foreground bg-muted/10 rounded-xl border border-dashed border-border">

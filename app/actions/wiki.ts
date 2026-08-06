@@ -66,7 +66,7 @@ export async function createWikiArticle(formData: FormData) {
 
   revalidatePath("/wiki");
   revalidatePath(`/wiki/${slug}`);
-  redirect(`/wiki/${slug}`);
+  return { slug, success: true };
 }
 
 export async function updateWikiArticle(id: string, formData: FormData) {
@@ -104,7 +104,7 @@ export async function updateWikiArticle(id: string, formData: FormData) {
 
   revalidatePath("/wiki");
   revalidatePath(`/wiki/${article.category.slug}/${article.slug}`);
-  redirect(`/wiki/${article.category.slug}/${article.slug}`);
+  return { slug: article.slug, categorySlug: article.category.slug, success: true };
 }
 
 export async function deleteWikiArticle(id: string) {
@@ -155,4 +155,35 @@ export async function uploadWikiAsset(formData: FormData) {
   });
 
   return asset;
+}
+
+export async function cloneWikiArticle(id: string) {
+  await requireWikiEditor();
+  const article = await prisma.wikiArticle.findUnique({
+    where: { id },
+    include: { category: true }
+  });
+  if (!article) throw new Error("Article not found");
+  
+  const newSlug = `${article.slug}-copy-${Date.now().toString().slice(-4)}`;
+  
+  await prisma.wikiArticle.create({
+    data: {
+      title: `${article.title} (Copia)`,
+      slug: newSlug,
+      excerpt: article.excerpt,
+      content: article.content as any,
+      cover_url: article.cover_url,
+      infobox_data: article.infobox_data as any,
+      aliases: article.aliases as any,
+      is_published: false,
+      category: { connect: { id: article.category_id } },
+      edition: article.edition_id ? { connect: { id: article.edition_id } } : undefined,
+      author: { connect: { id: article.author_id } },
+    }
+  });
+
+  revalidatePath("/wiki");
+  revalidatePath(`/wiki/${article.category.slug}`);
+  redirect(`/wiki/${article.category.slug}/${newSlug}?edit=true`);
 }

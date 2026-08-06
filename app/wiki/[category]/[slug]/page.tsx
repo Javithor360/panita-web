@@ -11,7 +11,22 @@ import { notFound } from 'next/navigation'
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string; slug: string }> }) {
   const { slug } = await params
-  const article = await getWikiArticle(slug)
+  
+  // We allow metadata to be generated for drafts if the user has a session,
+  // but to keep it simple and fast, we can just allow getWikiArticle to fetch it with includeDrafts=true
+  // since metadata doesn't expose sensitive info beyond title/excerpt, or we can check session here too.
+  // For metadata, we'll just check session to be safe.
+  const session = await getSession()
+  let canEdit = false
+  if (session) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { trusted_author: true, roles: { select: { name: true } } },
+    })
+    canEdit = !!(user?.trusted_author || user?.roles.some((r) => ["Admin", "Moderador"].includes(r.name)))
+  }
+
+  const article = await getWikiArticle(slug, canEdit)
   if (!article) return { title: 'No encontrado - Panitacraft Wiki' }
   return { 
     title: `${article.title} - Panitacraft Wiki`,
@@ -22,13 +37,8 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 export default async function WikiArticlePage({ params, searchParams }: { params: Promise<{ category: string; slug: string }>, searchParams: Promise<{ edit?: string }> }) {
   const { slug } = await params
   const { edit } = await searchParams
-  const article = await getWikiArticle(slug)
   
-  if (!article) {
-    notFound()
-  }
-
-  // Check permissions
+  // Check permissions first
   const session = await getSession()
   let canEdit = false
   if (session) {
@@ -37,6 +47,12 @@ export default async function WikiArticlePage({ params, searchParams }: { params
       select: { trusted_author: true, roles: { select: { name: true } } },
     })
     canEdit = !!(user?.trusted_author || user?.roles.some((r) => ["Admin", "Moderador"].includes(r.name)))
+  }
+
+  const article = await getWikiArticle(slug, canEdit)
+  
+  if (!article) {
+    notFound()
   }
 
   // Determine if it should auto-start in edit mode based on URL query and permissions
@@ -77,6 +93,7 @@ export default async function WikiArticlePage({ params, searchParams }: { params
         article={articleData}
         canEdit={canEdit}
         isNew={false}
+        startEditing={isEditing}
       />
     </div>
   )

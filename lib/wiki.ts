@@ -25,10 +25,10 @@ export async function getWikiCategoryBySlug(slug: string) {
 // ---------------------------------------------------------------------------
 
 /** Resolve a slug OR alias to a WikiArticle */
-export async function getWikiArticle(slug: string) {
+export async function getWikiArticle(slug: string, includeDrafts: boolean = false) {
   // Try primary slug first
   let article = await prisma.wikiArticle.findUnique({
-    where: { slug, is_published: true },
+    where: { slug },
     include: {
       category: true,
       edition: { select: { id: true, name: true, theme_color: true } },
@@ -39,7 +39,7 @@ export async function getWikiArticle(slug: string) {
   // Fall back to alias lookup
   if (!article) {
     article = await prisma.wikiArticle.findFirst({
-      where: { aliases: { has: slug }, is_published: true },
+      where: { aliases: { has: slug } },
       include: {
         category: true,
         edition: { select: { id: true, name: true, theme_color: true } },
@@ -49,17 +49,22 @@ export async function getWikiArticle(slug: string) {
   }
 
   if (!article) notFound();
+  if (!article.is_published && !includeDrafts) notFound();
+
   return article;
 }
 
-export async function getWikiArticlesByCategory(categorySlug: string) {
+export async function getWikiArticlesByCategory(categorySlug: string, includeDrafts: boolean = false) {
+  const publishedFilter = includeDrafts ? {} : { is_published: true };
+
   return prisma.wikiArticle.findMany({
     where: {
       category: { slug: categorySlug },
-      is_published: true,
+      ...publishedFilter,
     },
     select: {
       id: true,
+      is_published: true,
       slug: true,
       title: true,
       excerpt: true,

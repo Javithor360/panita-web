@@ -89,6 +89,7 @@ interface WikiLiveViewProps {
   canEdit: boolean;
   isNew?: boolean;
   initialCategoryId?: string;
+  startEditing?: boolean;
 }
 
 export function WikiLiveView({
@@ -98,9 +99,10 @@ export function WikiLiveView({
   canEdit,
   isNew,
   initialCategoryId,
+  startEditing,
 }: WikiLiveViewProps) {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(isNew ?? false);
+  const [isEditing, setIsEditing] = useState(isNew || startEditing || false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -185,13 +187,18 @@ export function WikiLiveView({
     startTransition(async () => {
       try {
         if (!isNew && article) {
-          await updateWikiArticle(article.id, fd);
+          const res = await updateWikiArticle(article.id, fd);
           setIsEditing(false);
-          router.refresh();
+          // Only push if the slug or category changed
+          if (res.slug !== slug || res.categorySlug !== categoryId) {
+            router.push(`/wiki/${res.categorySlug}/${res.slug}`);
+          } else {
+            router.refresh();
+          }
         } else {
-          await createWikiArticle(fd);
+          const res = await createWikiArticle(fd);
           const cat = categories.find((c) => c.id === categoryId);
-          router.push(`/wiki/${cat?.slug}/${slug}`);
+          router.push(`/wiki/${cat?.slug}/${res.slug}`);
         }
       } catch (err) {
         if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
