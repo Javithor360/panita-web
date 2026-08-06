@@ -109,9 +109,14 @@ export async function updateWikiArticle(id: string, formData: FormData) {
 
 export async function deleteWikiArticle(id: string) {
   await requireWikiEditor();
-  const article = await prisma.wikiArticle.delete({ where: { id } });
+  const article = await prisma.wikiArticle.delete({
+    where: { id },
+    include: { category: true },
+  });
   revalidatePath("/wiki");
-  revalidatePath(`/wiki/${article.slug}`);
+  revalidatePath(`/wiki/${article.category.slug}`);
+  revalidatePath(`/wiki/${article.category.slug}/${article.slug}`);
+  redirect(`/wiki/${article.category.slug}`);
 }
 
 // ---------------------------------------------------------------------------

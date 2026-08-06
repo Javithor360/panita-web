@@ -8,11 +8,37 @@ import { WikiBlockRenderer } from "./WikiBlockRenderer";
 import { extractHeadings, type BlockNode } from "@/lib/wiki-utils";
 import dynamic from "next/dynamic";
 import type { Block } from "@blocknote/core";
-import { createWikiArticle, updateWikiArticle } from "@/app/actions/wiki";
-import { Loader2, Save, X, Settings2, Pencil, Trash, ChevronDown, Check, Globe } from "lucide-react";
+import {
+  createWikiArticle,
+  updateWikiArticle,
+  deleteWikiArticle,
+} from "@/app/actions/wiki";
+import {
+  Loader2,
+  Save,
+  X,
+  Settings2,
+  Pencil,
+  Trash,
+  ChevronDown,
+  Check,
+  Globe,
+} from "lucide-react";
 import * as Icons from "lucide-react";
 import { AssetPickerModal } from "./editor/AssetPickerModal";
 import { EditionIcon } from "@/components/ui/EditionIcon";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 // Dynamic import of the BlockNote editor
 const WikiEditor = dynamic(
@@ -89,9 +115,9 @@ export function WikiLiveView({
   const [aliases, setAliases] = useState<string[]>(article?.aliases ?? []);
   const [aliasInput, setAliasInput] = useState("");
   const [isPublished, setIsPublished] = useState(article?.is_published ?? true);
-  const [infoboxData, setInfoboxData] = useState<{ id?: string; label: string; value: string }[]>(
-    Array.isArray(article?.infobox_data) ? (article.infobox_data as any) : []
-  );
+  const [infoboxData, setInfoboxData] = useState<
+    { id?: string; label: string; value: string }[]
+  >(Array.isArray(article?.infobox_data) ? (article.infobox_data as any) : []);
 
   const blocksRef = useRef<Block[]>((article?.content as Block[]) ?? []);
 
@@ -159,7 +185,7 @@ export function WikiLiveView({
           router.push(`/wiki/${cat?.slug}/${slug}`);
         }
       } catch (err) {
-        if (err instanceof Error && err.message.includes('NEXT_REDIRECT')) {
+        if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
           throw err;
         }
         setError(
@@ -169,16 +195,38 @@ export function WikiLiveView({
     });
   }
 
+  const handleDelete = () => {
+    if (!article) return;
+    startTransition(async () => {
+      try {
+        await deleteWikiArticle(article.id);
+      } catch (err) {
+        if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
+          throw err;
+        }
+        setError(err instanceof Error ? err.message : "Error al eliminar");
+      }
+    });
+  };
+
   const displayCategory = categories.find((c) => c.id === categoryId);
   const displayEdition = editions.find((e) => e.id === editionId);
 
   // Fake article object for previewing the InfoBox while editing
   const previewEdition = displayEdition
-    ? { id: displayEdition.id, name: displayEdition.name, color: displayEdition.theme_color }
+    ? {
+        id: displayEdition.id,
+        name: displayEdition.name,
+        color: displayEdition.theme_color,
+      }
     : null;
-    
-  const currentEdition = article?.edition 
-    ? { id: article.edition.id, name: article.edition.name, color: article.edition.theme_color }
+
+  const currentEdition = article?.edition
+    ? {
+        id: article.edition.id,
+        name: article.edition.name,
+        color: article.edition.theme_color,
+      }
     : null;
 
   return (
@@ -199,7 +247,9 @@ export function WikiLiveView({
                 categorySlug={displayCategory?.slug}
                 isEditing={isEditing}
                 onDataChange={setInfoboxData}
-                onCoverClick={isEditing ? () => setShowAssetPicker(true) : undefined}
+                onCoverClick={
+                  isEditing ? () => setShowAssetPicker(true) : undefined
+                }
               />
             </div>
           )}
@@ -255,15 +305,32 @@ export function WikiLiveView({
                     <div className="relative">
                       <button
                         type="button"
-                        onClick={() => { setCategoryDropdownOpen(!categoryDropdownOpen); setEditionDropdownOpen(false); }}
+                        onClick={() => {
+                          setCategoryDropdownOpen(!categoryDropdownOpen);
+                          setEditionDropdownOpen(false);
+                        }}
                         className="w-full px-3 py-2 text-sm rounded-md bg-background border border-border text-foreground flex items-center justify-between focus:outline-none focus:border-primary"
                       >
                         <div className="flex items-center gap-2">
                           {(() => {
-                            const cat = categories.find(c => c.id === categoryId);
+                            const cat = categories.find(
+                              (c) => c.id === categoryId,
+                            );
                             if (!cat) return <span>Seleccionar Categoría</span>;
-                            const Icon = cat.icon ? (Icons as unknown as Record<string, React.FC<any>>)[cat.icon] ?? Icons.BookOpen : Icons.BookOpen;
-                            return <><Icon className="w-4 h-4 text-primary" /> {cat.name}</>;
+                            const Icon = cat.icon
+                              ? ((
+                                  Icons as unknown as Record<
+                                    string,
+                                    React.FC<any>
+                                  >
+                                )[cat.icon] ?? Icons.BookOpen)
+                              : Icons.BookOpen;
+                            return (
+                              <>
+                                <Icon className="w-4 h-4 text-primary" />{" "}
+                                {cat.name}
+                              </>
+                            );
                           })()}
                         </div>
                         <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -271,19 +338,31 @@ export function WikiLiveView({
                       {categoryDropdownOpen && (
                         <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg py-1 max-h-48 overflow-y-auto">
                           {categories.map((c) => {
-                            const Icon = c.icon ? (Icons as unknown as Record<string, React.FC<any>>)[c.icon] ?? Icons.BookOpen : Icons.BookOpen;
+                            const Icon = c.icon
+                              ? ((
+                                  Icons as unknown as Record<
+                                    string,
+                                    React.FC<any>
+                                  >
+                                )[c.icon] ?? Icons.BookOpen)
+                              : Icons.BookOpen;
                             return (
                               <button
                                 key={c.id}
                                 type="button"
-                                onClick={() => { setCategoryId(c.id); setCategoryDropdownOpen(false); }}
+                                onClick={() => {
+                                  setCategoryId(c.id);
+                                  setCategoryDropdownOpen(false);
+                                }}
                                 className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center justify-between"
                               >
                                 <div className="flex items-center gap-2">
                                   <Icon className="w-4 h-4 text-primary" />
                                   <span>{c.name}</span>
                                 </div>
-                                {categoryId === c.id && <Check className="w-4 h-4 text-primary" />}
+                                {categoryId === c.id && (
+                                  <Check className="w-4 h-4 text-primary" />
+                                )}
                               </button>
                             );
                           })}
@@ -298,16 +377,28 @@ export function WikiLiveView({
                     <div className="relative">
                       <button
                         type="button"
-                        onClick={() => { setEditionDropdownOpen(!editionDropdownOpen); setCategoryDropdownOpen(false); }}
+                        onClick={() => {
+                          setEditionDropdownOpen(!editionDropdownOpen);
+                          setCategoryDropdownOpen(false);
+                        }}
                         className="w-full px-3 py-2 text-sm rounded-md bg-background border border-border text-foreground flex items-center justify-between focus:outline-none focus:border-primary"
                       >
                         <div className="flex items-center gap-2">
                           {(() => {
-                            const ed = editions.find(e => e.id === editionId);
-                            if (!ed) return <span className="text-muted-foreground flex items-center gap-1.5"><Globe className="w-4 h-4 opacity-50" /> Global (Sin edición)</span>;
+                            const ed = editions.find((e) => e.id === editionId);
+                            if (!ed)
+                              return (
+                                <span className="text-muted-foreground flex items-center gap-1.5">
+                                  <Globe className="w-4 h-4 opacity-50" />{" "}
+                                  Global (Sin edición)
+                                </span>
+                              );
                             return (
                               <>
-                                <EditionIcon editionId={ed.id} className="w-5 h-5 rounded-md object-contain" />
+                                <EditionIcon
+                                  editionId={ed.id}
+                                  className="w-5 h-5 rounded-md object-contain"
+                                />
                                 <span>{ed.name}</span>
                               </>
                             );
@@ -319,24 +410,40 @@ export function WikiLiveView({
                         <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg py-1 max-h-48 overflow-y-auto">
                           <button
                             type="button"
-                            onClick={() => { setEditionId(""); setEditionDropdownOpen(false); }}
+                            onClick={() => {
+                              setEditionId("");
+                              setEditionDropdownOpen(false);
+                            }}
                             className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center justify-between"
                           >
-                            <span className="text-muted-foreground flex items-center gap-1.5"><Globe className="w-4 h-4 opacity-50" /> Global (Sin edición)</span>
-                            {editionId === "" && <Check className="w-4 h-4 text-primary" />}
+                            <span className="text-muted-foreground flex items-center gap-1.5">
+                              <Globe className="w-4 h-4 opacity-50" /> Global
+                              (Sin edición)
+                            </span>
+                            {editionId === "" && (
+                              <Check className="w-4 h-4 text-primary" />
+                            )}
                           </button>
                           {editions.map((e) => (
                             <button
                               key={e.id}
                               type="button"
-                              onClick={() => { setEditionId(e.id); setEditionDropdownOpen(false); }}
+                              onClick={() => {
+                                setEditionId(e.id);
+                                setEditionDropdownOpen(false);
+                              }}
                               className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center justify-between"
                             >
                               <div className="flex items-center gap-2">
-                                <EditionIcon editionId={e.id} className="w-5 h-5 rounded-md object-contain" />
+                                <EditionIcon
+                                  editionId={e.id}
+                                  className="w-5 h-5 rounded-md object-contain"
+                                />
                                 <span>{e.name}</span>
                               </div>
-                              {editionId === e.id && <Check className="w-4 h-4 text-primary" />}
+                              {editionId === e.id && (
+                                <Check className="w-4 h-4 text-primary" />
+                              )}
                             </button>
                           ))}
                         </div>
@@ -411,14 +518,15 @@ export function WikiLiveView({
                     )}
                   </div>
 
-
                   <div className="space-y-1 md:col-span-2 flex items-center justify-between p-4 border border-border rounded-md bg-background/30 mt-4">
                     <div>
                       <span className="text-sm font-medium block text-foreground">
                         Estado del artículo
                       </span>
                       <span className="text-xs text-muted-foreground mt-0.5 block">
-                        {isPublished ? "Público para todos." : "Borrador (Solo visible para autores)."}
+                        {isPublished
+                          ? "Público para todos."
+                          : "Borrador (Solo visible para autores)."}
                       </span>
                     </div>
                     <button
@@ -471,7 +579,11 @@ export function WikiLiveView({
                 Por{" "}
                 {article.authorIgn && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={`https://render.crafty.gg/2d/head/${article.authorIgn}`} alt="" className="w-5 h-5 rounded-sm pixelated" />
+                  <img
+                    src={`https://render.crafty.gg/2d/head/${article.authorIgn}`}
+                    alt=""
+                    className="w-5 h-5 rounded-sm pixelated"
+                  />
                 )}
                 <span className="text-foreground font-medium">
                   {article.authorName}
@@ -490,28 +602,56 @@ export function WikiLiveView({
       {/* Sticky Save Bar */}
       {isEditing && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md border-t border-border shadow-[0_-10px_30px_rgba(0,0,0,0.5)] z-50 animate-in slide-in-from-bottom flex justify-center">
-          <div className="container max-w-7xl flex items-center justify-end gap-3">
-            {!isNew && (
-              <button
-                onClick={() => setIsEditing(false)}
-                className="px-5 py-2.5 rounded-lg border border-border hover:bg-muted text-sm font-medium transition-colors"
-                disabled={pending}
-              >
-                Cancelar
-              </button>
-            )}
-            <button
-              onClick={handleSave}
-              disabled={pending}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {pending ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
+          <div className="container max-w-7xl flex items-center justify-between gap-3">
+            <div className="flex-shrink-0">
+              {!isNew && article && (
+                <AlertDialog>
+                  <AlertDialogTrigger render={<Button variant="destructive" />}>
+                    <Trash className="w-4 h-4 mr-2" /> Eliminar
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        ¿Eliminar este artículo?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta acción no se puede deshacer. El artículo "{title}"
+                        será eliminado permanentemente de la Wiki.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        Eliminar Artículo
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
-              {pending ? "Guardando..." : "Guardar Página"}
-            </button>
+            </div>
+            <div className="flex items-center gap-3">
+              {!isNew && (
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-5 py-2.5 rounded-lg border border-border hover:bg-muted text-sm font-medium transition-colors"
+                  disabled={pending}
+                >
+                  Cancelar
+                </button>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={pending}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {pending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                {pending ? "Guardando..." : "Guardar Página"}
+              </button>
+            </div>
           </div>
         </div>
       )}
