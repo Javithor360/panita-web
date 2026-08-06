@@ -34,11 +34,11 @@ export function WikiTOC({ headings }: { headings: { id: string; text: string; le
   if (!targetElement) return null
 
   const content = (
-    <div className="bg-[#0a0f0a] border border-border/50 rounded-lg p-4">
-      <h3 className="font-bold text-foreground tracking-tight mb-3 pb-2 border-b border-border/50">
-        En esta página
-      </h3>
-      <nav className="flex flex-col space-y-2 text-sm max-h-[60vh] overflow-y-auto pr-2">
+    <div className="bg-[#0a0f0a] border border-border/50 rounded-lg overflow-hidden">
+      <div className="p-4 border-b border-border/50 bg-[#0f170f]">
+        <h3 className="font-bold text-foreground tracking-tight">Índice</h3>
+      </div>
+      <nav className="flex flex-col p-4 pt-3 space-y-2 text-sm max-h-[60vh] overflow-y-auto pr-2">
         {headings.map(({ id, text, level }) => {
           if (level > 3) return null
           return (
