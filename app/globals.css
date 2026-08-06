@@ -109,6 +109,16 @@
     -webkit-text-fill-color: oklch(0.98 0 0) !important;
     transition: background-color 5000s ease-in-out 0s;
   }
+
+  /* 
+   * Fix for BlockNote editor text color:
+   * Override Mantine and BlockNote default text color variables to ensure the editor defaults to white text.
+   */
+  .wiki-editor {
+    --bn-colors-editor-text: #e5e7eb !important;
+    --mantine-color-text: #e5e7eb !important;
+    --bn-colors-editor-textColor-black: #000000 !important;
+  }
 }
 
 /* Custom Scrollbar */
