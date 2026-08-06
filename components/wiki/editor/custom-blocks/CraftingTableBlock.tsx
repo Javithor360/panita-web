@@ -142,7 +142,7 @@ export const CraftingTableBlock = createReactBlockSpec(
                           return (
                             <div 
                               key={i} 
-                              onClick={(e) => copiedAsset ? pasteSlot(e, i) : openPicker(i)}
+                              onClick={() => openPicker(i)}
                               className={`w-16 h-16 bg-[#8b8b8b] border-2 border-t-[#373737] border-l-[#373737] border-b-[#fff] border-r-[#fff] flex items-center justify-center cursor-pointer transition-colors relative group ${copiedAsset ? 'hover:bg-primary/20' : 'hover:bg-[#a0a0a0]'}`}
                             >
                               {url ? (
