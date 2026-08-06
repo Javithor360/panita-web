@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import React from 'react'
+import { ArrowRight } from 'lucide-react'
 import { slugify, type InlineContent, type TableContent, type BlockNode } from '@/lib/wiki-utils'
 
 function isInlineContent(c: InlineContent[] | TableContent | undefined): c is InlineContent[] {
@@ -21,7 +22,7 @@ export function WikiBlockRenderer({ content }: { content: unknown }) {
         if (c.styles?.italic) el = <em>{el}</em>
         if (c.styles?.underline) el = <u>{el}</u>
         if (c.styles?.strikethrough) el = <s>{el}</s>
-        if (c.styles?.code) el = <code className="bg-muted px-1 rounded text-primary text-sm font-mono">{el}</code>
+        if (c.styles?.code) el = <code className="bg-[#f2f4f6] text-[#0f1419] border border-[#d1d5db] px-1.5 py-0.5 mx-0.5 rounded text-[13px] font-mono shadow-sm whitespace-nowrap">{el}</code>
         const allowedColors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink'];
         if (c.styles?.textColor && allowedColors.includes(c.styles.textColor as string)) {
           el = <span style={{ color: c.styles.textColor as string }}>{el}</span>
@@ -152,6 +153,134 @@ export function WikiBlockRenderer({ content }: { content: unknown }) {
               ))}
             </tbody>
           </table>
+        </div>
+      )
+    } else if (block.type === 'crafting') {
+      let slots: any[] = ["", "", "", "", "", "", "", "", ""]
+      try { slots = JSON.parse(String(block.props?.slotsJson)) } catch {}
+      const outputAsset = String(block.props?.outputAsset || '')
+      const outputCount = String(block.props?.outputCount || '1')
+
+      const formatItemName = (name: string) => {
+        if (!name) return "";
+        return name
+          .replace(/\.[^/.]+$/, "") // remove extension
+          .replace(/[-_]/g, " ")    // spaces instead of - or _
+          .replace(/\b\w/g, c => c.toUpperCase()); // capitalize
+      }
+
+      elements.push(
+        <div key={block.id || i} className="flex flex-col bg-[#c6c6c6] p-2 rounded-md border-4 border-b-[#555] border-r-[#555] border-t-[#fff] border-l-[#fff] w-fit shadow-md my-4">
+          <div className="text-xs font-bold text-black mb-1 self-start font-minecraft">Crafting</div>
+          <div className="flex items-center gap-6">
+            <div className="grid grid-cols-3 gap-[2px]">
+              {slots.map((s, idx) => {
+                const url = typeof s === 'string' ? s : s?.url || "";
+                const rawName = typeof s === 'string' ? "" : s?.name || "";
+                const name = formatItemName(rawName);
+                return (
+                  <div key={idx} className="w-16 h-16 bg-[#8b8b8b] border-2 border-t-[#373737] border-l-[#373737] border-b-[#fff] border-r-[#fff] flex items-center justify-center relative group">
+                    {url && (
+                      <>
+                        <Image src={url} alt={name || "Slot"} fill className="p-1 object-contain pixelated" />
+                        {name && (
+                          <div className="absolute z-50 invisible group-hover:visible bg-[#110111] border-[2px] border-[#3a0088] px-2 py-1 text-white font-minecraft shadow-lg whitespace-nowrap -top-12 left-1/2 transform -translate-x-1/2 text-xs pointer-events-none">
+                            <span className="drop-shadow-[1px_1px_0_rgba(0,0,0,1)]">{name}</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="text-[#373737]"><ArrowRight className="w-10 h-10" strokeWidth={3} /></div>
+            <div className="w-16 h-16 bg-[#8b8b8b] border-2 border-t-[#373737] border-l-[#373737] border-b-[#fff] border-r-[#fff] flex items-center justify-center relative group">
+              {outputAsset && (
+                <>
+                  <Image src={outputAsset} alt={formatItemName(String(block.props?.outputName)) || "Output"} fill className="p-1 object-contain pixelated" />
+                  {block.props?.outputName && (
+                    <div className="absolute z-50 invisible group-hover:visible bg-[#110111] border-[2px] border-[#3a0088] px-2 py-1 text-white font-minecraft shadow-lg whitespace-nowrap -top-12 left-1/2 transform -translate-x-1/2 text-xs pointer-events-none">
+                      <span className="drop-shadow-[1px_1px_0_rgba(0,0,0,1)]">{formatItemName(String(block.props?.outputName))}</span>
+                    </div>
+                  )}
+                  {outputCount !== "1" && <span className="absolute bottom-0 right-0 font-minecraft text-white drop-shadow-[1px_1px_0_rgba(0,0,0,1)] text-xs z-10 px-1">{outputCount}</span>}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )
+    } else if (block.type === 'craftingrecipe') {
+      let slots: any[] = ["", "", "", "", "", "", "", "", ""]
+      try { slots = JSON.parse(String(block.props?.slotsJson)) } catch {}
+      const outputAsset = String(block.props?.outputAsset || '')
+      const outputCount = String(block.props?.outputCount || '1')
+      const itemName = String(block.props?.itemName || '')
+      const ingredientsText = String(block.props?.ingredientsText || '')
+
+      const formatItemName = (name: string) => {
+        if (!name) return "";
+        return name
+          .replace(/\.[^/.]+$/, "") // remove extension
+          .replace(/[-_]/g, " ")    // spaces instead of - or _
+          .replace(/\b\w/g, c => c.toUpperCase()); // capitalize
+      }
+
+      elements.push(
+        <div key={block.id || i} className="w-fit overflow-x-auto my-6 border border-border rounded-lg bg-background">
+          <div className="flex flex-col w-fit text-sm text-left">
+            <div className="flex bg-primary/10 border-b border-border">
+              <div className="px-4 py-2 font-semibold text-foreground border-r border-border min-w-[200px] w-1/3">Ingredientes</div>
+              <div className="px-4 py-2 font-semibold text-foreground min-w-[250px] flex-1">Receta de crafteo</div>
+            </div>
+            <div className="flex">
+              <div className="px-4 py-2 border-r border-border min-w-[200px] w-1/3 flex-shrink-0 flex items-center text-foreground whitespace-pre-wrap">
+                {ingredientsText}
+              </div>
+              <div className="px-4 py-2 flex-1 flex justify-start items-center bg-muted/10 min-w-[250px]">
+                  <div className="flex flex-col items-start bg-[#c6c6c6] p-1.5 rounded-md border-2 border-b-[#555] border-r-[#555] border-t-[#fff] border-l-[#fff] w-fit shadow-sm scale-90 origin-left">
+                    <div className="flex items-center gap-4">
+                      <div className="grid grid-cols-3 gap-[2px]">
+                        {slots.map((s, idx) => {
+                          const url = typeof s === 'string' ? s : s?.url || "";
+                          const rawName = typeof s === 'string' ? "" : s?.name || "";
+                          const name = formatItemName(rawName);
+                          return (
+                            <div key={idx} className="w-16 h-16 bg-[#8b8b8b] border-2 border-t-[#373737] border-l-[#373737] border-b-[#fff] border-r-[#fff] flex items-center justify-center relative group">
+                              {url && (
+                                <>
+                                  <Image src={url} alt={name || "Slot"} fill className="p-1 object-contain pixelated" />
+                                  {name && (
+                                    <div className="absolute z-50 invisible group-hover:visible bg-[#110111] border-[2px] border-[#3a0088] px-2 py-1 text-white font-minecraft shadow-lg whitespace-nowrap -top-12 left-1/2 transform -translate-x-1/2 text-xs pointer-events-none">
+                                      <span className="drop-shadow-[1px_1px_0_rgba(0,0,0,1)]">{name}</span>
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="text-[#373737]"><ArrowRight className="w-8 h-8" strokeWidth={3} /></div>
+                      <div className="w-16 h-16 bg-[#8b8b8b] border-2 border-t-[#373737] border-l-[#373737] border-b-[#fff] border-r-[#fff] flex items-center justify-center relative group">
+                        {outputAsset && (
+                          <>
+                            <Image src={outputAsset} alt={formatItemName(String(block.props?.outputName)) || "Output"} fill className="p-1 object-contain pixelated" />
+                            {block.props?.outputName && (
+                              <div className="absolute z-50 invisible group-hover:visible bg-[#110111] border-[2px] border-[#3a0088] px-2 py-1 text-white font-minecraft shadow-lg whitespace-nowrap -top-12 left-1/2 transform -translate-x-1/2 text-xs pointer-events-none">
+                                <span className="drop-shadow-[1px_1px_0_rgba(0,0,0,1)]">{formatItemName(String(block.props?.outputName))}</span>
+                              </div>
+                            )}
+                            {outputCount !== "1" && <span className="absolute bottom-0 right-0 font-minecraft text-white drop-shadow-[1px_1px_0_rgba(0,0,0,1)] text-xs z-10 px-1">{outputCount}</span>}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
         </div>
       )
     } else {

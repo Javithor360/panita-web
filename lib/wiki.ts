@@ -96,11 +96,17 @@ export async function getWikiArticleForEditor(id: string) {
 // Assets
 // ---------------------------------------------------------------------------
 
-export async function getWikiAssets(category: string, search?: string) {
+export async function getWikiAssets(category?: string, search?: string) {
+  if (!search) {
+    return prisma.wikiAsset.findMany({
+      orderBy: { created_at: "desc" },
+      take: 8,
+    });
+  }
+  
   return prisma.wikiAsset.findMany({
     where: {
-      category,
-      ...(search ? { name: { contains: search, mode: "insensitive" } } : {}),
+      name: { contains: search, mode: "insensitive" }
     },
     orderBy: { name: "asc" },
   });
