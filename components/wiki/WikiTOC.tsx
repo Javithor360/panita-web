@@ -1,0 +1,63 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+
+export function WikiTOC({ headings }: { headings: { id: string; text: string; level: number }[] }) {
+  const [activeId, setActiveId] = useState<string>('')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id)
+          }
+        })
+      },
+      { rootMargin: '0px 0px -80% 0px' }
+    )
+
+    headings.forEach(({ id }) => {
+      const element = document.getElementById(id)
+      if (element) observer.observe(element)
+    })
+
+    return () => observer.disconnect()
+  }, [headings])
+
+  if (!headings.length || !mounted) return null
+
+  const targetElement = document.getElementById('wiki-sidebar-toc')
+  if (!targetElement) return null
+
+  const content = (
+    <div className="bg-[#0a0f0a] border border-border/50 rounded-lg p-4">
+      <h3 className="font-bold text-foreground tracking-tight mb-3 pb-2 border-b border-border/50">
+        En esta página
+      </h3>
+      <nav className="flex flex-col space-y-2 text-sm max-h-[60vh] overflow-y-auto pr-2">
+        {headings.map(({ id, text, level }) => {
+          if (level > 3) return null
+          return (
+            <a
+              key={id}
+              href={`#${id}`}
+              className={`
+                transition-colors hover:text-primary line-clamp-2
+                ${level === 3 ? 'ml-4 text-muted-foreground' : 'font-medium'}
+                ${activeId === id ? 'text-primary' : (level === 2 ? 'text-foreground/90' : '')}
+              `}
+            >
+              {text}
+            </a>
+          )
+        })}
+      </nav>
+    </div>
+  )
+
+  return createPortal(content, targetElement)
+}
