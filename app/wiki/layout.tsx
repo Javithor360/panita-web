@@ -14,17 +14,17 @@ export default async function WikiLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className="min-h-screen text-foreground pt-16 relative" style={{ '--primary': 'oklch(0.85 0.12 160)' } as React.CSSProperties}>
-      {/* Background Base (Súper Oscuro) */}
-      <div className="fixed inset-0 z-0 bg-[#020602] pointer-events-none" />
-      
-      {/* Verde Pastel Glows (Destellos sutiles para mantener la oscuridad) */}
+    <div className="min-h-screen text-foreground pt-16 relative" style={{ '--primary': '#5FE2C5' } as React.CSSProperties}>
+      {/* Main Top Glow (Faithful to tezzlar3 but brighter) */}
+      <div className="absolute left-1/2 top-0 -z-10 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-[#5FE2C5]/20 blur-[120px] opacity-100 pointer-events-none mix-blend-screen" />
+
+      {/* Floating Aqua Glows (Destellos para iluminar toda la página) */}
       <div className="fixed inset-0 z-0 pointer-events-none mix-blend-screen">
-        <div className="absolute top-[-10%] right-[-5%] w-[35vw] h-[35vw] rounded-full bg-[radial-gradient(circle,_rgba(167,243,208,0.06)_0%,_transparent_70%)]" />
-        <div className="absolute top-[10%] left-[35%] w-[40vw] h-[40vw] rounded-full bg-[radial-gradient(circle,_rgba(167,243,208,0.03)_0%,_transparent_70%)]" />
-        <div className="absolute top-[45%] left-[-10%] w-[45vw] h-[45vw] rounded-full bg-[radial-gradient(circle,_rgba(167,243,208,0.04)_0%,_transparent_70%)]" />
-        <div className="absolute bottom-[15%] left-[25%] w-[25vw] h-[25vw] rounded-full bg-[radial-gradient(circle,_rgba(167,243,208,0.04)_0%,_transparent_70%)]" />
-        <div className="absolute bottom-[-5%] right-[15%] w-[30vw] h-[30vw] rounded-full bg-[radial-gradient(circle,_rgba(167,243,208,0.05)_0%,_transparent_70%)]" />
+        <div className="absolute top-[-10%] right-[-5%] w-[45vw] h-[45vw] rounded-full bg-[radial-gradient(circle,_rgba(95,226,197,0.15)_0%,_transparent_70%)]" />
+        <div className="absolute top-[20%] left-[35%] w-[40vw] h-[40vw] rounded-full bg-[radial-gradient(circle,_rgba(95,226,197,0.12)_0%,_transparent_70%)]" />
+        <div className="absolute top-[55%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[radial-gradient(circle,_rgba(95,226,197,0.15)_0%,_transparent_70%)]" />
+        <div className="absolute bottom-[10%] left-[25%] w-[35vw] h-[35vw] rounded-full bg-[radial-gradient(circle,_rgba(95,226,197,0.12)_0%,_transparent_70%)]" />
+        <div className="absolute bottom-[-10%] right-[10%] w-[40vw] h-[40vw] rounded-full bg-[radial-gradient(circle,_rgba(95,226,197,0.15)_0%,_transparent_70%)]" />
       </div>
 
       {/* 100% Pure CSS Zig-Zag Chevron Bands */}
@@ -32,19 +32,16 @@ export default async function WikiLayout({ children }: { children: React.ReactNo
         className="fixed inset-0 z-0 opacity-100 pointer-events-none"
         style={{
           backgroundImage: `
-            linear-gradient(135deg, rgba(167,243,208,0.025) 25%, transparent 25%),
-            linear-gradient(225deg, rgba(167,243,208,0.025) 25%, transparent 25%),
-            linear-gradient(315deg, rgba(167,243,208,0.025) 25%, transparent 25%),
-            linear-gradient(45deg, rgba(167,243,208,0.025) 25%, transparent 25%)
+            linear-gradient(135deg, rgba(95,226,197,0.035) 25%, transparent 25%),
+            linear-gradient(225deg, rgba(95,226,197,0.035) 25%, transparent 25%),
+            linear-gradient(315deg, rgba(95,226,197,0.035) 25%, transparent 25%),
+            linear-gradient(45deg, rgba(95,226,197,0.035) 25%, transparent 25%)
           `,
           backgroundPosition: "-20px 0, -20px 0, 0 0, 0 0",
           backgroundSize: "40px 40px",
           backgroundAttachment: "fixed"
         }}
       />
-      
-      {/* Light vignette (No oscurece tanto el fondo) */}
-      <div className="fixed inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-[#071206]/80 pointer-events-none" />
 
       <div className="container mx-auto px-4 max-w-[1600px] flex flex-col lg:flex-row gap-8 lg:gap-12 relative z-10">
 
