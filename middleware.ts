@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { getSession } from './lib/auth';
 
 // Add protected routes here
-const protectedRoutes = ['/profile'];
+const protectedRoutes = ['/profile', '/admin'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
