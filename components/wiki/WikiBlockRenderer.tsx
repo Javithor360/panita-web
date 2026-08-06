@@ -45,7 +45,7 @@ export function WikiBlockRenderer({ content }: { content: unknown }) {
     if (block.type === 'paragraph') {
       const inline = isInlineContent(block.content) ? block.content : undefined
       elements.push(
-        <p key={block.id || i} className="mb-6 leading-relaxed text-lg" style={{ color: '#e5e7eb' }}>
+        <p key={block.id || i} className="mb-4 leading-relaxed text-[14px]" style={{ color: '#e5e7eb' }}>
           {renderInline(inline)}
         </p>
       )
@@ -56,9 +56,9 @@ export function WikiBlockRenderer({ content }: { content: unknown }) {
       const id = slugify(text)
       const validLevel = Math.min(Math.max(level, 1), 6) as 1|2|3|4|5|6
       const sizes: Record<1|2|3|4|5|6, string> = {
-        1: 'text-4xl font-bold tracking-tight mt-12 mb-6 border-b border-primary/30 pb-2 flow-root scroll-mt-24',
-        2: 'text-2xl font-semibold tracking-tight mt-10 mb-4 border-b border-primary/20 pb-2 flow-root scroll-mt-24',
-        3: 'text-xl font-semibold mt-8 mb-3 flow-root scroll-mt-24',
+        1: 'text-[28px] font-bold tracking-tight mt-10 mb-4 border-b border-primary/30 pb-2 flow-root scroll-mt-24',
+        2: 'text-[20px] font-bold tracking-tight mt-8 mb-3 border-b border-primary/20 pb-1 flow-root scroll-mt-24',
+        3: 'text-[16px] font-semibold mt-6 mb-2 scroll-mt-24',
         4: 'text-lg font-medium mt-6 mb-2 flow-root scroll-mt-24',
         5: 'text-base font-medium mt-4 mb-2 flow-root scroll-mt-24',
         6: 'text-sm font-medium mt-4 mb-2 flow-root scroll-mt-24'
@@ -228,17 +228,17 @@ export function WikiBlockRenderer({ content }: { content: unknown }) {
       }
 
       elements.push(
-        <div key={block.id || i} className="w-fit overflow-x-auto my-6 border border-border rounded-lg bg-background">
+        <div key={block.id || i} className="w-fit overflow-x-auto my-6 border border-border/40 rounded-xl bg-card shadow-lg">
           <div className="flex flex-col w-fit text-sm text-left">
-            <div className="flex bg-primary/10 border-b border-border">
-              <div className="px-4 py-2 font-semibold text-foreground border-r border-border min-w-[200px] w-1/3">Ingredientes</div>
-              <div className="px-4 py-2 font-semibold text-foreground min-w-[250px] flex-1">Receta de crafteo</div>
+            <div className="flex bg-primary/15 border-b border-primary/30">
+              <div className="px-4 py-2.5 font-bold text-foreground border-r border-primary/30 min-w-[200px] w-1/3 text-[16px] drop-shadow-sm">Ingredientes</div>
+              <div className="px-4 py-2.5 font-bold text-foreground min-w-[250px] flex-1 text-[16px] drop-shadow-sm">Receta de crafteo</div>
             </div>
             <div className="flex">
-              <div className="px-4 py-2 border-r border-border min-w-[200px] w-1/3 flex-shrink-0 flex items-center text-foreground whitespace-pre-wrap">
+              <div className="px-4 py-3 border-r border-border/40 min-w-[200px] w-1/3 flex-shrink-0 flex items-center text-foreground font-medium whitespace-pre-wrap bg-white/5">
                 {ingredientsText}
               </div>
-              <div className="px-4 py-2 flex-1 flex justify-start items-center bg-muted/10 min-w-[250px]">
+              <div className="px-4 py-4 flex-1 flex justify-start items-center bg-black/10 min-w-[250px]">
                   <div className="flex flex-col items-start bg-[#c6c6c6] p-1.5 rounded-md border-2 border-b-[#555] border-r-[#555] border-t-[#fff] border-l-[#fff] w-fit shadow-sm scale-90 origin-left">
                     <div className="flex items-center gap-4">
                       <div className="grid grid-cols-3 gap-[2px]">

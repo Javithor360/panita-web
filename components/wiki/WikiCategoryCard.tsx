@@ -9,7 +9,7 @@ export function WikiCategoryCard({ category }: { category: any }) {
 
   return (
     <Link href={`/wiki/${category.slug}`}>
-      <div className="group relative bg-card border border-border rounded-xl p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)] hover:-translate-y-1 h-full flex flex-col">
+      <div className="group relative bg-card border border-border rounded-xl p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(95,226,197,0.15)] hover:-translate-y-1 h-full flex flex-col">
         <div className="flex items-start justify-between mb-4">
           <div className="p-3 bg-primary/10 rounded-lg text-primary group-hover:scale-110 transition-transform">
             <Icon className="w-8 h-8" />

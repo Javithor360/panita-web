@@ -235,20 +235,20 @@ export function WikiInfoBox({
   );
 
   return (
-    <aside className="w-full bg-[#080c08] border border-border/40 rounded-xl overflow-hidden shadow-2xl relative">
+    <aside className="w-full bg-card border border-border/40 rounded-xl overflow-hidden shadow-2xl relative">
       <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      <div className="bg-[#0f170f] border-b border-border/40 p-4 text-center">
-        <h2 className="font-bold text-lg text-foreground tracking-tight drop-shadow-sm">
+      <div className="bg-primary/15 border-b border-primary/30 px-4 pt-2.5 pb-3 text-center shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]">
+        <h2 className="font-bold text-[16px] text-foreground tracking-tight drop-shadow-sm">
           {title}
         </h2>
       </div>
 
       {(coverUrl || isEditing) && (
-        <div className="relative w-full aspect-square border-b border-border bg-background/50 flex items-center justify-center group/cover cursor-pointer">
+        <div className="relative w-full border-b border-border bg-background/50 flex flex-col items-center justify-center pt-8 pb-2 group/cover cursor-pointer min-h-[220px]">
           {coverUrl ? (
             categorySlug === "items" ? (
-              <div className="relative w-full h-full flex flex-col items-center justify-center p-4">
-                <div className="relative w-2/3 h-2/3 mb-4 drop-shadow-xl">
+              <div className="relative w-full flex flex-col items-center justify-center">
+                <div className="relative w-[150px] h-[150px] mb-4 drop-shadow-xl">
                   <Image
                     src={coverUrl}
                     alt={title}
@@ -257,7 +257,7 @@ export function WikiInfoBox({
                     sizes="(max-width: 1024px) 100vw, 288px"
                   />
                 </div>
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#8b8b8b] border-2 border-[#373737] border-t-white border-l-white flex items-center justify-center p-1.5 group">
+                <div className="relative w-12 h-12 bg-[#8b8b8b] border-2 border-[#373737] border-t-white border-l-white flex items-center justify-center p-1.5 group">
                   <div className="relative w-full h-full hover:scale-110 transition-transform">
                     <Image
                       src={coverUrl}
@@ -276,13 +276,15 @@ export function WikiInfoBox({
                 </div>
               </div>
             ) : (
-              <Image
-                src={coverUrl}
-                alt={title}
-                fill
-                className="object-contain p-2 image-rendering-pixelated"
-                sizes="(max-width: 1024px) 100vw, 288px"
-              />
+              <div className="relative w-[150px] h-[150px] drop-shadow-xl">
+                <Image
+                  src={coverUrl}
+                  alt={title}
+                  fill
+                  className="object-contain image-rendering-pixelated"
+                  sizes="150px"
+                />
+              </div>
             )
           ) : (
             <div className="flex flex-col items-center justify-center text-muted-foreground opacity-50">
@@ -314,15 +316,15 @@ export function WikiInfoBox({
                     <div
                       className="w-full relative overflow-hidden px-4 py-2 flex items-center justify-center gap-2 group/edition cursor-default"
                       style={{
-                        backgroundColor: `${editionBadge.color || "var(--primary)"}15`,
-                        borderBottom: `2px solid ${editionBadge.color || "var(--primary)"}40`,
+                        backgroundColor: `${editionBadge.color || "#5FE2C5"}30`,
+                        borderBottom: `2px solid ${editionBadge.color || "#5FE2C5"}80`,
                       }}
                     >
                       {/* Subtly glow background effect */}
                       <div
-                        className="absolute inset-0 opacity-20 pointer-events-none transition-opacity group-hover/edition:opacity-40"
+                        className="absolute inset-0 opacity-40 pointer-events-none transition-opacity group-hover/edition:opacity-70"
                         style={{
-                          background: `radial-gradient(circle at center, ${editionBadge.color || "var(--primary)"} 0%, transparent 70%)`,
+                          background: `radial-gradient(circle at center, ${editionBadge.color || "#5FE2C5"} 0%, transparent 70%)`,
                         }}
                       />
 
@@ -354,7 +356,7 @@ export function WikiInfoBox({
               {data?.map((row, i) => (
                 <tr
                   key={row.id || i}
-                  className="border-b border-border/20 last:border-0 odd:bg-[#0a0e0a] even:bg-[#0b100b] hover:bg-[#0e150e] transition-colors group"
+                  className="border-b border-white/5 last:border-0 odd:bg-white/5 even:bg-transparent hover:bg-white/10 transition-colors group"
                 >
                   {isEditing ? (
                     <td colSpan={2} className="p-1 bg-[#0a0f0a]/50">
@@ -372,7 +374,7 @@ export function WikiInfoBox({
                                 newData[i].label = e.target.value;
                                 onDataChange(newData);
                               }}
-                              className="w-full px-2 py-1 text-xs font-semibold text-muted-foreground bg-background border border-border focus:border-primary rounded outline-none"
+                              className="w-full px-2 py-1 text-[12px] font-semibold text-muted-foreground bg-background border border-border focus:border-primary rounded outline-none"
                               autoFocus
                             />
                             <button
@@ -393,7 +395,7 @@ export function WikiInfoBox({
                           </div>
                         ) : (
                           <DropdownMenu>
-                            <DropdownMenuTrigger className="w-2/5 flex items-center justify-between px-2 py-1 text-xs font-semibold text-muted-foreground bg-transparent border border-transparent hover:border-border rounded outline-none text-left">
+                            <DropdownMenuTrigger className="w-2/5 flex items-center justify-between px-2 py-1 text-[12px] font-semibold text-muted-foreground bg-transparent border border-transparent hover:border-border rounded outline-none text-left">
                               <span className="truncate">
                                 {row.label || "Etiqueta..."}
                               </span>
@@ -437,7 +439,7 @@ export function WikiInfoBox({
                             newData[i].value = e.target.value;
                             onDataChange(newData);
                           }}
-                          className="flex-1 px-2 py-1 text-xs text-foreground bg-transparent border border-transparent hover:border-border focus:border-primary rounded outline-none resize-y min-h-[28px] leading-tight"
+                          className="flex-1 px-2 py-1 text-[12px] text-foreground bg-transparent border border-transparent hover:border-border focus:border-primary rounded outline-none resize-y min-h-[28px] leading-tight"
                           rows={1}
                         />
                         <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -486,10 +488,10 @@ export function WikiInfoBox({
                     </td>
                   ) : (
                     <>
-                      <td className="py-2.5 px-4 font-semibold text-muted-foreground w-2/5 align-middle tracking-wide">
+                      <td className="py-2.5 px-4 font-semibold text-[12px] text-muted-foreground w-2/5 align-middle tracking-wide">
                         {row.label}
                       </td>
-                      <td className={`py-3 px-4 text-foreground text-left align-middle break-words bg-transparent ${row.label === 'Efectos' ? 'text-xs' : ''}`}>
+                      <td className={`py-3 px-4 text-foreground text-left align-middle break-words bg-transparent ${row.label === 'Efectos' ? 'text-[10px]' : 'text-[12px]'}`}>
                         {renderValueWithShortcodes(row.value)}
                       </td>
                     </>

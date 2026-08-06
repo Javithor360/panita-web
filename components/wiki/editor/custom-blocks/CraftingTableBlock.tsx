@@ -130,8 +130,7 @@ export const CraftingTableBlock = createReactBlockSpec(
                      className="w-full bg-transparent border-b border-border focus:border-primary outline-none text-foreground resize-none"
                    />
               </div>
-              <div className="px-4 py-2 flex-1 flex justify-start items-center bg-muted/10 min-w-[250px]">
-                  {/* Crafting Grid */}
+              <div className="px-4 py-4 flex-1 flex justify-start items-center bg-black/10 min-w-[250px]">
                   <div className="flex flex-col items-start bg-[#c6c6c6] p-1.5 rounded-md border-2 border-b-[#555] border-r-[#555] border-t-[#fff] border-l-[#fff] w-fit shadow-sm scale-90 origin-left">
                     <div className="flex items-center gap-4">
                       {/* 3x3 Grid */}
@@ -143,7 +142,7 @@ export const CraftingTableBlock = createReactBlockSpec(
                           return (
                             <div 
                               key={i} 
-                              onClick={() => openPicker(i)}
+                              onClick={(e) => copiedAsset ? pasteSlot(e, i) : openPicker(i)}
                               className={`w-16 h-16 bg-[#8b8b8b] border-2 border-t-[#373737] border-l-[#373737] border-b-[#fff] border-r-[#fff] flex items-center justify-center cursor-pointer transition-colors relative group ${copiedAsset ? 'hover:bg-primary/20' : 'hover:bg-[#a0a0a0]'}`}
                             >
                               {url ? (

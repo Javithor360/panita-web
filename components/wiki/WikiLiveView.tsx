@@ -342,7 +342,7 @@ export function WikiLiveView({
       <div className="relative">
         {/* Main Content Area */}
         <article
-          className={`flex-grow min-w-0 bg-[#080c08] border border-border/50 rounded-xl p-6 lg:p-12 shadow-2xl transition-all ${isEditing ? "ring-2 ring-primary/20" : ""}`}
+          className={`flex-grow min-w-0 bg-card border border-border/50 rounded-xl p-6 lg:p-12 shadow-2xl transition-all ${isEditing ? "ring-2 ring-primary/20" : ""}`}
         >
           {/* InfoBox (Floats right on desktop, inline on mobile) */}
           {(isEditing || coverUrl || article?.edition) && (
@@ -370,11 +370,11 @@ export function WikiLiveView({
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Título del artículo..."
-                className="text-4xl md:text-5xl font-bold tracking-tight text-foreground bg-transparent outline-none w-full placeholder:text-foreground/30"
+                className="text-[28px] font-bold text-foreground bg-transparent outline-none w-full placeholder:text-foreground/30"
                 autoFocus={isNew}
               />
             ) : (
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+              <h1 className="text-[28px] font-bold text-foreground leading-tight">
                 {title || "Sin título"}
               </h1>
             )}

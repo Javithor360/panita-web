@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { ChevronDown } from 'lucide-react'
 
 export function WikiTOC({ headings }: { headings: { id: string; text: string; level: number }[] }) {
   const [activeId, setActiveId] = useState<string>('')
@@ -34,10 +35,11 @@ export function WikiTOC({ headings }: { headings: { id: string; text: string; le
   if (!targetElement) return null
 
   const content = (
-    <div className="bg-[#0a0f0a] border border-border/50 rounded-lg overflow-hidden">
-      <div className="p-4 border-b border-border/50 bg-[#0f170f]">
+    <details className="bg-card border border-border/50 rounded-lg overflow-hidden shadow-lg group" open>
+      <summary className="p-4 border-b border-border/50 bg-muted cursor-pointer hover:bg-muted/80 transition-colors flex justify-between items-center list-none [&::-webkit-details-marker]:hidden">
         <h3 className="font-bold text-foreground tracking-tight">Índice</h3>
-      </div>
+        <ChevronDown className="w-4 h-4 text-muted-foreground group-open:rotate-180 transition-transform" />
+      </summary>
       <nav className="flex flex-col p-4 pt-3 space-y-2 text-sm max-h-[60vh] overflow-y-auto pr-2">
         {headings.map(({ id, text, level }) => {
           if (level > 3) return null
@@ -56,7 +58,7 @@ export function WikiTOC({ headings }: { headings: { id: string; text: string; le
           )
         })}
       </nav>
-    </div>
+    </details>
   )
 
   return createPortal(content, targetElement)

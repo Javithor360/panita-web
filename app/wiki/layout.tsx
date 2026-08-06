@@ -1,20 +1,35 @@
-import Link from 'next/link'
-import { Search } from 'lucide-react'
-import * as Icons from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
-import { getWikiCategories } from '@/lib/wiki'
+import Link from "next/link";
+import { Search, ChevronDown } from "lucide-react";
+import * as Icons from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { getWikiCategories } from "@/lib/wiki";
 
-export default async function WikiLayout({ children }: { children: React.ReactNode }) {
+export default async function WikiLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   // Handle potential errors if DB is not ready
-  let categories: Awaited<ReturnType<typeof getWikiCategories>> = []
+  let categories: Awaited<ReturnType<typeof getWikiCategories>> = [];
   try {
-    categories = await getWikiCategories()
+    categories = await getWikiCategories();
   } catch {
     // silently fail — wiki still renders without sidebar categories
   }
 
   return (
-    <div className="min-h-screen text-foreground pt-16 relative" style={{ '--primary': '#5FE2C5' } as React.CSSProperties}>
+    <div
+      className="min-h-screen bg-background text-foreground pt-16 relative"
+      style={
+        {
+          "--primary": "#5FE2C5",
+          "--background": "#121820",
+          "--card": "#0a2b2b",
+          "--border": "#134e4e",
+          "--muted": "#0f3d3d",
+        } as React.CSSProperties
+      }
+    >
       {/* Main Top Glow (Faithful to tezzlar3 but brighter) */}
       <div className="absolute left-1/2 top-0 -z-10 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-[#5FE2C5]/20 blur-[120px] opacity-100 pointer-events-none mix-blend-screen" />
 
@@ -28,7 +43,7 @@ export default async function WikiLayout({ children }: { children: React.ReactNo
       </div>
 
       {/* 100% Pure CSS Zig-Zag Chevron Bands */}
-      <div 
+      <div
         className="fixed inset-0 z-0 opacity-100 pointer-events-none"
         style={{
           backgroundImage: `
@@ -39,37 +54,55 @@ export default async function WikiLayout({ children }: { children: React.ReactNo
           `,
           backgroundPosition: "-20px 0, -20px 0, 0 0, 0 0",
           backgroundSize: "40px 40px",
-          backgroundAttachment: "fixed"
+          backgroundAttachment: "fixed",
         }}
       />
 
       <div className="container mx-auto px-4 max-w-[1600px] flex flex-col lg:flex-row gap-8 lg:gap-12 relative z-10">
-
         {/* Sidebar */}
-        <aside className="w-full lg:w-64 flex-shrink-0">
-          <div className="sticky top-24 space-y-6">
+        <aside className="w-full lg:w-64 flex-shrink-0 mt-4 lg:mt-0">
+          <div className="sticky top-24 space-y-6 flex flex-col items-center lg:items-stretch">
+            {/* Logo and Search Container */}
+            <div className="bg-card border border-border/50 rounded-lg p-3 flex flex-col items-center gap-3 shadow-lg w-full">
+              {/* Wiki Logo (Size reduced by ~25%) */}
+              <Link href="/wiki" className="block w-32 lg:w-[65%] max-w-[140px] mx-auto hover:opacity-90 transition-opacity drop-shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]">
+                <img 
+                  src="/assets/wiki/wiki_logo.png" 
+                  alt="Panitacraft Wiki" 
+                  className="w-full h-auto object-contain"
+                />
+              </Link>
 
-            {/* Search */}
-            <form action="/wiki" method="GET" className="relative">
-              <input
-                type="text"
-                name="q"
-                placeholder="Buscar en la wiki..."
-                className="w-full bg-card border border-border rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors"
-              />
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-            </form>
+              {/* Search */}
+              <form action="/wiki" method="GET" className="relative w-full">
+                <input
+                  type="text"
+                  name="q"
+                  placeholder="Buscar en la wiki..."
+                  className="w-full bg-black/20 border border-border rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors"
+                />
+                <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+              </form>
+            </div>
+
+            {/* Portal Target for TOC */}
+            <div id="wiki-sidebar-toc" className="hidden lg:block w-full" />
 
             {/* Desktop Categories */}
-            <div className="bg-[#0a0f0a] border border-border/50 rounded-lg overflow-hidden hidden lg:block">
-              <div className="p-4 border-b border-border/50 bg-[#0f170f]">
-                <h3 className="font-bold text-foreground tracking-tight">Categorías</h3>
-              </div>
+            <details className="bg-card border border-border/50 rounded-lg overflow-hidden hidden lg:block shadow-lg w-full group" open>
+              <summary className="p-4 border-b border-border/50 bg-muted cursor-pointer hover:bg-muted/80 transition-colors flex justify-between items-center list-none [&::-webkit-details-marker]:hidden">
+                <h3 className="font-bold text-foreground tracking-tight">
+                  Descubre
+                </h3>
+                <ChevronDown className="w-4 h-4 text-muted-foreground group-open:rotate-180 transition-transform" />
+              </summary>
               <ul className="flex flex-col p-2 gap-1 max-h-[60vh] overflow-y-auto">
                 {categories.map((cat) => {
                   const Icon: LucideIcon = cat.icon
-                    ? ((Icons as unknown as Record<string, LucideIcon>)[cat.icon] ?? Icons.BookOpen)
-                    : Icons.BookOpen
+                    ? ((Icons as unknown as Record<string, LucideIcon>)[
+                        cat.icon
+                      ] ?? Icons.BookOpen)
+                    : Icons.BookOpen;
 
                   return (
                     <li key={cat.slug} className="flex-shrink-0">
@@ -81,43 +114,40 @@ export default async function WikiLayout({ children }: { children: React.ReactNo
                         <span>{cat.name}</span>
                       </Link>
                     </li>
-                  )
+                  );
                 })}
               </ul>
-            </div>
+            </details>
 
-            {/* Portal Target for TOC */}
-            <div id="wiki-sidebar-toc" className="hidden lg:block mt-6" />
+
 
             {/* Mobile Categories horizontal scroll */}
             <div className="lg:hidden w-full overflow-x-auto pb-2 flex gap-2">
               {categories.map((cat) => {
                 const Icon: LucideIcon = cat.icon
-                  ? ((Icons as unknown as Record<string, LucideIcon>)[cat.icon] ?? Icons.BookOpen)
-                  : Icons.BookOpen
+                  ? ((Icons as unknown as Record<string, LucideIcon>)[
+                      cat.icon
+                    ] ?? Icons.BookOpen)
+                  : Icons.BookOpen;
 
                 return (
                   <Link
                     key={cat.slug}
                     href={`/wiki/${cat.slug}`}
-                    className="flex items-center space-x-2 bg-[#0a0f0a] border border-border/50 p-2 px-3 rounded-full hover:border-border transition-colors text-sm text-foreground whitespace-nowrap shadow-sm"
+                    className="flex items-center space-x-2 bg-card border border-border/50 p-2 px-3 rounded-full hover:border-border transition-colors text-sm text-foreground whitespace-nowrap shadow-sm"
                   >
                     <Icon className="w-4 h-4 text-muted-foreground" />
                     <span>{cat.name}</span>
                   </Link>
-                )
+                );
               })}
             </div>
-
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-grow min-w-0 pb-12">
-          {children}
-        </main>
-
+        <main className="flex-grow min-w-0 pb-12">{children}</main>
       </div>
     </div>
-  )
+  );
 }
