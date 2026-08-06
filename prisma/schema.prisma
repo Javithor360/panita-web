@@ -216,6 +216,7 @@ model WikiArticle {
   content      Json // BlockNote JSON blocks
   excerpt      String? // short summary for listing cards
   cover_url    String? // main image URL (Cloudinary)
+  infobox_data Json? // array of { label: string, value: string }
   category_id  String
   edition_id   String? // null = global; set = edition-specific
   author_id    Int

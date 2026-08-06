@@ -55,9 +55,11 @@ export default async function WikiArticlePage({ params, searchParams }: { params
 
   // Prepare article for the client component
   const authorName = article.author?.ign || article.author?.discord_name || 'Desconocido'
+  const authorIgn = article.author?.ign || null
   const articleData = {
     ...article,
     authorName,
+    authorIgn,
     content: typeof article.content === 'string' ? JSON.parse(article.content) : article.content
   }
 

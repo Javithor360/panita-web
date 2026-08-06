@@ -52,10 +52,12 @@ interface WikiLiveViewProps {
     aliases: string[];
     is_published: boolean;
     content: unknown;
+    infobox_data: unknown;
     category: { name: string; slug: string };
-    edition: { name: string; theme_color: string | null } | null;
+    edition: { id: string; name: string; theme_color: string | null } | null;
     updated_at: Date;
     authorName: string;
+    authorIgn: string | null;
   };
   canEdit: boolean;
   isNew?: boolean;
@@ -87,6 +89,9 @@ export function WikiLiveView({
   const [aliases, setAliases] = useState<string[]>(article?.aliases ?? []);
   const [aliasInput, setAliasInput] = useState("");
   const [isPublished, setIsPublished] = useState(article?.is_published ?? true);
+  const [infoboxData, setInfoboxData] = useState<{ id?: string; label: string; value: string }[]>(
+    Array.isArray(article?.infobox_data) ? (article.infobox_data as any) : []
+  );
 
   const blocksRef = useRef<Block[]>((article?.content as Block[]) ?? []);
 
@@ -139,6 +144,7 @@ export function WikiLiveView({
     fd.set("edition_id", editionId);
     fd.set("aliases", JSON.stringify(aliases));
     fd.set("is_published", String(isPublished));
+    fd.set("infobox_data", JSON.stringify(infoboxData));
     fd.set("content", JSON.stringify(blocksRef.current));
 
     startTransition(async () => {
@@ -168,7 +174,11 @@ export function WikiLiveView({
 
   // Fake article object for previewing the InfoBox while editing
   const previewEdition = displayEdition
-    ? { name: displayEdition.name, theme_color: null }
+    ? { id: displayEdition.id, name: displayEdition.name, color: displayEdition.theme_color }
+    : null;
+    
+  const currentEdition = article?.edition 
+    ? { id: article.edition.id, name: article.edition.name, color: article.edition.theme_color }
     : null;
 
   return (
@@ -184,16 +194,13 @@ export function WikiLiveView({
               <WikiInfoBox
                 title={title || "Sin título"}
                 coverUrl={coverUrl}
-                editionBadge={isEditing ? previewEdition : article?.edition}
+                editionBadge={isEditing ? previewEdition : currentEdition}
+                data={infoboxData}
+                categorySlug={displayCategory?.slug}
+                isEditing={isEditing}
+                onDataChange={setInfoboxData}
+                onCoverClick={isEditing ? () => setShowAssetPicker(true) : undefined}
               />
-              {isEditing && (
-                <button
-                  onClick={() => setShowAssetPicker(true)}
-                  className="absolute inset-0 bg-black/60 opacity-0 group-hover/cover:opacity-100 flex items-center justify-center text-white font-medium transition-opacity rounded-xl backdrop-blur-sm"
-                >
-                  <Pencil className="w-5 h-5 mr-2" /> Cambiar Portada
-                </button>
-              )}
             </div>
           )}
 
@@ -403,7 +410,9 @@ export function WikiLiveView({
                       </div>
                     )}
                   </div>
-                  <div className="space-y-1 md:col-span-2 flex items-center justify-between p-4 border border-border rounded-md bg-background/30">
+
+
+                  <div className="space-y-1 md:col-span-2 flex items-center justify-between p-4 border border-border rounded-md bg-background/30 mt-4">
                     <div>
                       <span className="text-sm font-medium block text-foreground">
                         Estado del artículo
@@ -458,8 +467,12 @@ export function WikiLiveView({
                   year: "numeric",
                 })}
               </span>
-              <span>
+              <span className="flex items-center gap-1.5">
                 Por{" "}
+                {article.authorIgn && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`https://render.crafty.gg/2d/head/${article.authorIgn}`} alt="" className="w-5 h-5 rounded-sm pixelated" />
+                )}
                 <span className="text-foreground font-medium">
                   {article.authorName}
                 </span>

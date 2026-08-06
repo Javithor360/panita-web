@@ -44,6 +44,7 @@ export async function createWikiArticle(formData: FormData) {
   const excerpt = formData.get("excerpt") as string | null;
   const coverUrl = formData.get("cover_url") as string | null;
   const content = JSON.parse(String(formData.get("content")));
+  const infoboxData = formData.has("infobox_data") ? JSON.parse(String(formData.get("infobox_data"))) : null;
   const aliases = JSON.parse(String(formData.get("aliases") || "[]")) as string[];
   const isPublished = formData.get("is_published") === "true";
 
@@ -52,11 +53,12 @@ export async function createWikiArticle(formData: FormData) {
       slug,
       title,
       content,
-      category_id: categoryId,
-      edition_id: editionId || null,
+      category: { connect: { id: categoryId } },
+      edition: editionId ? { connect: { id: editionId } } : undefined,
       excerpt: excerpt || null,
       cover_url: coverUrl || null,
-      author_id: user.id,
+      infobox_data: infoboxData,
+      author: { connect: { id: user.id } },
       aliases,
       is_published: isPublished,
     },
@@ -77,6 +79,7 @@ export async function updateWikiArticle(id: string, formData: FormData) {
   const excerpt = formData.get("excerpt") as string | null;
   const coverUrl = formData.get("cover_url") as string | null;
   const content = JSON.parse(String(formData.get("content")));
+  const infoboxData = formData.has("infobox_data") ? JSON.parse(String(formData.get("infobox_data"))) : null;
   const aliases = JSON.parse(String(formData.get("aliases") || "[]")) as string[];
   const isPublished = formData.get("is_published") === "true";
 
@@ -86,10 +89,11 @@ export async function updateWikiArticle(id: string, formData: FormData) {
       slug,
       title,
       content,
-      category_id: categoryId,
-      edition_id: editionId || null,
+      category: { connect: { id: categoryId } },
+      edition: editionId ? { connect: { id: editionId } } : { disconnect: true },
       excerpt: excerpt || null,
       cover_url: coverUrl || null,
+      infobox_data: infoboxData,
       aliases,
       is_published: isPublished,
     },
