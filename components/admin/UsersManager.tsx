@@ -53,6 +53,72 @@ import type {
   UserEdition,
 } from "@/lib/generated/prisma/client";
 
+// Reusable Searchable Dropdown
+function SearchableDropdown({
+  items,
+  onSelect,
+  renderItem,
+  placeholder = "Buscar...",
+  className = "w-56",
+}: {
+  items: any[];
+  onSelect: (item: any) => void;
+  renderItem: (item: any) => React.ReactNode;
+  placeholder?: string;
+  className?: string;
+}) {
+  const [search, setSearch] = useState("");
+  const filtered = items.filter((i) =>
+    (i.name || "").toLowerCase().includes(search.toLowerCase()),
+  );
+
+  return (
+    <DropdownMenu
+      onOpenChange={(open) => {
+        if (!open) setSearch("");
+      }}
+    >
+      <DropdownMenuTrigger className="h-7 w-7 rounded-full border border-dashed border-border bg-secondary/10 hover:bg-secondary/30 transition-colors select-none cursor-pointer flex items-center justify-center text-muted-foreground hover:text-foreground">
+        <Plus className="w-4 h-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className={className}>
+        <div className="p-2 border-b border-border/50">
+          <div className="flex items-center gap-2 px-1">
+            <Search className="w-3.5 h-3.5 text-muted-foreground" />
+            <input
+              autoFocus
+              type="text"
+              placeholder={placeholder}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full bg-transparent border-none focus:outline-none text-sm placeholder:text-muted-foreground"
+            />
+          </div>
+        </div>
+        <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
+          {filtered.length === 0 ? (
+            <div className="py-2 px-2 text-xs text-muted-foreground text-center">
+              No hay resultados
+            </div>
+          ) : (
+            filtered.map((item) => (
+              <DropdownMenuItem
+                key={item.id}
+                onClick={() => onSelect(item)}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                {renderItem(item)}
+              </DropdownMenuItem>
+            ))
+          )}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 type UserWithRelations = PrismaUser & {
   roles: Role[];
   emblems: Emblem[];
@@ -381,7 +447,8 @@ export function UsersManager() {
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-md bg-secondary overflow-hidden flex-shrink-0 relative">
-                              <Image unoptimized
+                              <Image
+                                unoptimized
                                 src={
                                   u.ign
                                     ? `https://render.crafty.gg/2d/head/${u.ign}`
@@ -439,7 +506,8 @@ export function UsersManager() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 mt-2">
                   <div className="flex items-center gap-4 min-w-0 w-full sm:w-auto">
                     <div className="w-16 h-16 rounded-md bg-secondary overflow-hidden shadow-md relative flex-shrink-0">
-                      <Image unoptimized
+                      <Image
+                        unoptimized
                         src={
                           ign
                             ? `https://render.crafty.gg/2d/head/${ign}`
@@ -590,34 +658,106 @@ export function UsersManager() {
                         r.id !== "admin" &&
                         r.id !== "mod",
                     ).length > 0 && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="h-7 w-7 rounded-full border border-dashed border-border bg-secondary/10 hover:bg-secondary/30 transition-colors select-none cursor-pointer flex items-center justify-center text-muted-foreground hover:text-foreground">
-                          <Plus className="w-4 h-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-48">
-                          {allRoles
-                            .filter(
-                              (r) =>
-                                !roles.includes(r.id) &&
-                                r.id !== "admin" &&
-                                r.id !== "mod",
-                            )
-                            .map((r) => (
-                              <DropdownMenuItem
-                                key={r.id}
-                                onClick={() => setRoles([...roles, r.id])}
-                              >
-                                <div
-                                  className="w-2.5 h-2.5 rounded-full mr-2"
-                                  style={{
-                                    backgroundColor: extractSolidColor(r.color),
-                                  }}
+                      <SearchableDropdown
+                        items={allRoles.filter(
+                          (r) =>
+                            !roles.includes(r.id) &&
+                            r.id !== "admin" &&
+                            r.id !== "mod",
+                        )}
+                        onSelect={(r) => setRoles([...roles, r.id])}
+                        placeholder="Buscar rol..."
+                        className="w-48"
+                        renderItem={(r) => (
+                          <>
+                            <div
+                              className="w-2.5 h-2.5 rounded-full mr-2"
+                              style={{
+                                backgroundColor: extractSolidColor(r.color),
+                              }}
+                            />
+                            {r.name}
+                          </>
+                        )}
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-sm font-medium">Títulos</label>
+                  <div className="flex flex-wrap gap-2">
+                    {emblems
+                      .filter((emblemId) => {
+                        const e = allEmblems.find((x) => x.id === emblemId);
+                        return e && !e.icon_url;
+                      })
+                      .map((emblemId) => {
+                        const e = allEmblems.find((x) => x.id === emblemId);
+                        if (!e) return null;
+                        return (
+                          <button
+                            key={e.id}
+                            onClick={() =>
+                              setEmblems(emblems.filter((id) => id !== e.id))
+                            }
+                            className="px-2.5 py-1 text-xs rounded-full border transition-all select-none cursor-pointer flex items-center gap-1.5 group"
+                            style={{
+                              color: "var(--profile-glow)",
+                              borderColor:
+                                "color-mix(in srgb, var(--profile-glow) 30%, transparent)",
+                              backgroundColor:
+                                "color-mix(in srgb, var(--profile-glow) 15%, transparent)",
+                            }}
+                            title="Click para remover"
+                          >
+                            {e.edition_id ? (
+                              <div className="w-3.5 h-3.5 shrink-0">
+                                <EditionIcon
+                                  editionId={e.edition_id}
+                                  className="w-full h-full object-contain drop-shadow-md"
                                 />
-                                {r.name}
-                              </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              </div>
+                            ) : (
+                              <span className="w-3.5 h-3.5 text-amber-500 text-[10px] font-bold flex items-center justify-center">
+                                ✦
+                              </span>
+                            )}
+                            {e.name}
+                            <span className="text-[12px] ml-1 opacity-70 group-hover:opacity-100">
+                              &times;
+                            </span>
+                          </button>
+                        );
+                      })}
+
+                    {allEmblems.filter(
+                      (e) => !e.icon_url && !emblems.includes(e.id),
+                    ).length > 0 && (
+                      <SearchableDropdown
+                        items={allEmblems.filter(
+                          (e) => !e.icon_url && !emblems.includes(e.id),
+                        )}
+                        onSelect={(e) => setEmblems([...emblems, e.id])}
+                        placeholder="Buscar título..."
+                        renderItem={(e) => (
+                          <>
+                            {e.edition_id ? (
+                              <div className="w-4 h-4 shrink-0">
+                                <EditionIcon
+                                  editionId={e.edition_id}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            ) : (
+                              <span className="w-4 h-4 text-amber-500 text-xs font-bold flex items-center justify-center">
+                                ✦
+                              </span>
+                            )}
+                            {e.name}
+                          </>
+                        )}
+                      />
                     )}
                   </div>
                 </div>
@@ -625,79 +765,67 @@ export function UsersManager() {
                 <div className="flex flex-col gap-2 mt-2">
                   <label className="text-sm font-medium">Emblemas</label>
                   <div className="flex flex-wrap gap-2">
-                    {emblems.map((emblemId) => {
-                      const e = allEmblems.find((x) => x.id === emblemId);
-                      if (!e) return null;
-                      return (
-                        <button
-                          key={e.id}
-                          onClick={() =>
-                            setEmblems(emblems.filter((id) => id !== e.id))
-                          }
-                          className="px-2.5 py-1 text-xs rounded-full border transition-all select-none cursor-pointer flex items-center gap-1.5 group"
-                          style={{
-                            color: "var(--profile-glow)",
-                            borderColor:
-                              "color-mix(in srgb, var(--profile-glow) 30%, transparent)",
-                            backgroundColor:
-                              "color-mix(in srgb, var(--profile-glow) 15%, transparent)",
-                          }}
-                          title="Click para remover"
-                        >
-                          {e.icon_url ? (
+                    {emblems
+                      .filter((emblemId) => {
+                        const e = allEmblems.find((x) => x.id === emblemId);
+                        return e && e.icon_url;
+                      })
+                      .map((emblemId) => {
+                        const e = allEmblems.find((x) => x.id === emblemId);
+                        if (!e) return null;
+                        return (
+                          <button
+                            key={e.id}
+                            onClick={() =>
+                              setEmblems(emblems.filter((id) => id !== e.id))
+                            }
+                            className="px-2.5 py-1 text-xs rounded-full border transition-all select-none cursor-pointer flex items-center gap-1.5 group"
+                            style={{
+                              color: "var(--profile-glow)",
+                              borderColor:
+                                "color-mix(in srgb, var(--profile-glow) 30%, transparent)",
+                              backgroundColor:
+                                "color-mix(in srgb, var(--profile-glow) 15%, transparent)",
+                            }}
+                            title="Click para remover"
+                          >
                             <Image
-                              src={e.icon_url}
+                              src={e.icon_url!}
                               alt=""
                               width={14}
                               height={14}
                               className="w-3.5 h-3.5 object-contain"
                             />
-                          ) : (
-                            <span className="w-3.5 h-3.5 text-amber-500 text-[10px] font-bold flex items-center justify-center">
-                              ✦
+                            {e.name}
+                            <span className="text-[12px] ml-1 opacity-70 group-hover:opacity-100">
+                              &times;
                             </span>
-                          )}
-                          {e.name}
-                          <span className="text-[12px] ml-1 opacity-70 group-hover:opacity-100">
-                            &times;
-                          </span>
-                        </button>
-                      );
-                    })}
+                          </button>
+                        );
+                      })}
 
-                    {allEmblems.filter((e) => !emblems.includes(e.id)).length >
-                      0 && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="h-7 w-7 rounded-full border border-dashed border-border bg-secondary/10 hover:bg-secondary/30 transition-colors select-none cursor-pointer flex items-center justify-center text-muted-foreground hover:text-foreground">
-                          <Plus className="w-4 h-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-56">
-                          {allEmblems
-                            .filter((e) => !emblems.includes(e.id))
-                            .map((e) => (
-                              <DropdownMenuItem
-                                key={e.id}
-                                onClick={() => setEmblems([...emblems, e.id])}
-                                className="flex items-center gap-2"
-                              >
-                                {e.icon_url ? (
-                                  <Image
-                                    src={e.icon_url}
-                                    alt=""
-                                    width={16}
-                                    height={16}
-                                    className="w-4 h-4 object-contain"
-                                  />
-                                ) : (
-                                  <span className="w-4 h-4 text-amber-500 text-xs font-bold flex items-center justify-center">
-                                    ✦
-                                  </span>
-                                )}
-                                {e.name}
-                              </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    {allEmblems.filter(
+                      (e) => e.icon_url && !emblems.includes(e.id),
+                    ).length > 0 && (
+                      <SearchableDropdown
+                        items={allEmblems.filter(
+                          (e) => e.icon_url && !emblems.includes(e.id),
+                        )}
+                        onSelect={(e) => setEmblems([...emblems, e.id])}
+                        placeholder="Buscar emblema..."
+                        renderItem={(e) => (
+                          <>
+                            <Image
+                              src={e.icon_url!}
+                              alt=""
+                              width={16}
+                              height={16}
+                              className="w-4 h-4 object-contain"
+                            />
+                            {e.name}
+                          </>
+                        )}
+                      />
                     )}
                   </div>
                 </div>
@@ -761,32 +889,24 @@ export function UsersManager() {
 
                     {allEditions.filter((ed) => !editions.includes(ed.id))
                       .length > 0 && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="h-7 w-7 rounded-full border border-dashed border-border bg-secondary/10 hover:bg-secondary/30 transition-colors select-none cursor-pointer flex items-center justify-center text-muted-foreground hover:text-foreground">
-                          <Plus className="w-4 h-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-56">
-                          {allEditions
-                            .filter((ed) => !editions.includes(ed.id))
-                            .map((ed) => (
-                              <DropdownMenuItem
-                                key={ed.id}
-                                onClick={() =>
-                                  setEditions([...editions, ed.id])
-                                }
-                                className="flex items-center gap-2"
-                              >
-                                <div className="w-4 h-4 shrink-0">
-                                  <EditionIcon
-                                    editionId={ed.id}
-                                    className="w-full h-full object-contain"
-                                  />
-                                </div>
-                                {ed.name}
-                              </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <SearchableDropdown
+                        items={allEditions.filter(
+                          (ed) => !editions.includes(ed.id),
+                        )}
+                        onSelect={(ed) => setEditions([...editions, ed.id])}
+                        placeholder="Buscar edición..."
+                        renderItem={(ed) => (
+                          <>
+                            <div className="w-4 h-4 shrink-0">
+                              <EditionIcon
+                                editionId={ed.id}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                            {ed.name}
+                          </>
+                        )}
+                      />
                     )}
                   </div>
                 </div>

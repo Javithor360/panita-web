@@ -116,6 +116,10 @@ function SortableEmblemItem({
               height={24}
               className="w-6 h-6 object-contain"
             />
+          ) : emblem.edition_id ? (
+            <div className="w-5 h-5 shrink-0">
+              <EditionIcon editionId={emblem.edition_id} className="w-full h-full object-contain" />
+            </div>
           ) : (
             <Award className="w-5 h-5 text-amber-500" />
           )}
