@@ -28,6 +28,14 @@ export async function generateMetadata(
       if (ogImageUrl.includes('res.cloudinary.com') && ogImageUrl.includes('/upload/')) {
         ogImageUrl = ogImageUrl.replace('/upload/', '/upload/c_limit,w_800,h_800,q_auto,f_jpg/');
       }
+      // Ensure the thumbnail always has an image extension, particularly for Cloudinary videos
+      ogImageUrl = ogImageUrl.replace(/\.mp4$/, '.jpg');
+      
+      // maxresdefault.jpg sometimes returns a 404 if the YouTube video doesn't have a high-res thumbnail.
+      // This causes Discord embeds to fail silently. hqdefault.jpg is guaranteed to exist.
+      if (ogImageUrl.includes('maxresdefault.jpg')) {
+        ogImageUrl = ogImageUrl.replace('maxresdefault.jpg', 'hqdefault.jpg');
+      }
       
       return {
         title,
@@ -44,14 +52,23 @@ export async function generateMetadata(
               type: 'image/jpeg',
             },
           ],
-          videos: photo.media_type === 'video' && photo.youtube_id ? [
-            {
-              url: `https://www.youtube.com/embed/${photo.youtube_id}`,
-              width: 1280,
-              height: 720,
-              type: 'text/html',
-            }
-          ] : undefined,
+          videos: photo.media_type === 'video' ? (
+            photo.youtube_id ? [
+              {
+                url: `https://www.youtube.com/embed/${photo.youtube_id}`,
+                width: 1280,
+                height: 720,
+                type: 'text/html',
+              }
+            ] : [
+              {
+                url: photo.imageUrl,
+                width: 1280,
+                height: 720,
+                type: 'video/mp4',
+              }
+            ]
+          ) : undefined,
           locale: 'es_ES',
           type: photo.media_type === 'video' ? 'video.other' : 'website',
         },
