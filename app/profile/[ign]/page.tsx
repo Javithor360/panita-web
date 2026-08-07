@@ -49,7 +49,7 @@ export async function generateMetadata(props: {
       title: `Perfil de ${realIgn}`,
       description: `Miembro desde ${joinedDate}`,
       siteName: "Panitacraft",
-      url: `https://panita.vercel.app/profile/${realIgn}`,
+      url: `/profile/${realIgn}`,
       images: [
         {
           url: avatarUrl,

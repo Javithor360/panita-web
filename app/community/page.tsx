@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     title: "Agradecimientos Especiales a la Comunidad",
     description: "Visita la lista de usuarios destacados del servidor y conoce sus aportes económicos. Además de conocer a los miembros del Staff y descubrir quien es el Panita del Mes",
     siteName: "Panitacraft",
-    url: "https://panita.vercel.app/community",
+    url: "/community",
   },
   twitter: {
     card: "summary_large_image",

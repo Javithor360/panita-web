@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     title: "Perfil de Jugador",
     description: "Accede a tu perfil personal y administra tu cuenta",
     siteName: "Panitacraft",
-    url: "https://panita.vercel.app/profile",
+    url: "/profile",
     images: [
       {
         url: "https://render.crafty.gg/2d/head/Steve",

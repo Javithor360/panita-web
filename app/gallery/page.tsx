@@ -43,7 +43,7 @@ export async function generateMetadata(
         openGraph: {
           title: photo.title,
           description,
-          url: `https://panita.vercel.app/gallery?photo=${photoId}`,
+          url: `/gallery?photo=${photoId}`,
           siteName: 'Panitacraft',
           images: [
             {
@@ -105,7 +105,7 @@ export async function generateMetadata(
       title: 'Galería de Recuerdos',
       description: 'Descubre cientos de fotografías y videos históricos a través del tiempo y diferentes ediciones del servidor.',
       siteName: 'Panitacraft',
-      url: 'https://panita.vercel.app/gallery',
+      url: '/gallery',
     },
     twitter: {
       card: 'summary_large_image',

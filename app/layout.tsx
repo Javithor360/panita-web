@@ -15,15 +15,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://panitacraft.com"),
   title: "Panitacraft",
   description: "Sitio web oficial del servidor de Panitacraft",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: "/assets/logo_white.svg",
   },
   openGraph: {
     title: "Panitacraft",
     description: "Sitio web oficial del servidor de Panitacraft",
-    url: "https://panita.vercel.app",
+    url: "/",
     siteName: "Panitacraft",
     images: [
       {
