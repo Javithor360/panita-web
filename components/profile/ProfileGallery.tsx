@@ -11,6 +11,7 @@ import { EditionIcon } from "@/components/ui/EditionIcon";
 
 interface ProfileGalleryProps {
   photos: Photo[];
+  mediaStats?: { images: number; videos: number };
   canUpload: boolean;
   editions: Array<{ id: string; name: string }>;
   userId: number;
@@ -125,6 +126,7 @@ function ProfileGalleryItem({
 
 export function ProfileGallery({
   photos,
+  mediaStats,
   canUpload,
   editions,
   userId,
@@ -187,36 +189,45 @@ export function ProfileGallery({
 
   return (
     <div className="mt-12 w-full">
-      <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 w-full">
-        <div
-          className="h-[1px] w-full min-w-[20px]"
-          style={{
-            background: `linear-gradient(to right, transparent, var(--profile-glow))`,
-            opacity: 0.5,
-          }}
-        />
-        <h2 className="text-lg tracking-tight sm:text-xl md:text-2xl font-bold text-foreground uppercase sm:tracking-wide shrink-0 max-w-[60%] sm:max-w-[70%] break-words text-center flex justify-center">
-          <span
-            className="select-none mr-3"
-            style={{ color: "var(--profile-glow)", opacity: 0.8 }}
-          >
-            ✦
-          </span>
-          Publicaciones
-          <span
-            className="select-none ml-3"
-            style={{ color: "var(--profile-glow)", opacity: 0.8 }}
-          >
-            ✦
-          </span>
-        </h2>
-        <div
-          className="h-[1px] w-full min-w-[20px]"
-          style={{
-            background: `linear-gradient(to left, transparent, var(--profile-glow))`,
-            opacity: 0.5,
-          }}
-        />
+      <div className="flex flex-col items-center mb-8 w-full">
+        <div className="flex items-center justify-center gap-2 sm:gap-4 w-full">
+          <div
+            className="h-[1px] w-full min-w-[20px]"
+            style={{
+              background: `linear-gradient(to right, transparent, var(--profile-glow))`,
+              opacity: 0.5,
+            }}
+          />
+          <h2 className="text-lg tracking-tight sm:text-xl md:text-2xl font-bold text-foreground uppercase sm:tracking-wide shrink-0 max-w-[60%] sm:max-w-[70%] break-words text-center flex justify-center">
+            <span
+              className="select-none mr-3"
+              style={{ color: "var(--profile-glow)", opacity: 0.8 }}
+            >
+              ✦
+            </span>
+            Publicaciones
+            <span
+              className="select-none ml-3"
+              style={{ color: "var(--profile-glow)", opacity: 0.8 }}
+            >
+              ✦
+            </span>
+          </h2>
+          <div
+            className="h-[1px] w-full min-w-[20px]"
+            style={{
+              background: `linear-gradient(to left, transparent, var(--profile-glow))`,
+              opacity: 0.5,
+            }}
+          />
+        </div>
+
+        {mediaStats && (
+          <p className="text-muted-foreground text-sm sm:text-base mt-2 font-medium">
+            {mediaStats.images + mediaStats.videos} elementos (
+            {mediaStats.images} imágenes, {mediaStats.videos} videos)
+          </p>
+        )}
       </div>
 
       <div className="relative w-full max-w-5xl mx-auto">

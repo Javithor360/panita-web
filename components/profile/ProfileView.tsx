@@ -46,6 +46,7 @@ interface ProfileViewProps {
   visualEmblems: UserProfilePayload["emblems"];
   titles: UserProfilePayload["emblems"];
   photos: Photo[];
+  mediaStats?: { images: number; videos: number };
   editions: Edition[];
   forms?: FormWithResponses[];
   canEditGallery: boolean;
@@ -63,6 +64,7 @@ export function ProfileView({
   visualEmblems,
   titles,
   photos,
+  mediaStats,
   editions,
   forms = [],
   canEditGallery,
@@ -286,6 +288,7 @@ export function ProfileView({
 
             <ProfileGallery
               photos={photos}
+              mediaStats={mediaStats}
               canUpload={canUploadPhotos}
               editions={editions}
               userId={user.id}

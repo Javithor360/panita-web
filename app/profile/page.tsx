@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { ProfileView } from "@/components/profile/ProfileView";
-import { getUserPhotos } from "@/app/actions/gallery";
+import { getUserPhotos, getUserMediaStats } from "@/app/actions/gallery";
 import { getPersonalProfileData, getDefaultRole, getGlobalEditions, getUserForms } from "@/app/actions/profile";
 
 export default async function ProfilePage() {
@@ -16,10 +16,11 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  const [photos, editions, forms] = await Promise.all([
+  const [photos, editions, forms, mediaStats] = await Promise.all([
     getUserPhotos(user.id),
     getGlobalEditions(),
     getUserForms(user.id),
+    getUserMediaStats(user.id),
   ]);
 
   const ign = user.ign || user.discord_name;
@@ -68,6 +69,7 @@ export default async function ProfilePage() {
       photos={photos}
       editions={editions}
       forms={forms}
+      mediaStats={mediaStats}
       canEditGallery={!!user.trusted_author && canAdmin}
       canUploadPhotos={!!user.trusted_author}
       showAdminPanel={canAdmin}

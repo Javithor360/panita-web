@@ -311,6 +311,32 @@ export async function getUserPhotos(userId: number, skip: number = 0, take: numb
   }
 }
 
+export async function getUserMediaStats(userId: number) {
+  try {
+    const stats = await prisma.photo.groupBy({
+      by: ['media_type'],
+      where: {
+        user_id: userId,
+        enabled: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const result = { images: 0, videos: 0 };
+    stats.forEach(stat => {
+      if (stat.media_type === 'image') result.images = stat._count._all;
+      if (stat.media_type === 'video') result.videos = stat._count._all;
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching media stats:", error);
+    return { images: 0, videos: 0 };
+  }
+}
+
 import { v2 as cloudinary } from 'cloudinary';
 
 // Ensure cloudinary is configured

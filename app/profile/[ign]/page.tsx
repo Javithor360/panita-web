@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { ProfileView } from "@/components/profile/ProfileView";
-import { getUserPhotos } from "@/app/actions/gallery";
+import { getUserPhotos, getUserMediaStats } from "@/app/actions/gallery";
 import {
   getPublicProfileData,
   getDefaultRole,
@@ -49,9 +49,10 @@ export default async function PublicProfilePage(props: {
     notFound();
   }
 
-  const [photos, editions] = await Promise.all([
+  const [photos, editions, mediaStats] = await Promise.all([
     getUserPhotos(user.id),
     getGlobalEditions(),
+    getUserMediaStats(user.id),
   ]);
 
   const ign = user.ign || user.discord_name;
@@ -99,6 +100,7 @@ export default async function PublicProfilePage(props: {
       titles={titles}
       photos={photos}
       editions={editions}
+      mediaStats={mediaStats}
       canEditGallery={canEdit}
       canUploadPhotos={false}
       showAdminPanel={false}
