@@ -15,9 +15,57 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   const ign = decodeURIComponent(params.ign);
+  
+  const user = await prisma.user.findFirst({
+    where: {
+      ign: {
+        equals: ign,
+        mode: "insensitive",
+      },
+    }
+  });
+
+  if (!user) {
+    return {
+      title: `Perfil de ${ign} - Panitacraft`,
+      description: `Descubre los roles, emblemas y trayectoria de ${ign} en Panitacraft.`,
+    };
+  }
+
+  const formattedDate = new Intl.DateTimeFormat("es-ES", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(user.joined_at));
+  const joinedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+
+  const realIgn = user.ign || user.discord_name;
+  const avatarUrl = `https://render.crafty.gg/2d/head/${realIgn}`;
+
   return {
-    title: `Perfil de ${ign} - Panitacraft`,
-    description: `Descubre los roles, emblemas y trayectoria de ${ign} en Panitacraft.`,
+    title: `Perfil de ${realIgn} - Panitacraft`,
+    description: `Miembro desde ${joinedDate}`,
+    authors: [{ name: realIgn }],
+    openGraph: {
+      title: `Perfil de ${realIgn}`,
+      description: `Miembro desde ${joinedDate}`,
+      siteName: "Panitacraft",
+      url: `https://panita.vercel.app/profile/${realIgn}`,
+      images: [
+        {
+          url: avatarUrl,
+          width: 256,
+          height: 256,
+          alt: `Avatar de ${realIgn}`,
+        }
+      ],
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title: `Perfil de ${realIgn}`,
+      description: `Miembro desde ${joinedDate}`,
+      images: [avatarUrl],
+    }
   };
 }
 

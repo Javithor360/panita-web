@@ -3,6 +3,33 @@ import { redirect } from "next/navigation";
 import { ProfileView } from "@/components/profile/ProfileView";
 import { getUserPhotos, getUserMediaStats } from "@/app/actions/gallery";
 import { getPersonalProfileData, getDefaultRole, getGlobalEditions, getUserForms } from "@/app/actions/profile";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Perfil de Jugador - Panitacraft",
+  description: "Accede a tu perfil personal y administra tu cuenta",
+  openGraph: {
+    title: "Perfil de Jugador",
+    description: "Accede a tu perfil personal y administra tu cuenta",
+    siteName: "Panitacraft",
+    url: "https://panita.vercel.app/profile",
+    images: [
+      {
+        url: "https://render.crafty.gg/2d/head/Steve",
+        width: 256,
+        height: 256,
+        alt: "Avatar de Jugador",
+      }
+    ],
+    type: "profile",
+  },
+  twitter: {
+    card: "summary",
+    title: "Perfil de Jugador",
+    description: "Accede a tu perfil personal y administra tu cuenta",
+    images: ["https://render.crafty.gg/2d/head/Steve"],
+  }
+};
 
 export default async function ProfilePage() {
   const session = await getSession();

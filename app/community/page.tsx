@@ -15,9 +15,22 @@ import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 import { ScrollReveal } from "@/components/ui/ScrollReveal"
 
-export const metadata = {
-  title: "Agradecimientos | Panitacraft",
-  description: "Agradecimientos especiales a todos los que hicieron esto posible",
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Agradecimientos Especiales a la Comunidad - Panitacraft",
+  description: "Visita la lista de usuarios destacados del servidor y conoce sus aportes económicos. Además de conocer a los miembros del Staff y descubrir quien es el Panita del Mes",
+  openGraph: {
+    title: "Agradecimientos Especiales a la Comunidad",
+    description: "Visita la lista de usuarios destacados del servidor y conoce sus aportes económicos. Además de conocer a los miembros del Staff y descubrir quien es el Panita del Mes",
+    siteName: "Panitacraft",
+    url: "https://panita.vercel.app/community",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Agradecimientos Especiales a la Comunidad",
+    description: "Visita la lista de usuarios destacados del servidor y conoce sus aportes económicos. Además de conocer a los miembros del Staff y descubrir quien es el Panita del Mes",
+  }
 }
 
 // ! -------------------------------------------------------------

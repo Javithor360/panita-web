@@ -99,8 +99,19 @@ export async function generateMetadata(
   }
 
   return {
-    title: 'Galería | Panitacraft',
-    description: 'Galería y museo digital de las ediciones de Panitacraft',
+    title: 'Galería de Recuerdos - Panitacraft',
+    description: 'Descubre cientos de fotografías y videos históricos a través del tiempo y diferentes ediciones del servidor.',
+    openGraph: {
+      title: 'Galería de Recuerdos',
+      description: 'Descubre cientos de fotografías y videos históricos a través del tiempo y diferentes ediciones del servidor.',
+      siteName: 'Panitacraft',
+      url: 'https://panita.vercel.app/gallery',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Galería de Recuerdos',
+      description: 'Descubre cientos de fotografías y videos históricos a través del tiempo y diferentes ediciones del servidor.',
+    },
     other: {
       'theme-color': '#5c7cfa',
     }
